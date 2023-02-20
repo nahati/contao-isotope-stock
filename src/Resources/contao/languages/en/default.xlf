@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.1">
+    <file>
+        <body>
+            <trans-unit id="MSC.productOutOfStock">
+                <target>The product "%s" is currently out of stock</target>
+            </trans-unit>
+            <trans-unit id="ERR.quantityNotAvailable">
+                <target>The maximum available quantity for "%s" is %s items</target>
+            </trans-unit>
+            <trans-unit id="MSC.checkProduct">
+                <target>The product "%s" has been marked "purchased" though quantity greater zero.
+                    Please check!</target>
+            </trans-unit>
+            <trans-unit id="MSC.0">
+                <target>unsellable</target>
+            </trans-unit>
+            <trans-unit id="MSC.1">
+                <target>available</target>
+            </trans-unit>
+            <trans-unit id="MSC.2">
+                <target>reserviert</target>
+            </trans-unit>
+            <trans-unit id="MSC.3">
+                <target>sold out</target>
+            </trans-unit>
+            <trans-unit id="MSC.4">
+                <target>purchased</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

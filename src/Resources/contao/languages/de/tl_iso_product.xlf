@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.1">
+    <file>
+        <body>
+            <trans-unit id="tl_iso_product.count.0">
+                <target>Gesamtzahl Exemplare</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.count.1">
+                <target>Geben Sie hier die Gesamtzahl der Exemplare für dieses Produkt ein</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.quantity.0">
+                <target>Verfügbare Anzahl an Exemplaren</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.quantity.1">
+                <target>Geben Sie hier die noch verfügbare Anzahl der Exemplare für dieses Produkt
+                    ein</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.inventory_status.0">
+                <target>Verfügbarkeit?</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.inventory_status.1">
+                <target>Ist das Produkt unverkäuflich, verfügbar, reserviert oder (aus)verkauft?</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

@@ -1,0 +1,64 @@
+<!--- Additionally show inventory_status  -->
+<!--- Show submit-buttons (cart, ...) iff inventory_status == '1' (product is available) -->
+<!--- Show quantity-field only if count > 1 (product has more than 1 items in total) -->
+<!--- Added block, to enable inheritance -->
+
+<?php $this->block('content'); ?>
+
+<?php $this->block('form_part1'); ?>
+<form id="<?= $this->formId ?>" name="iso<?= rand() ?>" method="post" enctype="<?= $this->enctype ?>">
+  <div class="formbody" itemscope itemtype="http://schema.org/Product">
+    <input type="hidden" name="FORM_SUBMIT" value="<?= $this->formSubmit ?>">
+    <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+    <input type="hidden" name="AJAX_PRODUCT" value="<?= $this->product_id ?>">
+    <input type="hidden" name="AJAX_MODULE" value="<?= $this->module_id ?>">
+
+    <h2 itemprop="name"><?= $this->generateAttribute('name') ?></h2>
+
+    <?= $this->getGallery('images')->generateMainImage() ?>
+    <?php if ($this->hasOptions) : ?>
+      <div class="options">
+        <?php foreach ($this->options as $arrOption) : echo $arrOption['html'];
+        endforeach; ?>
+      </div>
+    <?php endif; ?>
+
+    <?= $this->getGallery('images')->generateGallery() ?>
+
+    <div class="inventory_status" itemprop="inventory_status"><?= $this->generateAttribute('inventory_status'); ?></div>
+    <?php $this->endblock(); ?>
+
+    <?php $this->block('form_part2'); ?>
+    <?php if ($this->sku) : ?>
+      <div class="sku" itemprop="sku"><?= $this->generateAttribute('sku') ?></div><?php endif;
+                                                                                if ($this->description) : ?>
+      <div class="description" itemprop="description"><?= $this->generateAttribute('description') ?></div><?php endif; ?>
+    <?php /* @var \Isotope\Interfaces\IsotopePrice $price */ if ($price = $this->product->getPrice()) : ?>
+      <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+        <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
+        <div class="price" itemprop="price" content="<?= \Isotope\Isotope::roundPrice($price->getAmount(1, $this->product->getOptions())) ?>"><?= $this->generatePrice() ?></div><?php if ($this->baseprice) : ?>
+          <div class="baseprice"><?= $this->generateAttribute('baseprice') ?></div><?php endif; ?>
+      </div>
+    <?php endif; ?>
+    <?php if ($this->actions) : ?>
+      <div class="submit_container">
+        <?php $this->dumpTemplateVars() ?>
+
+        <?php if ($this->count > 1) : ?>
+          <?php if ($this->useQuantity) : ?>
+            <div class="quantity_container">
+              <label for="quantity_requested_<?= $this->raw['id'] ?>"><?= $GLOBALS['TL_LANG']['MSC']['quantity'] ?>:</label> <input type="text" class="text" id="quantity_requested_<?= $this->raw['id'] ?>" name="quantity_requested" placeholder="<?= $this->minimum_quantity ?>" value="<?= \Contao\StringUtil::specialchars(Input::post('quantity_requested')); ?>" maxlength="10">
+            </div>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <?php if ($this->inventory_status == '1') : ?>
+          <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+  </div>
+</form>
+<?php $this->endblock(); ?>
+
+<?php $this->endblock(); ?>

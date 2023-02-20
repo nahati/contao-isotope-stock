@@ -1,0 +1,76 @@
+{
+    "name": "nahati/contao-isotope-stock",
+    "description": "A simple stock management for Contao / Isotope",
+    "license": "LGPL-3.0-or-later",
+    "type": "contao-bundle",
+    "authors": [
+        {
+            "name": "Ernst Jendritzki",
+            "email": "ernst.jendritzki@nachhaltig-im-web.de",
+            "homepage": "https://www.nachhaltig-im-web.de"
+        },
+        {
+            "name": "Benny Born and Michael Bösherz, numero2",
+            "role": "authors of numero2/contao-isotope-simple-erp v1.0.4, which was taken as basis for this extension"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/nahati/contao-isotope-stock/issues",
+        "source": "https://github.com/nahati/contao-isotope-stock"
+    },
+    "require": {
+        "PHP": "^8.0",
+        "contao/core-bundle": "^4.13.15",
+        "isotope/isotope-core": "^2.8.9",
+        "symfony/config": "^5.4",
+        "symfony/dependency-injection": "^5.4",
+        "symfony/http-kernel": "^5.4"
+    },
+    "require-dev": {
+        "bamarni/composer-bin-plugin": "^1.5",
+        "contao/manager-plugin": "^2.0",
+        "phpunit/phpunit": "^9.5",
+        "symfony/phpunit-bridge": "^6.1",
+        "contao/phpstan": "@dev"
+    },
+    "conflict": {
+        "contao/manager-plugin": "<2.0 || >=3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "nahati\\ContaoIsotopeStockBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "nahati\\ContaoIsotopeStockBundle\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true,
+            "contao-components/installer": true,
+            "contao/manager-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "contao-community-alliance/composer-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "extra": {
+        "bamarni-bin": {
+            "bin-links": false,
+            "target-directory": "tools"
+        },
+        "contao-manager-plugin": "nahati\\ContaoIsotopeStockBundle\\ContaoManager\\Plugin"
+    },
+    "scripts": {
+        "all": [
+            "@unit-tests",
+            "@ecs",
+            "@phpstan"
+        ],
+        "ecs": "@php tools/ecs/vendor/bin/ecs check src tests --config ecs.php --fix --ansi",
+        "phpstan": "@php tools/phpstan/vendor/bin/phpstan analyze --ansi",
+        "unit-tests": "@php vendor/bin/phpunit --colors=always"
+    }
+}

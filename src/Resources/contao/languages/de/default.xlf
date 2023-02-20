@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.1">
+    <file>
+        <body>
+            <trans-unit id="MSC.productOutOfStock">
+                <target>Das Produkt "%s" ist aktuell nicht verfügbar</target>
+            </trans-unit>
+            <trans-unit id="ERR.quantityNotAvailable">
+                <target>Die maximal verfügbare Bestellmenge für "%s" ist %s Stück</target>
+            </trans-unit>
+            <trans-unit id="MSC.checkProduct">
+                <target>Das Product "%s" ist reserviert und deshalb nicht verfügbar Bitte
+                    überprüfen Sie!</target>
+            </trans-unit>
+            <trans-unit id="MSC.0">
+                <target>unverkäuflich</target>
+            </trans-unit>
+            <trans-unit id="MSC.1">
+                <target>verfügbar</target>
+            </trans-unit>
+            <trans-unit id="MSC.2">
+                <target>reserviert</target>
+            </trans-unit>
+            <trans-unit id="MSC.3">
+                <target>ausverkauft</target>
+            </trans-unit>
+            <trans-unit id="MSC.4">
+                <target>verkauft</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
