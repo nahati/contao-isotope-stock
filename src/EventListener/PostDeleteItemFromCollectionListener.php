@@ -31,9 +31,11 @@ class PostDeleteItemFromCollectionListener
      */
     private $inventory_status;
     private string $AVAILABLE = '1'; /* product available for selling */
+    private string $SOLDOUT = '3'; /* product bought, no remaining quantity, count > 1 */
+    private string $PURCHASED = '4'; /* product bought, no remaining quantity, count = 1 */
 
     /**
-     * Resets inventory_status back to "available" if quantity in cart is less than given in product-quantity (available quantity).
+     * Sets inventory_status 
      *
      * @param ProductCollectionItem $objItem
      * @param Cart                  $objCart
@@ -43,12 +45,15 @@ class PostDeleteItemFromCollectionListener
         $objProduct = null;
         $objProduct = $objItem->getProduct();
 
-        if ($objProduct->quantity > 0) { // @phpstan-ignore-line as still working by some magic
-            if ($objItem->quantity >= $objProduct->quantity) {
-                $this->inventory_status = $this->AVAILABLE;
-
-                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+        if ($objProduct->quantity > 0) {
+            $this->inventory_status = $this->AVAILABLE;
+        } else {  // No quantity available at all.  
+            if ('1' === $objProduct->count) {
+                $this->inventory_status = $this->PURCHASED;
+            } else { // $objProduct->count > 1
+                $this->inventory_status = $this->SOLDOUT;
             }
         }
+        Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
     }
 }

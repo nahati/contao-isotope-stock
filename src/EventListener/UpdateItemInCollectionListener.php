@@ -32,9 +32,11 @@ class UpdateItemInCollectionListener
      */
     private $inventory_status;
     private string $AVAILABLE = '1'; /* product available for selling */
+    private string $RESERVED  = '2'; /* product in cart, no reamining quantity */
 
     /**
      * Prevents setting the quantity in cart higher than given in product-quantity.
+     * Also sets inventory_status.
      *
      * @param ProductCollectionItem $objItem
      * @param array<mixed>          $arrSet
@@ -48,22 +50,40 @@ class UpdateItemInCollectionListener
         $objProduct = $objItem->getProduct();
 
         if ($objProduct->quantity > 0) { // @phpstan-ignore-line as still working by some magic
-            // Prevents setting the quantity in cart higher than given in product-quantity (available quantity).
-            if (\array_key_exists('quantity', $arrSet) && $arrSet['quantity'] && $arrSet['quantity'] > $objProduct->quantity) {
-                $arrSet['quantity'] = $objProduct->quantity;
 
-                Message::addError(sprintf(
-                    $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
-                    $objProduct->getName(),
-                    $objProduct->quantity
-                ));
-            }
-            // Resets inventory_status back to "available" if quantity in cart is less than given in product-quantity (available quantity).
-            elseif (\array_key_exists('quantity', $arrSet) && $arrSet['quantity'] && $arrSet['quantity'] < $objProduct->quantity) {
-                $this->inventory_status = $this->AVAILABLE;
+            if (\array_key_exists('quantity', $arrSet) && $arrSet['quantity']) {
+                if ($arrSet['quantity'] > $objProduct->quantity) {
+                    // Prevents setting the quantity in cart higher than given in product-quantity (available quantity). Also sets inventory_status to "reserved".
 
-                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+                    $arrSet['quantity'] = $objProduct->quantity;
+                    Message::addError(sprintf(
+                        $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
+                        $objProduct->getName(),
+                        $objProduct->quantity
+                    ));
+
+                    $this->inventory_status = $this->RESERVED;
+                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+                } elseif ($arrSet['quantity'] = $objProduct->quantity) {
+                    // Sets inventory_status to "reserved" if quantity in cart is equal to given in product-quantity (available quantity).
+
+                    $this->inventory_status = $this->RESERVED;
+                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+                } else {   // ($arrSet['quantity'] < $objProduct->quantity)
+                    // Sets inventory_status to "available" if quantity in cart is less than given in product-quantity (available quantity).
+
+                    $this->inventory_status = $this->AVAILABLE;
+                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+                }
             }
+        } else {
+            // No quantity available at all. Set quantity to zero.
+            $arrSet['quantity'] = 0;
+            Message::addError(sprintf(
+                $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
+                $objProduct->getName(),
+                $objProduct->quantity
+            ));
         }
 
         return $arrSet;
