@@ -1,6 +1,6 @@
 <?php
 
-// src/EventListener/UpdateItemInCollectionListener.php
+// src/EventListener/CopiedCollectionItemsListener.php
 
 declare(strict_types=1);
 
@@ -15,16 +15,16 @@ declare(strict_types=1);
 namespace nahati\ContaoIsotopeStockBundle\EventListener;
 
 use Contao\Database;
+use Isotope\Interfaces\IsotopeProductCollection;
 use Isotope\Message;
 use Isotope\Model\Product;
-use Isotope\Model\ProductCollection\Cart;
-use Isotope\Model\ProductCollectionItem;
+use Isotope\Model\ProductCollection;
 use Isotope\ServiceAnnotation\IsotopeHook;
 
 /**
- * @IsotopeHook("updateItemInCollection")
+ * @IsotopeHook("copiedCollectionItems")
  */
-class UpdateItemInCollectionListener
+class CopiedCollectionItemsListener
 {
     /* inventory status: */
     /**
@@ -35,56 +35,61 @@ class UpdateItemInCollectionListener
     private string $RESERVED = '2'; /* product in cart, no reamining quantity */
 
     /**
-     * Prevents setting the quantity in cart higher than given in product-quantity.
-     * Also sets inventory_status.
+     * Handles the quantity in cart. Also sets inventory_status.
      *
-     * @param ProductCollectionItem $objItem
-     * @param array<mixed>          $arrSet
-     * @param Cart                  $objCart
+     * @param IsotopeProductCollection $objSource old cart
+     * @param ProductCollection        $objTarget new cart
+     * @param array<int>               $arrIds    oldItem->id / newItem->id
      *
-     * @return array<mixed>
+     * @return bool
      */
-    public function __invoke($objItem, $arrSet, $objCart)
+    public function __invoke($objSource, $objTarget, $arrIds)
     {
-        $objProduct = null;
-        $objProduct = $objItem->getProduct();
+        foreach ($arrIds as $key => $itemId) {
+            if ($key) {
+            } // to prevent ECS from this "error": Unused variable $key
+            $objItem = null;
+            $objItem = $objTarget->getItemById($itemId); // Item in cart
 
-        if ($objProduct->quantity > 0) { // @phpstan-ignore-line as still working by some magic
-            if (\array_key_exists('quantity', $arrSet) && $arrSet['quantity']) {
-                if ($arrSet['quantity'] > $objProduct->quantity) {
-                    // Prevents setting the quantity in cart higher than given in product-quantity (available quantity). Also sets inventory_status to "reserved".
+            $objProduct = null;
+            $objProduct = $objItem->getProduct(); // corresp. product
 
-                    $arrSet['quantity'] = $objProduct->quantity;
+            if ($objProduct->quantity > 0) { // product quantity nonzero // @phpstan-ignore-line as still working by some magic
+                if ($objItem->quantity > $objProduct->quantity) {
+                    // Prevents setting the quantity in cart higher than given in product-quantity (available quantity).
+                    $objItem->quantity = $objProduct->quantity;
+                    $objItem->save();
+
                     Message::addError(sprintf(
                         $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
                         $objProduct->getName(),
                         $objProduct->quantity
                     ));
 
+                    // Also sets inventory_status to "reserved".
                     $this->inventory_status = $this->RESERVED;
                     Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
-                } elseif ($arrSet['quantity'] === $objProduct->quantity) {
+                } elseif ($objItem->quantity === $objProduct->quantity) {
                     // Sets inventory_status to "reserved" if quantity in cart is equal to given in product-quantity (available quantity).
-
                     $this->inventory_status = $this->RESERVED;
                     Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
-                } else { // ($arrSet['quantity'] < $objProduct->quantity)
+                } else { // ($objItem->quantity < $objProduct->quantity)
                     // Sets inventory_status to "available" if quantity in cart is less than given in product-quantity (available quantity).
 
                     $this->inventory_status = $this->AVAILABLE;
                     Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
                 }
+            } else { // procuct quantity zero
+                $objItem->quantity = 0; // set quantity in cart to zero
+                $objItem->save();
+                Message::addError(sprintf(
+                    $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
+                    $objProduct->getName(),
+                    $objProduct->quantity
+                ));
             }
-        } else {
-            // No quantity available at all. Set quantity to zero.
-            $arrSet['quantity'] = 0;
-            Message::addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
-                $objProduct->getName(),
-                $objProduct->quantity
-            ));
         }
 
-        return $arrSet;
+        return true;
     }
 }

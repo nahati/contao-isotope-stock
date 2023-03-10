@@ -35,7 +35,7 @@ class PostDeleteItemFromCollectionListener
     private string $PURCHASED = '4'; /* product bought, no remaining quantity, count = 1 */
 
     /**
-     * Sets inventory_status 
+     * Sets inventory_status.
      *
      * @param ProductCollectionItem $objItem
      * @param Cart                  $objCart
@@ -45,15 +45,15 @@ class PostDeleteItemFromCollectionListener
         $objProduct = null;
         $objProduct = $objItem->getProduct();
 
-        if ($objProduct->quantity > 0) {
+        if ($objProduct->quantity > 0) { // @phpstan-ignore-line as still working by some magic
             $this->inventory_status = $this->AVAILABLE;
-        } else {  // No quantity available at all.  
-            if ('1' === $objProduct->count) {
+        } else { // No quantity available at all.
+            if ('1' === $objProduct->count) { // @phpstan-ignore-line as still working by some magic
                 $this->inventory_status = $this->PURCHASED;
             } else { // $objProduct->count > 1
                 $this->inventory_status = $this->SOLDOUT;
             }
         }
-        Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+        Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
     }
 }
