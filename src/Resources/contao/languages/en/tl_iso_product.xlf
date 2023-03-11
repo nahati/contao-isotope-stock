@@ -2,11 +2,11 @@
 <xliff version="1.1">
     <file>
         <body>
-            <trans-unit id="tl_iso_product._count.0">
-                <target>Total number of items</target>
+            <trans-unit id="tl_iso_product.unique.0">
+                <target>product unique?</target>
             </trans-unit>
-            <trans-unit id="tl_iso_product._count.1">
-                <target>Please enter the total number of items for this product</target>
+            <trans-unit id="tl_iso_product.unique.1">
+                <target>Is this product unique (only 1 of it for sale)?</target>
             </trans-unit>
             <trans-unit id="tl_iso_product.quantity.0">
                 <target>Available quantity</target>

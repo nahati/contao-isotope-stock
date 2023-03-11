@@ -10,15 +10,15 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-$GLOBALS['TL_DCA']['tl_iso_product']['fields']['count'] = [
-    'label' => &$GLOBALS['TL_LANG']['tl_iso_product']['count'],
+$GLOBALS['TL_DCA']['tl_iso_product']['fields']['unique'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_iso_product']['unique'],
     'exclude' => true,
     'filter' => true,
     'sorting' => true,
-    'inputType' => 'text',
+    'inputType' => 'checkbox',
     'eval' => ['mandatory' => false, 'doNotShow' => false, 'tl_class' => 'w50'],
     'attributes' => ['legend' => 'general_legend', 'multilingual' => false, 'fe_sorting' => true],
-    'sql' => "varchar(255) NOT NULL default ''",
+    'sql' => "char(1) NOT NULL default ''",
 ];
 
 $GLOBALS['TL_DCA']['tl_iso_product']['fields']['quantity'] = [

@@ -1,4 +1,4 @@
-<!--- Show quantity-field only if count > 1 (product has more than 1 items in total) -->
+<!--- Show quantity-field only if not unique (product has more than 1 items for sale) -->
 
 <?php if ($this->textOnly) : ?>
 <?php ### THIS IS FOR TEXT ONLY EMAILS ###  ?>
@@ -76,7 +76,7 @@
                     </td>
                     <td class="col_<?= $i++ ?> quantity">
                         <?php $product = $this->items[$j]['product'] /* $j = Index des Produkts = 0,1,.. */ ?>
-                        <?php if ($this->isEditable && $product->count > '1') : ?>
+                        <?php if ($this->isEditable && !$product->unique) : ?>
                         <input name="quantity[<?= $item['id'] ?>]" type="text" class="text"
                             value="<?= $item['quantity'] ?>" maxlength="10">
                         <?php else : ?>

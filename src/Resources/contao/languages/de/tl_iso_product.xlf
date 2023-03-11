@@ -2,11 +2,11 @@
 <xliff version="1.1">
     <file>
         <body>
-            <trans-unit id="tl_iso_product.count.0">
-                <target>Gesamtzahl Exemplare</target>
+            <trans-unit id="tl_iso_product.unique.0">
+                <target>Unikat?</target>
             </trans-unit>
-            <trans-unit id="tl_iso_product.count.1">
-                <target>Geben Sie hier die Gesamtzahl der Exemplare für dieses Produkt ein</target>
+            <trans-unit id="tl_iso_product.unique.1">
+                <target>Ist das Produkt ein Unikat (nur 1 zum Verkauf)?</target>
             </trans-unit>
             <trans-unit id="tl_iso_product.quantity.0">
                 <target>Verfügbare Anzahl an Exemplaren</target>

@@ -1,6 +1,6 @@
 <!--- Additionally show inventory_status  -->
 <!--- Show submit-buttons (cart, ...) iff inventory_status == '1' (product is available) -->
-<!--- Show quantity-field only if count > 1 (product has more than 1 items in total) and inventory_status == '1' (product is available) -->
+<!--- Show quantity-field only if not unique (product has more than 1 items for sale) and inventory_status == '1' (product is available) -->
 <!--- Added blocks to enable inheritance -->
 
 <?php $this->block('content'); ?>
@@ -61,7 +61,7 @@
     <div class="submit_container">
       <!-- <?php $this->dumpTemplateVars() ?> -->
 
-      <?php if ($this->count > 1 && $this->inventory_status == '1') : ?>
+      <?php if (!$this->unique && $this->inventory_status == '1') : ?>
       <?php if ($this->useQuantity) : ?>
       <div class="quantity_container">
         <label for="quantity_requested_<?= $this->raw['id'] ?>">
