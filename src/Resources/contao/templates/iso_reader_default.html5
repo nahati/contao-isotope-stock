@@ -1,6 +1,5 @@
 <!--- Additionally show inventory_status  -->
-<!--- Show submit-buttons (cart, ...) iff inventory_status == '1' (product is available) -->
-<!--- Show quantity-field only if not unique (product has more than 1 items for sale) and inventory_status == '1' (product is available) -->
+<!--- Show quantity-field and submit-buttons only under certain circumstances -->
 <!--- Added blocks to enable inheritance -->
 
 <?php $this->block('content'); ?>
@@ -38,7 +37,7 @@
       <?= $this->generateAttribute('sku') ?>
     </div>
     <?php endif;
-                                                                                if ($this->description) : ?>
+          if ($this->description) : ?>
     <div class="description" itemprop="description">
       <?= $this->generateAttribute('description') ?>
     </div>
@@ -57,11 +56,12 @@
       <?php endif; ?>
     </div>
     <?php endif; ?>
+
     <?php if ($this->actions) : ?>
     <div class="submit_container">
-      <!-- <?php $this->dumpTemplateVars() ?> -->
-
-      <?php if (!$this->unique && $this->inventory_status == '1') : ?>
+      <!-- Quantity input shown if (quantity not exists or is NULL or is empty or (is not 0 and not 1)) AND (inventory_status not exists or is NULL or is 1) -->
+      <?php if ( !(($this->quantity === '0' || $this->quantity === '1') ? true : false)  && 
+                 !(($this->inventory_status === '0' || $this->inventory_status > '1') ? true : false)  ) : ?>
       <?php if ($this->useQuantity) : ?>
       <div class="quantity_container">
         <label for="quantity_requested_<?= $this->raw['id'] ?>">
@@ -73,11 +73,14 @@
       <?php endif; ?>
       <?php endif; ?>
 
-      <?php if ($this->inventory_status == '1') : ?>
+      <!-- Cart Button shown if (quantity not exists or is NULL or is empty or is not 0)  AND (inventory_status not exists or is NULL or is 1) -->
+      <?php if ( !(($this->quantity === '0' ) ? true : false)  && 
+                 !(($this->inventory_status === '0' || $this->inventory_status > '1') ? true : false)  ) : ?>
       <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
       <?php endif; ?>
     </div>
     <?php endif; ?>
+
   </div>
 </form>
 <?php $this->endblock(); ?>

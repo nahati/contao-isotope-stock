@@ -26,11 +26,7 @@ use Isotope\ServiceAnnotation\IsotopeHook;
  */
 class CopiedCollectionItemsListener
 {
-    /* inventory status: */
-    /**
-     * @var string
-     */
-    private $inventory_status;
+    private string $inventory_status;
     private string $AVAILABLE = '1'; /* product available for selling */
     private string $RESERVED = '2'; /* product in cart, no reamining quantity */
 
@@ -47,14 +43,18 @@ class CopiedCollectionItemsListener
     {
         foreach ($arrIds as $key => $itemId) {
             if ($key) {
-            } // to prevent ECS from this "error": Unused variable $key
+            } // To prevent ECS from this "error": Unused variable $key
             $objItem = null;
             $objItem = $objTarget->getItemById($itemId); // Item in cart
 
             $objProduct = null;
-            $objProduct = $objItem->getProduct(); // corresp. product
+            $objProduct = $objItem->getProduct(); // Corresp. product
 
-            if ($objProduct->quantity > 0) { // product quantity nonzero // @phpstan-ignore-line as still working by some magic
+            if ('' === $objProduct->quantity || null === $objProduct->quantity) { // @phpstan-ignore-line as still working
+                continue; // next in loop if no quantity has been set for the product
+            }
+
+            if ($objProduct->quantity > 0) { // Product quantity nonzero
                 if ($objItem->quantity > $objProduct->quantity) {
                     // Prevents setting the quantity in cart higher than given in product-quantity (available quantity).
                     $objItem->quantity = $objProduct->quantity;
@@ -88,7 +88,7 @@ class CopiedCollectionItemsListener
                     $objProduct->quantity
                 ));
             }
-        }
+        } // foreach
 
         return true;
     }

@@ -10,17 +10,6 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-$GLOBALS['TL_DCA']['tl_iso_product']['fields']['unique'] = [
-    'label' => &$GLOBALS['TL_LANG']['tl_iso_product']['unique'],
-    'exclude' => true,
-    'filter' => true,
-    'sorting' => true,
-    'inputType' => 'checkbox',
-    'eval' => ['mandatory' => false, 'doNotShow' => false, 'tl_class' => 'w50'],
-    'attributes' => ['legend' => 'general_legend', 'multilingual' => false, 'fe_sorting' => true],
-    'sql' => "char(1) NOT NULL default ''",
-];
-
 $GLOBALS['TL_DCA']['tl_iso_product']['fields']['quantity'] = [
     'label' => &$GLOBALS['TL_LANG']['tl_iso_product']['quantity'],
     'exclude' => true,
@@ -38,7 +27,7 @@ $GLOBALS['TL_DCA']['tl_iso_product']['fields']['inventory_status'] = [
     'filter' => true,
     'search' => true,
     'inputType' => 'radio',
-    'options' => ['0', '1', '2', '3', '4'],
+    'options' => ['0', '1', '2', '3'],
     'eval' => ['feEditable' => true, 'feViewable' => true, 'tl_class' => 'w50'],
     'attributes' => ['legend' => 'general_legend', 'fe_filter' => true, 'fe_search' => true, 'fe_sorting' => true],
     'sql' => "char(1) NOT NULL default '1'",

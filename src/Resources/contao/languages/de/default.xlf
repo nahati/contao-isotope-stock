@@ -2,6 +2,12 @@
 <xliff version="1.1">
     <file>
         <body>
+            <trans-unit id="ERR.inventoryStatusInactive">
+                <target>Die Verfügbarkeit wurde beim Produkttyp dieses Produkts "%s" nicht aktiviert</target>
+            </trans-unit>
+            <trans-unit id="ERR.productNotAvailable">
+                <target>Dieses Produkt "%s" ist nicht verfügbar</target>
+            </trans-unit>
             <trans-unit id="MSC.productOutOfStock">
                 <target>Das Produkt "%s" ist aktuell nicht verfügbar</target>
             </trans-unit>
@@ -9,8 +15,8 @@
                 <target>Die maximal verfügbare Bestellmenge für "%s" ist %s Stück</target>
             </trans-unit>
             <trans-unit id="MSC.checkProduct">
-                <target>Das Product "%s" ist reserviert und deshalb nicht verfügbar Bitte
-                    überprüfen Sie!</target>
+                <target>Das Product "%s" ist reserviert und deshalb nicht verfügbar Bitte überprüfen
+                    Sie!</target>
             </trans-unit>
             <trans-unit id="MSC.0">
                 <target>unverkäuflich</target>
@@ -23,9 +29,6 @@
             </trans-unit>
             <trans-unit id="MSC.3">
                 <target>ausverkauft</target>
-            </trans-unit>
-            <trans-unit id="MSC.4">
-                <target>verkauft</target>
             </trans-unit>
         </body>
     </file>

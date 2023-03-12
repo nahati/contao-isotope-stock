@@ -32,11 +32,10 @@ class PostCheckoutListener
      */
     private $inventory_status;
     private string $AVAILABLE = '1'; /* product available for selling */
-    private string $SOLDOUT = '3'; /* product bought, no remaining quantity, not unique */
-    private string $PURCHASED = '4'; /* product bought, no remaining quantity, unique */
+    private string $SOLDOUT = '3'; /* product bought, no remaining quantity */
 
     /**
-     *  Updates the quantity. Marks as 'purchased' retr. 'sold out' in all bought products with no remaining quantity.
+     *  Updates the quantity. Marks as 'sold out' in all bought products with no remaining quantity.
      *
      * @param ProductCollection $objOrder
      */
@@ -46,29 +45,33 @@ class PostCheckoutListener
             $objProduct = null;
             $objProduct = $objItem->getProduct(true);
 
-            if (!empty($objProduct->quantity) && $objProduct->quantity > 0) {
+            if ('' === $objProduct->quantity || null === $objProduct->quantity) { // @phpstan-ignore-line as still working
+                continue; // next in loop if no quantity has been set for the product
+            }
+
+            if ($objProduct->quantity > 0) {
                 // decrease available quantity by bought quantity
                 $objProduct->quantity -= $objItem->quantity;
 
-                // set product purchased / sold out and quantity zero if there is no quantity left
+                // set product sold out and quantity zero if there is no quantity left
                 if ($objProduct->quantity <= 0) {
                     $objProduct->quantity = 0;
 
-                    if ($objProduct->unique) { // @phpstan-ignore-line as still working by some magic
-                        $this->inventory_status = $this->PURCHASED;
-                    } else {
-                        $this->inventory_status = $this->SOLDOUT;
-                    }
+                    $this->inventory_status = $this->SOLDOUT;
 
-                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ?,  inventory_status = ?  WHERE id = ?')->execute($objProduct->quantity, $this->inventory_status, $objProduct->getId());
+                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET quantity = ?,  inventory_status = ?  WHERE id = ?')->execute($objProduct->quantity, $this->inventory_status, $objProduct->getId());
                 }
 
                 // just set new quantity in any other case
                 else {
                     $this->inventory_status = $this->AVAILABLE;
-                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ?, inventory_status = ? WHERE id = ?')->execute($objProduct->quantity, $this->inventory_status, $objProduct->getId());
+                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET quantity = ?, inventory_status = ? WHERE id = ?')->execute($objProduct->quantity, $this->inventory_status, $objProduct->getId());
                 }
+            } else {
+                // Product out of stock ($objProduct->quantity = 0):
+                $this->inventory_status = $this->SOLDOUT;
+                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id); // @phpstan-ignore-line as still working
             }
-        }
+        } // foreach
     }
 }

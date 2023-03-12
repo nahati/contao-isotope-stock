@@ -49,18 +49,22 @@ class UpdateItemInCollectionListener
         $objProduct = null;
         $objProduct = $objItem->getProduct();
 
-        if ($objProduct->quantity > 0) { // @phpstan-ignore-line as still working by some magic
+        if ('' === $objProduct->quantity || null === $objProduct->quantity) { // @phpstan-ignore-line as still working
+            return $arrSet; // return if no quantity has been set for the product
+        }
+
+        if ($objProduct->quantity > 0) {
             if (\array_key_exists('quantity', $arrSet) && $arrSet['quantity']) {
                 if ($arrSet['quantity'] > $objProduct->quantity) {
                     // Prevents setting the quantity in cart higher than given in product-quantity (available quantity). Also sets inventory_status to "reserved".
 
-                    $arrSet['quantity'] = $objProduct->quantity;
                     Message::addError(sprintf(
                         $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
                         $objProduct->getName(),
                         $objProduct->quantity
                     ));
 
+                    $arrSet['quantity'] = $objProduct->quantity;
                     $this->inventory_status = $this->RESERVED;
                     Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
                 } elseif ($arrSet['quantity'] === $objProduct->quantity) {

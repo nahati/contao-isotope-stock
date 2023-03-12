@@ -1,4 +1,4 @@
-<!--- Show quantity-field only if not unique (product has more than 1 items for sale) -->
+<!--- Show quantity-field only if product has more than 1 items for sale -->
 
 <?php if ($this->textOnly) : ?>
 <?php ### THIS IS FOR TEXT ONLY EMAILS ###  ?>
@@ -76,12 +76,14 @@
                     </td>
                     <td class="col_<?= $i++ ?> quantity">
                         <?php $product = $this->items[$j]['product'] /* $j = Index des Produkts = 0,1,.. */ ?>
-                        <?php if ($this->isEditable && !$product->unique) : ?>
+
+                        <?php if ($this->isEditable && $product->quantity > '1') : ?>
                         <input name="quantity[<?= $item['id'] ?>]" type="text" class="text"
                             value="<?= $item['quantity'] ?>" maxlength="10">
                         <?php else : ?>
                         <?= $item['quantity'] ?> x
                         <?php endif; ?>
+
                     </td>
                     <td class="col_<?= $i++ ?> price">
                         <?= $item['price'] ?>
@@ -172,13 +174,11 @@
                         <?= $surcharge['total_price'] ?>
                     </td>
                     <?php if ($this->total_tax_ids > 1) : ?>
-                    <td
-                        class="col_<?= $i++;
-                                                                                                                                                                            if (!$this->isEditable) echo ' col_last' ?> tax">
+                    <td class="col_<?= $i++;
+                                        if (!$this->isEditable) echo ' col_last' ?> tax">
                         <?= $surcharge['tax_id'] ?>
                     </td>
-                    <?php endif;
-                                                                                                                                                                                                                                                            if ($this->isEditable) : ?>
+                    <?php                       endif;                                                                                                                                                                                                         if ($this->isEditable) : ?>
                     <td class="col_<?= $i++ ?> col_last remove">&nbsp;</td>
                     <?php endif; ?>
                 </tr>
