@@ -81,7 +81,7 @@ class AddProductToCollectionListener
             return false;
         }
 
-        // If quantity > 0:
+        // If quantity > 0: stock-management
         // find product in cart
         $oInCart = null;
         $oInCart = $objCollection->getItemForProduct($objProduct);
@@ -106,7 +106,7 @@ class AddProductToCollectionListener
             }
 
             return $qtyAddToCart; // return unchanged or reduced requested quantity
-        } // available quantity exceeds requested quantity
+        }
 
         // - else - available quantity exceeds requested quantity
         return $intQuantity; // return unchanged requested quantity

@@ -10,7 +10,7 @@ Handle limited editions - keep record of the available quantity of a product:
 - Mark product as available again when the requested quantity has been reduced.
 - Mark product as soldout in case is.
 - Handle the consequences of the above for user prompting.
-- Message via Backend if product is reserved but not yet sold.
+- Message via Backend Dashboard if product is reserved but not yet sold.
 
 Gives you the opportunity to user friendly handle different types of products in one gallery:
 - products that you marked as not for sale
@@ -40,10 +40,24 @@ If you have limited editions, activate `quantity` to enable stock-management for
 For products with no limit keep the quantity field empty. Then there will be no stock-management for this product.
 
 
+### Minimum requirements 
+
+- PHP 8.1
+- Contao 4.13.16
+- Isotope 2.8.10
+
+
 ### Install  
 
-1. Install with composer or contao manager
+1.Installation
 
-        composer require nahati/contao-isotope-stock
+   either with Contao Manager:
 
-2. Update database
+      Search for nahati/contao-isotope-stock in Contao Manager and add it to your installation.
+      Apply changes to update the packages. Update Database.
+   
+   or with Composer:
+
+      ```composer require nahati/contao-isotope-stock```
+      ```vendor/bin/contao-console contao:migrate```
+
