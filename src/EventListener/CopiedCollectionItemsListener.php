@@ -44,19 +44,25 @@ class CopiedCollectionItemsListener
         foreach ($arrIds as $key => $itemId) {
             if ($key) {
             } // To prevent ECS from this "error": Unused variable $key
-            $objItem = null;
-            $objItem = $objTarget->getItemById($itemId); // Item in cart
 
-            $objProduct = null;
-            $objProduct = $objItem->getProduct(); // Corresp. product
+            $objItem = $objTarget->getItemById($itemId) ?? null; // Item in cart
 
-            if ('' === $objProduct->quantity || null === $objProduct->quantity) { // @phpstan-ignore-line as still working
-                continue; // next in loop if no quantity has been set for the product
+            $objProduct = $objItem->getProduct() ?? null; // Corresp. product
+
+            // quantity activated but inventory_status not activated
+            if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) { //@phpstan-ignore-line as still working
+                throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
             }
 
-            if ($objProduct->quantity > 0) { // Product quantity nonzero
+            if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) { //@phpstan-ignore-line as still working
+                // (exclude case string = '0' which would be evaluated as falsy otherwise)
+                // If quantity not exists or is NULL or empty
+                continue; // next in loop
+            }
+
+            if ($objProduct->quantity > 0) { // Product quantity positiv
+                // Prevents setting the quantity in cart higher than the available quantity.
                 if ($objItem->quantity > $objProduct->quantity) {
-                    // Prevents setting the quantity in cart higher than given in product-quantity (available quantity).
                     $objItem->quantity = $objProduct->quantity;
                     $objItem->save();
 
@@ -66,21 +72,27 @@ class CopiedCollectionItemsListener
                         $objProduct->quantity
                     ));
 
-                    // Also sets inventory_status to "reserved".
+                    // Set RESERVED
                     $this->inventory_status = $this->RESERVED;
                     Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
-                } elseif ($objItem->quantity === $objProduct->quantity) {
-                    // Sets inventory_status to "reserved" if quantity in cart is equal to given in product-quantity (available quantity).
-                    $this->inventory_status = $this->RESERVED;
-                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
-                } else { // ($objItem->quantity < $objProduct->quantity)
-                    // Sets inventory_status to "available" if quantity in cart is less than given in product-quantity (available quantity).
+                }
 
+                // Set RESERVED if quantity in cart is equal to the available quantity.
+                elseif ($objItem->quantity === $objProduct->quantity) {
+                    $this->inventory_status = $this->RESERVED;
+                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+                }
+
+                // Set AVAILABLE if quantity in cart is less than the available quantity.
+                else {
                     $this->inventory_status = $this->AVAILABLE;
                     Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
                 }
-            } else { // procuct quantity zero
-                $objItem->quantity = 0; // set quantity in cart to zero
+            }
+
+            // If procuct quantity zero: set quantity in cart zero, message
+            else {
+                $objItem->quantity = 0;
                 $objItem->save();
                 Message::addError(sprintf(
                     $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],

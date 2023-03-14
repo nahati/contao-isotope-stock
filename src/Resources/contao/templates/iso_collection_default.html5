@@ -77,7 +77,7 @@
                     <td class="col_<?= $i++ ?> quantity">
                         <?php $product = $this->items[$j]['product'] /* $j = Index des Produkts = 0,1,.. */ ?>
 
-                        <?php if ($this->isEditable && $product->quantity > '1') : ?>
+                        <?php if ($this->isEditable && (null === $product->quantity || '' === $product->quantity || $product->quantity > '1')) : ?>
                         <input name="quantity[<?= $item['id'] ?>]" type="text" class="text"
                             value="<?= $item['quantity'] ?>" maxlength="10">
                         <?php else : ?>

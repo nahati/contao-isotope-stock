@@ -36,8 +36,7 @@ class GetSystemMessagesListener
     {
         $arrMessages = [];
 
-        // Show messages for "reserved" products
-        $objProducts = null;
+        // Show messages for "RESERVED" products
         $objProducts = Product::findBy(['tl_iso_product.inventory_status=?'], [$this->RESERVED]);
 
         if ($objProducts) {

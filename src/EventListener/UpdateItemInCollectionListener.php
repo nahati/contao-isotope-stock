@@ -26,13 +26,10 @@ use Isotope\ServiceAnnotation\IsotopeHook;
  */
 class UpdateItemInCollectionListener
 {
-    /* inventory status: */
-    /**
-     * @var string
-     */
-    private $inventory_status;
+    private string $inventory_status;
     private string $AVAILABLE = '1'; /* product available for selling */
     private string $RESERVED = '2'; /* product in cart, no reamining quantity */
+    private string $SOLDOUT = '3'; /* product sold, no quantity left */
 
     /**
      * Prevents setting the quantity in cart higher than given in product-quantity.
@@ -42,51 +39,64 @@ class UpdateItemInCollectionListener
      * @param array<mixed>          $arrSet
      * @param Cart                  $objCart
      *
-     * @return array<mixed>
+     * @return mixed
      */
     public function __invoke($objItem, $arrSet, $objCart)
     {
-        $objProduct = null;
         $objProduct = $objItem->getProduct();
 
-        if ('' === $objProduct->quantity || null === $objProduct->quantity) { // @phpstan-ignore-line as still working
-            return $arrSet; // return if no quantity has been set for the product
+        // quantity activated but inventory_status not activated
+        if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) { //@phpstan-ignore-line as still working
+            throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
         }
 
-        if ($objProduct->quantity > 0) {
-            if (\array_key_exists('quantity', $arrSet) && $arrSet['quantity']) {
-                if ($arrSet['quantity'] > $objProduct->quantity) {
-                    // Prevents setting the quantity in cart higher than given in product-quantity (available quantity). Also sets inventory_status to "reserved".
+        // Return without stock-management: if quantity not exists or is NULL or empty
+        if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) { //@phpstan-ignore-line as still working
+            // exclude case string = '0' which would be evaluated as falsy otherwise
 
-                    Message::addError(sprintf(
-                        $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
-                        $objProduct->getName(),
-                        $objProduct->quantity
-                    ));
+            return $arrSet; // return unchanged
+        }
 
-                    $arrSet['quantity'] = $objProduct->quantity;
-                    $this->inventory_status = $this->RESERVED;
-                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
-                } elseif ($arrSet['quantity'] === $objProduct->quantity) {
-                    // Sets inventory_status to "reserved" if quantity in cart is equal to given in product-quantity (available quantity).
+        // If quantity is zero: Set SOLDOUT; message; return false
+        if ('0' === $objProduct->quantity) {
+            $this->inventory_status = $this->SOLDOUT;
+            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id); // @phpstan-ignore-line as still working
 
-                    $this->inventory_status = $this->RESERVED;
-                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
-                } else { // ($arrSet['quantity'] < $objProduct->quantity)
-                    // Sets inventory_status to "available" if quantity in cart is less than given in product-quantity (available quantity).
-
-                    $this->inventory_status = $this->AVAILABLE;
-                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
-                }
-            }
-        } else {
-            // No quantity available at all. Set quantity to zero.
-            $arrSet['quantity'] = 0;
             Message::addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
-                $objProduct->getName(),
-                $objProduct->quantity
+                $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
+                $objProduct->getName()
             ));
+
+            return false;
+        }
+
+        // If quantity > 0: stock-management
+        if (\array_key_exists('quantity', $arrSet) && $arrSet['quantity']) {
+            // If quantity in cart is higher then the available quantity: limits quantity in cart to the available quantity. Message. Sets RESERVED.
+            if ($arrSet['quantity'] > $objProduct->quantity) {
+                $arrSet['quantity'] = $objProduct->quantity;
+
+                Message::addError(sprintf(
+                    $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
+                    $objProduct->getName(),
+                    $objProduct->quantity
+                ));
+
+                $this->inventory_status = $this->RESERVED;
+                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+            }
+
+            // If quantity in cart is equal to the available quantity, set RESERVED.
+            elseif ($arrSet['quantity'] === $objProduct->quantity) {
+                $this->inventory_status = $this->RESERVED;
+                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+            }
+
+            // If quantity in cart is less then the available quantity, sets AVAILABLE
+            else {
+                $this->inventory_status = $this->AVAILABLE;
+                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+            }
         }
 
         return $arrSet;

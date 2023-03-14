@@ -25,11 +25,7 @@ use Isotope\ServiceAnnotation\IsotopeHook;
  */
 class PostDeleteItemFromCollectionListener
 {
-    /* inventory status: */
-    /**
-     * @var string
-     */
-    private $inventory_status;
+    private string $inventory_status;
     private string $AVAILABLE = '1'; /* product available for selling */
     private string $SOLDOUT = '3'; /* product bought, no remaining quantity */
 
@@ -41,18 +37,22 @@ class PostDeleteItemFromCollectionListener
      */
     public function __invoke($objItem, $objCart): void
     {
-        $objProduct = null;
         $objProduct = $objItem->getProduct();
 
-        if ('' === $objProduct->quantity || null === $objProduct->quantity) { // @phpstan-ignore-line as still working
-            return; // return if no quantity has been set for the product
+        // quantity activated but inventory_status not activated
+        if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) { //@phpstan-ignore-line as still working
+            throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
         }
 
-        if ($objProduct->quantity > 0) {
-            $this->inventory_status = $this->AVAILABLE;
-        } else { // No quantity available at all.
-            $this->inventory_status = $this->SOLDOUT;
+        // Return without stock-management: if quantity not exists or is NULL or empty
+        if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) { // @phpstan-ignore-line as still working
+            // exclude case string = '0' which would be evaluated as falsy otherwise
+
+            return; // return unchanged requested quantity
         }
+
+        $this->inventory_status = $objProduct->quantity > 0 ? $this->AVAILABLE : $this->SOLDOUT;
+
         Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
     }
 }

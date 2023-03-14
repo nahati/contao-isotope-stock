@@ -32,7 +32,7 @@ class AddProductToCollectionListener
 
     /**
      * Checks if the requested quantity exceeds stock when adding product to cart.
-     * Reduces requested quantity if neccessary; set inventory_status to 'reserved' if no quantity left.
+     * Reduces requested quantity if neccessary; set inventory_status to RESERVED if no quantity left.
      *
      * @param Product                  $objProduct    // Product to be added to cart
      * @param mixed                    $intQuantity   // quantity requested for cart
@@ -44,16 +44,11 @@ class AddProductToCollectionListener
     {
         // quantity activated but inventory_status not activated
         if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) {
-            Message::addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'],
-                $objProduct->getName()
-            ));
-
-            return false;
+            throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
         }
 
-        // quantity activated but inventory_status is not AVAILABLE
-        if ((null !== $objProduct->quantity) && ($objProduct->inventory_status !== $this->AVAILABLE)) {
+        // inventory_status is not AVAILABLE
+        if ($objProduct->inventory_status !== $this->AVAILABLE) {
             Message::addError(sprintf(
                 $GLOBALS['TL_LANG']['ERR']['productNotAvailable'],
                 $objProduct->getName()
@@ -71,7 +66,7 @@ class AddProductToCollectionListener
         // If quantity is zero: Set SOLDOUT; message; return false
         if ('0' === $objProduct->quantity) {
             $this->inventory_status = $this->SOLDOUT;
-            Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id);
+            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id);
 
             Message::addError(sprintf(
                 $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
@@ -82,19 +77,17 @@ class AddProductToCollectionListener
         }
 
         // If quantity > 0: stock-management
-        // find product in cart
-        $oInCart = null;
-        $oInCart = $objCollection->getItemForProduct($objProduct);
+        $item = $objCollection->getItemForProduct($objProduct) ?? null;
 
         // calculate quantity that can be added to cart ($qtyAddToCart)
-        $qtyInCart = $oInCart->quantity ?? 0; // quantity already in cart
+        $qtyInCart = $item->quantity ?? 0; // quantity already in cart
         $qtyAddToCart = $objProduct->quantity - $qtyInCart;
         $qtyAddToCart = $qtyAddToCart < 0 ? 0 : $qtyAddToCart; // limit to zero at bottom
 
         // if quantity to add to cart <= requested quantity: set RESERVED
         if ($qtyAddToCart <= $intQuantity) {
             $this->inventory_status = $this->RESERVED;
-            Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id);
+            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id);
 
             // if reduced requested quantity, warning message
             if ($qtyAddToCart < $intQuantity) {

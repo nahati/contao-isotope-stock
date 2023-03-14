@@ -18,7 +18,6 @@ use Contao\Database;
 use Isotope\Interfaces\IsotopeProductCollection;
 // use Isotope\Model\ProductCollection;
 use Isotope\Model\Product;
-use Isotope\Model\ProductCollection;
 use Isotope\ServiceAnnotation\IsotopeHook;
 
 /**
@@ -26,34 +25,36 @@ use Isotope\ServiceAnnotation\IsotopeHook;
  */
 class PostCheckoutListener
 {
-    /* inventory status: */
-    /**
-     * @var string
-     */
-    private $inventory_status;
+    private string $inventory_status;
     private string $AVAILABLE = '1'; /* product available for selling */
     private string $SOLDOUT = '3'; /* product bought, no remaining quantity */
 
     /**
-     *  Updates the quantity. Marks as 'sold out' in all bought products with no remaining quantity.
+     *  Updates the quantity. Marks as SOLDOUT in all bought products with no remaining quantity.
      *
-     * @param ProductCollection $objOrder
+     * @param IsotopeProductCollection $objOrder
      */
-    public function __invoke(IsotopeProductCollection $objOrder): void
+    public function __invoke($objOrder): void
     {
         foreach ($objOrder->getItems() as $objItem) {
-            $objProduct = null;
             $objProduct = $objItem->getProduct(true);
 
-            if ('' === $objProduct->quantity || null === $objProduct->quantity) { // @phpstan-ignore-line as still working
-                continue; // next in loop if no quantity has been set for the product
+            // quantity activated but inventory_status not activated
+            if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) { //@phpstan-ignore-line as still working
+                throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
             }
 
-            if ($objProduct->quantity > 0) {
+            if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) { //@phpstan-ignore-line as still working
+                // (exclude case string = '0' which would be evaluated as falsy otherwise)
+                // If quantity not exists or is NULL or empty
+                continue; // next in loop
+            }
+
+            if ($objProduct?->quantity > 0) { // @phpstan-ignore-line as still working
                 // decrease available quantity by bought quantity
                 $objProduct->quantity -= $objItem->quantity;
 
-                // set product sold out and quantity zero if there is no quantity left
+                // Set SOLDOUT and quantity zero if there is no quantity left
                 if ($objProduct->quantity <= 0) {
                     $objProduct->quantity = 0;
 
@@ -62,7 +63,7 @@ class PostCheckoutListener
                     Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET quantity = ?,  inventory_status = ?  WHERE id = ?')->execute($objProduct->quantity, $this->inventory_status, $objProduct->getId());
                 }
 
-                // just set new quantity in any other case
+                // Set new quantity in any other case
                 else {
                     $this->inventory_status = $this->AVAILABLE;
                     Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET quantity = ?, inventory_status = ? WHERE id = ?')->execute($objProduct->quantity, $this->inventory_status, $objProduct->getId());
@@ -70,7 +71,7 @@ class PostCheckoutListener
             } else {
                 // Product out of stock ($objProduct->quantity = 0):
                 $this->inventory_status = $this->SOLDOUT;
-                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id); // @phpstan-ignore-line as still working
+                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id); //@phpstan-ignore-line as still working
             }
         } // foreach
     }
