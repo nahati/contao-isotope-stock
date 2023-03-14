@@ -57,17 +57,21 @@ class UpdateItemInCollectionListener
             return $arrSet; // return unchanged
         }
 
-        // If quantity is zero: Set SOLDOUT; message; return false
+        // If quantity is zero: Set quantity in cart to zero; Set SOLDOUT;  message
         if ('0' === $objProduct->quantity) {
             $this->inventory_status = $this->SOLDOUT;
             Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id); // @phpstan-ignore-line as still working
+
+            if (\array_key_exists('quantity', $arrSet) && $arrSet['quantity']) {
+                $arrSet['quantity'] = 0;
+            }
 
             Message::addError(sprintf(
                 $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
                 $objProduct->getName()
             ));
 
-            return false;
+            return $arrSet;
         }
 
         // If quantity > 0: stock-management
