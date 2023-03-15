@@ -6,9 +6,9 @@ This bundle adds a stock-management to Isotope.
 
 Handle limited editions - keep record of the available quantity of a product: 
 - Reduce quantity in cart to the available quantity in case is.
-- Mark product as reserved if product in cart and no quantity left.
+- Mark product as reserved if product in cart and no more quantity left.
 - Mark product as available again when the requested quantity has been reduced.
-- Mark product as soldout in case is.
+- Mark product as soldout if no quantity left at all.
 - Handle the consequences of the above for user prompting.
 - Message via Backend Dashboard if product is reserved but not yet sold.
 
@@ -68,7 +68,7 @@ For products with no limit keep the quantity field empty. Then there will be no 
 
 ## Installation with Contao Manager
 
-Search for nahati/contao-isotope-stock in Contao Manager and add it to your installation.
+Search for `nahati/contao-isotope-stock` in Contao Manager and add it to your installation.
 Apply changes to update the packages. Update Database.
    
 ## Installation on Command-line

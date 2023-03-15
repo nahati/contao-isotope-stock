@@ -19,16 +19,16 @@
                 <target>The product "%s" has been marked "reserved" and hence not available. Please
                     check!</target>
             </trans-unit>
-            <trans-unit id="MSC.0">
+            <trans-unit id="MSC.1">
                 <target>unsellable</target>
             </trans-unit>
-            <trans-unit id="MSC.1">
+            <trans-unit id="MSC.2">
                 <target>available</target>
             </trans-unit>
-            <trans-unit id="MSC.2">
+            <trans-unit id="MSC.3">
                 <target>reserved</target>
             </trans-unit>
-            <trans-unit id="MSC.3">
+            <trans-unit id="MSC.4">
                 <target>sold out</target>
             </trans-unit>
         </body>

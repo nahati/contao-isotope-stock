@@ -23,7 +23,7 @@ class GetSystemMessagesListener
     /**
      * @var string
      */
-    private $RESERVED = '2'; /* product in cart, no reamining quantity */
+    private $RESERVED = '3'; /* product in cart, no reamining quantity */
 
     /**
      * Show messages.

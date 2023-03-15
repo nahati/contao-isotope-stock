@@ -59,9 +59,9 @@
 
     <?php if ($this->actions) : ?>
     <div class="submit_container">
-      <!-- Quantity input shown if (quantity not exists or is NULL or is empty or (is not 0 and not 1)) AND (inventory_status not exists or is NULL or is 1) -->
+      <!-- Allow quantity input if (quantity not exists or is NULL or is empty or (is not 0 and not 1)) AND (inventory_status not exists or is NULL or is 2) -->
       <?php if ( !(($this->quantity === '0' || $this->quantity === '1') ? true : false)  && 
-                 !(($this->inventory_status === '0' || $this->inventory_status > '1') ? true : false)  ) : ?>
+                 ((!$this->inventory_status) || $this->inventory_status === '2') )  : ?>
       <?php if ($this->useQuantity) : ?>
       <div class="quantity_container">
         <label for="quantity_requested_<?= $this->raw['id'] ?>">
@@ -74,8 +74,8 @@
       <?php endif; ?>
 
       <!-- Cart Button shown if (quantity not exists or is NULL or is empty or is not 0)  AND (inventory_status not exists or is NULL or is 1) -->
-      <?php if ( !(($this->quantity === '0' ) ? true : false)  && 
-                 !(($this->inventory_status === '0' || $this->inventory_status > '1') ? true : false)  ) : ?>
+      <?php if ( !(($this->quantity === '0') ? true : false)  && 
+                 ((!$this->inventory_status) || $this->inventory_status === '2') )  : ?>
       <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
       <?php endif; ?>
     </div>

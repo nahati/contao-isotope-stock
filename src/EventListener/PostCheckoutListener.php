@@ -26,8 +26,8 @@ use Isotope\ServiceAnnotation\IsotopeHook;
 class PostCheckoutListener
 {
     private string $inventory_status;
-    private string $AVAILABLE = '1'; /* product available for selling */
-    private string $SOLDOUT = '3'; /* product bought, no remaining quantity */
+    private string $AVAILABLE = '2'; /* product available for selling */
+    private string $SOLDOUT = '4'; /* product bought, no remaining quantity */
 
     /**
      *  Updates the quantity. Marks as SOLDOUT in all bought products with no remaining quantity.
@@ -44,9 +44,14 @@ class PostCheckoutListener
                 throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
             }
 
-            if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) { //@phpstan-ignore-line as still working
-                // (exclude case string = '0' which would be evaluated as falsy otherwise)
-                // If quantity not exists or is NULL or empty
+            // inventory_status is not in use
+            if (!$objProduct->inventory_status) { //@phpstan-ignore-line as still working
+                continue; // next in loop
+            }
+
+            // Return without stock-management: if quantity not >= '0'
+            // e.g. not exists, NUll, empty
+            if (!($objProduct->quantity >= '0')) { //@phpstan-ignore-line as still working
                 continue; // next in loop
             }
 

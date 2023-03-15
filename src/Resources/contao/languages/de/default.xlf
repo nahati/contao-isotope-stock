@@ -18,16 +18,16 @@
                 <target>Das Product "%s" ist reserviert und deshalb nicht verfügbar Bitte überprüfen
                     Sie!</target>
             </trans-unit>
-            <trans-unit id="MSC.0">
+            <trans-unit id="MSC.1">
                 <target>unverkäuflich</target>
             </trans-unit>
-            <trans-unit id="MSC.1">
+            <trans-unit id="MSC.2">
                 <target>verfügbar</target>
             </trans-unit>
-            <trans-unit id="MSC.2">
+            <trans-unit id="MSC.3">
                 <target>reserviert</target>
             </trans-unit>
-            <trans-unit id="MSC.3">
+            <trans-unit id="MSC.4">
                 <target>ausverkauft</target>
             </trans-unit>
         </body>

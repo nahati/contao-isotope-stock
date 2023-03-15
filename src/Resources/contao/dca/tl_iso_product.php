@@ -27,7 +27,7 @@ $GLOBALS['TL_DCA']['tl_iso_product']['fields']['inventory_status'] = [
     'filter' => true,
     'search' => true,
     'inputType' => 'radio',
-    'options' => ['0', '1', '2', '3'],
+    'options' => ['1', '2', '3', '4'],
     'eval' => ['feEditable' => true, 'feViewable' => true, 'tl_class' => 'w50'],
     'attributes' => ['legend' => 'general_legend', 'fe_filter' => true, 'fe_search' => true, 'fe_sorting' => true],
     'sql' => "char(1) NOT NULL default '1'",

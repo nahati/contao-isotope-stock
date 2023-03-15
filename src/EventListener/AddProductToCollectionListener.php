@@ -26,9 +26,9 @@ use Isotope\ServiceAnnotation\IsotopeHook;
 class AddProductToCollectionListener
 {
     private string $inventory_status;
-    private string $AVAILABLE = '1'; /* product available for sale */
-    private string $RESERVED = '2'; /* product in cart, no quantity left */
-    private string $SOLDOUT = '3'; /* product sold, no quantity left */
+    private string $AVAILABLE = '2'; /* product available for sale */
+    private string $RESERVED = '3'; /* product in cart, no quantity left */
+    private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     /**
      * Checks if the requested quantity exceeds stock when adding product to cart.
@@ -47,6 +47,11 @@ class AddProductToCollectionListener
             throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
         }
 
+        // inventory_status is not in use: return without stock-management
+        if (!$objProduct->inventory_status) {
+            return $intQuantity; // return unchanged requested quantity
+        }
+
         // inventory_status is not AVAILABLE
         if ($objProduct->inventory_status !== $this->AVAILABLE) {
             Message::addError(sprintf(
@@ -57,9 +62,9 @@ class AddProductToCollectionListener
             return false;
         }
 
-        // Return without stock-management: if quantity not exists or is NULL or empty
-        if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) {
-            // exclude case string = '0' which would be evaluated as falsy otherwise
+        // Return without stock-management: if quantity not >= '0'
+        // e.g. not exists, NUll, empty
+        if (!($objProduct->quantity >= '0')) {
             return $intQuantity; // return unchanged requested quantity
         }
 

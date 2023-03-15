@@ -27,9 +27,9 @@ use Isotope\ServiceAnnotation\IsotopeHook;
 class UpdateItemInCollectionListener
 {
     private string $inventory_status;
-    private string $AVAILABLE = '1'; /* product available for selling */
-    private string $RESERVED = '2'; /* product in cart, no reamining quantity */
-    private string $SOLDOUT = '3'; /* product sold, no quantity left */
+    private string $AVAILABLE = '2'; /* product available for sale */
+    private string $RESERVED = '3'; /* product in cart, no quantity left */
+    private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     /**
      * Prevents setting the quantity in cart higher than given in product-quantity.
@@ -50,10 +50,14 @@ class UpdateItemInCollectionListener
             throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
         }
 
-        // Return without stock-management: if quantity not exists or is NULL or empty
-        if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) { //@phpstan-ignore-line as still working
-            // exclude case string = '0' which would be evaluated as falsy otherwise
+        // inventory_status is not in use: return without stock-management
+        if (!$objProduct->inventory_status) { //@phpstan-ignore-line as still working
+            return $arrSet; // return unchanged
+        }
 
+        // Return without stock-management: if quantity not >= '0'
+        // e.g. not exists, NUll, empty
+        if (!($objProduct->quantity >= '0')) { //@phpstan-ignore-line as still working
             return $arrSet; // return unchanged
         }
 

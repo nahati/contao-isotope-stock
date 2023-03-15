@@ -26,8 +26,8 @@ use Isotope\ServiceAnnotation\IsotopeHook;
 class PostDeleteItemFromCollectionListener
 {
     private string $inventory_status;
-    private string $AVAILABLE = '1'; /* product available for selling */
-    private string $SOLDOUT = '3'; /* product bought, no remaining quantity */
+    private string $AVAILABLE = '2'; /* product available for selling */
+    private string $SOLDOUT = '4'; /* product bought, no remaining quantity */
 
     /**
      * Sets inventory_status.
@@ -44,11 +44,15 @@ class PostDeleteItemFromCollectionListener
             throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
         }
 
-        // Return without stock-management: if quantity not exists or is NULL or empty
-        if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) { // @phpstan-ignore-line as still working
-            // exclude case string = '0' which would be evaluated as falsy otherwise
+        // inventory_status is not in use: return without stock-management
+        if (!$objProduct->inventory_status) { //@phpstan-ignore-line as still working
+            return;
+        }
 
-            return; // return unchanged requested quantity
+        // Return without stock-management: if quantity not >= '0'
+        // e.g. not exists, NUll, empty
+        if (!($objProduct->quantity >= '0')) { //@phpstan-ignore-line as still working
+            return;
         }
 
         $this->inventory_status = $objProduct->quantity > 0 ? $this->AVAILABLE : $this->SOLDOUT;

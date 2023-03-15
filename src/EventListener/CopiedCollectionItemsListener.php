@@ -27,8 +27,9 @@ use Isotope\ServiceAnnotation\IsotopeHook;
 class CopiedCollectionItemsListener
 {
     private string $inventory_status;
-    private string $AVAILABLE = '1'; /* product available for selling */
-    private string $RESERVED = '2'; /* product in cart, no reamining quantity */
+    private string $AVAILABLE = '2'; /* product available for sale */
+    private string $RESERVED = '3'; /* product in cart, no quantity left */
+    private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     /**
      * Handles the quantity in cart. Also sets inventory_status.
@@ -47,16 +48,21 @@ class CopiedCollectionItemsListener
 
             $objItem = $objTarget->getItemById($itemId) ?? null; // Item in cart
 
-            $objProduct = $objItem->getProduct() ?? null; // Corresp. product
+            $objProduct = $objItem?->getProduct() ?? null; // Corresp. product
 
             // quantity activated but inventory_status not activated
-            if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) { //@phpstan-ignore-line as still working
+            if ((null === $objProduct?->inventory_status) && (null !== $objProduct?->quantity)) { //@phpstan-ignore-line as still working
                 throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
             }
 
-            if (!('0' === $objProduct->quantity || $objProduct->quantity > '0' ? true : false)) { //@phpstan-ignore-line as still working
-                // (exclude case string = '0' which would be evaluated as falsy otherwise)
-                // If quantity not exists or is NULL or empty
+            // inventory_status is not in use
+            if (!$objProduct->inventory_status) { //@phpstan-ignore-line as still working
+                continue; // next in loop
+            }
+
+            // Return without stock-management: if quantity not >= '0'
+            // e.g. not exists, NUll, empty
+            if (!($objProduct->quantity >= '0')) { //@phpstan-ignore-line as still working
                 continue; // next in loop
             }
 
@@ -90,10 +96,14 @@ class CopiedCollectionItemsListener
                 }
             }
 
-            // If procuct quantity zero: set quantity in cart zero, message
+            // If procuct quantity zero: set quantity in cart zero, set SOLDOUT, message
             else {
                 $objItem->quantity = 0;
                 $objItem->save();
+
+                $this->inventory_status = $this->SOLDOUT;
+                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id); // @phpstan-ignore-line as still working
+
                 Message::addError(sprintf(
                     $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
                     $objProduct->getName(),
