@@ -19,7 +19,7 @@
         "source": "https://github.com/nahati/contao-isotope-stock"
     },
     "require": {
-        "PHP": "^8.0",
+        "PHP": "^8.1",
         "contao/core-bundle": "^4.13.16",
         "isotope/isotope-core": "^2.8.10",
         "symfony/config": "^5.4",
