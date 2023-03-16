@@ -5,6 +5,6 @@ services:
         public: false
 
     nahati\ContaoIsotopeStockBundle\EventListener\:
-        resource: '../../../src/EventListener/'
+        resource: '../src/EventListener/'
         
 
