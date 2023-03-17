@@ -1,8 +1,9 @@
 <!--- Additionally show inventory_status  -->
-<!--- Show quantity-field and submit-buttons only under certain circumstances -->
+<!--- Show price, quantity-field and submit-buttons only if applicable -->
 <!--- Added blocks to enable inheritance -->
 
 <?php $this->block('content'); ?>
+
 
 <?php $this->block('form_part1'); ?>
 <form id="<?= $this->formId ?>" name="iso<?= rand() ?>" method="post" enctype="<?= $this->enctype ?>">
@@ -31,18 +32,23 @@
     </div>
     <?php $this->endblock(); ?>
 
+
     <?php $this->block('form_part2'); ?>
     <?php if ($this->sku) : ?>
     <div class="sku" itemprop="sku">
       <?= $this->generateAttribute('sku') ?>
     </div>
     <?php endif;
-          if ($this->description) : ?>
+
+    if ($this->description) : ?>
     <div class="description" itemprop="description">
       <?= $this->generateAttribute('description') ?>
     </div>
     <?php endif; ?>
+
     <?php /* @var \Isotope\Interfaces\IsotopePrice $price */ if ($price = $this->product->getPrice()) : ?>
+    <!-- Show price if (inventory_status not exists or is NULL or is not 1) -->
+    <?php if ( (!$this->inventory_status) || ($this->inventory_status !== '1') )  : ?>
     <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
       <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
       <div class="price" itemprop="price"
@@ -55,6 +61,7 @@
       </div>
       <?php endif; ?>
     </div>
+    <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($this->actions) : ?>
@@ -84,5 +91,6 @@
   </div>
 </form>
 <?php $this->endblock(); ?>
+
 
 <?php $this->endblock(); ?>
