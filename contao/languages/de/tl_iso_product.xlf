@@ -6,7 +6,8 @@
                 <target>Verfügbare Anzahl an Exemplaren</target>
             </trans-unit>
             <trans-unit id="tl_iso_product.quantity.1">
-                <target>Geben Sie hier die verfügbare Anzahl der Exemplare für dieses Produkt ein</target>
+                <target>Falls limitiert, geben Sie hier die verfügbare Anzahl der Exemplare für
+                    dieses Produkt ein</target>
             </trans-unit>
             <trans-unit id="tl_iso_product.inventory_status.0">
                 <target>Verfügbarkeit?</target>

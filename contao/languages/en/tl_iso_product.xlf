@@ -6,7 +6,7 @@
                 <target>Available quantity</target>
             </trans-unit>
             <trans-unit id="tl_iso_product.quantity.1">
-                <target>Please enter the available quantity for this product</target>
+                <target>If limited edition, enter the available quantity for this product</target>
             </trans-unit>
             <trans-unit id="tl_iso_product.inventory_status.0">
                 <target>Inventory status</target>
