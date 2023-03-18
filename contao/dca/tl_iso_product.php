@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 $GLOBALS['TL_DCA']['tl_iso_product']['fields']['quantity'] = [
     'label' => &$GLOBALS['TL_LANG']['tl_iso_product']['quantity'],
-    'exclude' => true,
     'filter' => true,
     'sorting' => true,
     'inputType' => 'text',
