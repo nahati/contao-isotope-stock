@@ -1,5 +1,4 @@
 <!--- Additionally show inventory_status  -->
-<!--- Show price, quantity-field and submit-buttons only if applicable -->
 <!--- Added blocks to enable inheritance -->
 
 <?php $this->block('content'); ?>
@@ -14,78 +13,79 @@
     <input type="hidden" name="AJAX_PRODUCT" value="<?= $this->product_id ?>">
     <input type="hidden" name="AJAX_MODULE" value="<?= $this->module_id ?>">
 
-    <h2 itemprop="name">
-      <?= $this->generateAttribute('name') ?>
-    </h2>
+    <?php if($this->hasOptions): foreach($this->raw_options as $name => $option): ?>
+    <input type="hidden" name="<?= $name ?>" value="<?= $option['value'] ?>">
+    <?php endforeach; endif; ?>
+    <h3 itemprop="name">
+      <?php if ($this->href): ?><a href="<?= $this->href ?>" title="<?= $this->label_detail ?>">
+        <?php endif; ?>
+        <?= $this->generateAttribute('name') ?>
+        <?php if ($this->href): ?>
+      </a>
+      <?php endif; ?>
+    </h3>
 
     <?= $this->getGallery('images')->generateMainImage() ?>
-    <?php if ($this->hasOptions) : ?>
-    <div class="options">
-      <?php foreach ($this->options as $arrOption) : echo $arrOption['html'];
-        endforeach; ?>
-    </div>
-    <?php endif; ?>
-
-    <?= $this->getGallery('images')->generateGallery() ?>
 
     <div class="inventory_status" itemprop="inventory_status">
       <?= $this->generateAttribute('inventory_status'); ?>
     </div>
+
+
     <?php $this->endblock(); ?>
 
 
     <?php $this->block('form_part2'); ?>
-    <?php if ($this->sku) : ?>
+
+
+
+    <?php if ($this->sku): ?>
     <div class="sku" itemprop="sku">
       <?= $this->generateAttribute('sku') ?>
     </div>
-    <?php endif;
-
-    if ($this->description) : ?>
-    <div class="description" itemprop="description">
-      <?= $this->generateAttribute('description') ?>
+    <?php endif; if ($this->teaser): ?>
+    <div class="teaser">
+      <?= $this->generateAttribute('teaser') ?>
     </div>
     <?php endif; ?>
 
-    <?php /* @var \Isotope\Interfaces\IsotopePrice $price */ if ($price = $this->product->getPrice()) : ?>
-    <!-- Show price if (inventory_status not exists or is NULL or is not 1) -->
-    <?php if ( (!$this->inventory_status) || ($this->inventory_status !== '1') )  : ?>
+    <?php /* @var \Isotope\Interfaces\IsotopePrice $price */ if ($price = $this->product->getPrice()): ?>
     <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
       <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
       <div class="price" itemprop="price"
         content="<?= \Isotope\Isotope::roundPrice($price->getAmount(1, $this->product->getOptions())) ?>">
         <?= $this->generatePrice() ?>
       </div>
-      <?php if ($this->baseprice) : ?>
+      <?php if($this->baseprice): ?>
       <div class="baseprice">
         <?= $this->generateAttribute('baseprice') ?>
       </div>
       <?php endif; ?>
     </div>
     <?php endif; ?>
+
+    <?php if ($this->href): ?>
+    <div class="details"><a href="<?= $this->href ?>" title="<?= $this->label_detail ?>">
+        <?= $this->label_detail ?>
+      </a></div>
     <?php endif; ?>
 
-    <?php if ($this->actions) : ?>
+    <?php if($this->actions): ?>
     <div class="submit_container">
-      <!-- Allow quantity input if (quantity not exists or is NULL or is empty or (is not 0 and not 1)) AND (inventory_status not exists or is NULL or is 2) -->
-      <?php if ( !(($this->quantity === '0' || $this->quantity === '1') ? true : false)  && 
-                 ((!$this->inventory_status) || $this->inventory_status === '2') )  : ?>
-      <?php if ($this->useQuantity) : ?>
+      <?php if ($this->hasOptions): ?>
+      <div class="options">
+        <?php foreach( $this->options as $arrOption ): if (!$arrOption['attributes']['variant_option']) echo $arrOption['html']; endforeach; ?>
+      </div>
+      <?php endif; ?>
+      <?php if ($this->useQuantity): ?>
       <div class="quantity_container">
         <label for="quantity_requested_<?= $this->raw['id'] ?>">
           <?= $GLOBALS['TL_LANG']['MSC']['quantity'] ?>:
         </label> <input type="text" class="text" id="quantity_requested_<?= $this->raw['id'] ?>"
-          name="quantity_requested" placeholder="<?= $this->minimum_quantity ?>"
-          value="<?= \Contao\StringUtil::specialchars(Input::post('quantity_requested')); ?>" maxlength="10">
+          name="quantity_requested" placeholder="<?= $this->minimum_quantity ?>" maxlength="10">
       </div>
       <?php endif; ?>
-      <?php endif; ?>
-
-      <!-- Cart Button shown if (quantity not exists or is NULL or is empty or is not 0)  AND (inventory_status not exists or is NULL or is 1) -->
-      <?php if ( !(($this->quantity === '0') ? true : false)  && 
-                 ((!$this->inventory_status) || $this->inventory_status === '2') )  : ?>
       <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
-      <?php endif; ?>
     </div>
     <?php endif; ?>
 
