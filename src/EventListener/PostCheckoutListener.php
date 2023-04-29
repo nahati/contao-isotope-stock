@@ -16,7 +16,6 @@ namespace nahati\ContaoIsotopeStockBundle\EventListener;
 
 use Contao\Database;
 use Isotope\Interfaces\IsotopeProductCollection;
-// use Isotope\Model\ProductCollection;
 use Isotope\Model\Product;
 use Isotope\ServiceAnnotation\IsotopeHook;
 
@@ -25,58 +24,117 @@ use Isotope\ServiceAnnotation\IsotopeHook;
  */
 class PostCheckoutListener
 {
-    private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for selling */
     private string $SOLDOUT = '4'; /* product bought, no remaining quantity */
 
     /**
-     *  Updates the quantity. Marks as SOLDOUT in all bought products with no remaining quantity.
+     * Set SOLDOUT and set quantity zero (if applicable) with all variants.
      *
-     * @param IsotopeProductCollection $objOrder
+     * @param Product $objParentProduct
      */
-    public function __invoke($objOrder): void
+    private function setVariantsSoldout($objParentProduct): void
+    {
+        /** @var IsotopeProductCollection|null $objVariants */
+        $objVariants = Database::getInstance()->prepare('SELECT * FROM ' . Product::getTable() . ' WHERE pid = ?')->execute($objParentProduct->getId());
+
+        /** @var Product|null $objVariant */
+        foreach ($objVariants->getItems(true) as $objVariant) {
+            // If quantity NOT NULL AND NOT empty AND not yet ZERO
+            if ($objVariant->quantity) {
+                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ?,  inventory_status = ?  WHERE id = ?')->execute('0', $this->SOLDOUT, $objVariant->id);
+            }
+
+            // Quantity IS NULL OR empty OR already ZERO
+            else {
+                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET  inventory_status = ?  WHERE id = ?')->execute($this->SOLDOUT, $objVariant->id);
+            }
+        }
+    }
+
+    /**
+     * Manage Stock for a given product and a given quantity bought
+     * Return true, if Soldout.
+     *
+     * @param Product $objProduct
+     * @param int     $quantityBought
+     *
+     * @return bool // returns true if product soldout
+     */
+    private function manageStockAndCheckSoldout($objProduct, $quantityBought)
+    {
+        switch ($objProduct->quantity ?? null) {
+            case null:
+            case '':
+                return false; // no stock-management
+
+            default: // case 0,1,2,..
+                // decrease available quantity by bought quantity
+                $objProduct->quantity -= $quantityBought;
+
+                // Quantity left
+                if ($objProduct->quantity > 0) {
+                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ? WHERE id = ?')->execute($objProduct->quantity, $objProduct->getId());
+
+                    return false;
+                }
+                // Soldout
+                $objProduct->quantity = 0;
+                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ?, inventory_status = ? WHERE id = ?')->execute('0', $this->SOLDOUT, $objProduct->getId());
+
+                return true;
+        }
+    }
+
+    /**
+     *  Updates the quantity. Marks as SOLDOUT in all bought products/variants with no remaining quantity.
+     *
+     * @param IsotopeProductCollection $objOrder // ProductCollection in order
+     */
+    public function __invoke(IsotopeProductCollection $objOrder): void
     {
         foreach ($objOrder->getItems() as $objItem) {
-            $objProduct = $objItem->getProduct(true);
+            /** @var Product|null $objProduct */
+            $objProduct = $objItem->getProduct(true) ?? null;
 
-            // quantity activated but inventory_status not activated
-            if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) { //@phpstan-ignore-line as still working
-                throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
+            if (!$objProduct) {
+                continue;
             }
 
-            // inventory_status is not in use
-            if (!$objProduct->inventory_status) { //@phpstan-ignore-line as still working
-                continue; // next in loop
-            }
-
-            // Return without stock-management: if quantity not >= '0'
-            // e.g. not exists, NUll, empty
-            if (!($objProduct->quantity >= '0')) { //@phpstan-ignore-line as still working
-                continue; // next in loop
-            }
-
-            if ($objProduct?->quantity > 0) { // @phpstan-ignore-line as still working
-                // decrease available quantity by bought quantity
-                $objProduct->quantity -= $objItem->quantity;
-
-                // Set SOLDOUT and quantity zero if there is no quantity left
-                if ($objProduct->quantity <= 0) {
-                    $objProduct->quantity = 0;
-
-                    $this->inventory_status = $this->SOLDOUT;
-
-                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET quantity = ?,  inventory_status = ?  WHERE id = ?')->execute($objProduct->quantity, $this->inventory_status, $objProduct->getId());
+            // inventory_status is not in use (in theory: FALSE, NULL, '0' or '')
+            if (!$objProduct->inventory_status) {
+                // quantity activated
+                if (null !== $objProduct->quantity) {
+                    throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
                 }
 
-                // Set new quantity in any other case
-                else {
-                    $this->inventory_status = $this->AVAILABLE;
-                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET quantity = ?, inventory_status = ? WHERE id = ?')->execute($objProduct->quantity, $this->inventory_status, $objProduct->getId());
+                continue; // no stock-management
+            }
+
+            // single product (not having any variants)
+            if (!$objProduct->isVariant()) {
+                $this->manageStockAndCheckSoldout($objProduct, $objItem->quantity);
+            }
+
+            // product is a variant
+            else {
+                switch ($objProduct->quantity ?? null) {
+                    case null:
+                    case '':
+                        $objParentProduct = Product::findByPk($objProduct->pid);
+
+                        if ($this->manageStockAndCheckSoldout($objParentProduct, $objItem->quantity)) {
+                            $this->setVariantsSoldout($objParentProduct); // if soldout
+                        }
+                        break;
+
+                    default: // case 0,1,2,..
+                        $this->manageStockAndCheckSoldout($objProduct, $objItem->quantity);
+
+                        $objParentProduct = Product::findByPk($objProduct->pid);
+
+                        if ($this->manageStockAndCheckSoldout($objParentProduct, $objItem->quantity)) {
+                            $this->setVariantsSoldout($objParentProduct); // if soldout
+                        }
                 }
-            } else {
-                // Product out of stock ($objProduct->quantity = 0):
-                $this->inventory_status = $this->SOLDOUT;
-                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id); //@phpstan-ignore-line as still working
             }
         } // foreach
     }

@@ -25,10 +25,73 @@ use Isotope\ServiceAnnotation\IsotopeHook;
  */
 class AddProductToCollectionListener
 {
-    private string $inventory_status;
+    // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
     private string $RESERVED = '3'; /* product in cart, no quantity left */
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
+
+    /**
+     * Set RESERVED with all variants.
+     *
+     * @param Product $objParentProduct
+     */
+    private function setVariantsReserved($objParentProduct): void
+    {
+        /** @var IsotopeProductCollection|null $objVariants */
+        $objVariants = Database::getInstance()->prepare('SELECT * FROM '.Product::getTable().' WHERE pid = ?')->execute($objParentProduct->getId());
+
+        /** @var Product|null $objVariant */
+        foreach ($objVariants->getItems(true) as $objVariant) {
+            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET  inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objVariants->id); //@phpstan-ignore-line
+        }
+    }
+
+    /**
+     * Manage Stock for a given product and a given quantity bought
+     * Return true, if Soldout.
+     *
+     * @param Product $objProduct
+     * @param int     $qtyInCart   // quantity of product already in cart
+     * @param int     $intQuantity // requested quantity to be added to cart
+     * @param bool    $reserved    // returns true if product reserved
+     *
+     * @return int // returns quantity to be added to cart
+     */
+    private function manageStockAndCheckReserved($objProduct, $qtyInCart, $intQuantity, &$reserved = false)
+    {
+        switch ($objProduct->quantity ?? null) {
+            case null:
+            case '':
+                return $intQuantity; // return unchanged requested quantity
+
+            default: // case 0,1,2,..
+
+                $qtyAddToCart = $objProduct->quantity - $qtyInCart;
+                $qtyAddToCart = $qtyAddToCart < 0 ? 0 : $qtyAddToCart; // limit to zero
+
+                // if quantity to add to cart <= requested quantity: set RESERVED
+                if ($qtyAddToCart <= $intQuantity) {
+                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objProduct->id);
+
+                    // if reduced requested quantity, give back true, warning message
+                    if ($qtyAddToCart < $intQuantity) {
+                        $reserved = true;
+
+                        Message::addError(sprintf(
+                            $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
+                            $objProduct->getName(),
+                            $objProduct->quantity
+                        ));
+                    } else {
+                        $reserved = false;
+                    }
+
+                    return $qtyAddToCart; // return unchanged or reduced requested quantity
+                }
+
+                return $intQuantity; // return unchanged requested quantity
+        }
+    }
 
     /**
      * Checks if the requested quantity exceeds stock when adding product to cart.
@@ -42,13 +105,17 @@ class AddProductToCollectionListener
      */
     public function __invoke($objProduct, $intQuantity, $objCollection)
     {
-        // quantity activated but inventory_status not activated
-        if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) {
-            throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
+        if (!$objProduct) {
+            return false;
         }
 
-        // inventory_status is not in use: return without stock-management
+        // inventory_status is not in use
         if (!$objProduct->inventory_status) {
+            // quantity activated
+            if (null !== $objProduct->quantity) {
+                throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
+            }
+
             return $intQuantity; // return unchanged requested quantity
         }
 
@@ -62,16 +129,14 @@ class AddProductToCollectionListener
             return false;
         }
 
-        // Return without stock-management: if quantity not >= '0'
-        // e.g. not exists, NUll, empty
+        // Return without stock-management if not limited edition
         if (!($objProduct->quantity >= '0')) {
             return $intQuantity; // return unchanged requested quantity
         }
 
         // If quantity is zero: Set SOLDOUT; message; return false
         if ('0' === $objProduct->quantity) {
-            $this->inventory_status = $this->SOLDOUT;
-            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id);
+            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->SOLDOUT, $objProduct->id);
 
             Message::addError(sprintf(
                 $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
@@ -81,32 +146,44 @@ class AddProductToCollectionListener
             return false;
         }
 
-        // If quantity > 0: stock-management
+        // Fetch item for product in cart
         $item = $objCollection->getItemForProduct($objProduct) ?? null;
 
         // calculate quantity that can be added to cart ($qtyAddToCart)
-        $qtyInCart = $item->quantity ?? 0; // quantity already in cart
-        $qtyAddToCart = $objProduct->quantity - $qtyInCart;
-        $qtyAddToCart = $qtyAddToCart < 0 ? 0 : $qtyAddToCart; // limit to zero at bottom
+        $qtyInCart = $item?->quantity ?? 0; // quantity already in cart
 
-        // if quantity to add to cart <= requested quantity: set RESERVED
-        if ($qtyAddToCart <= $intQuantity) {
-            $this->inventory_status = $this->RESERVED;
-            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id);
-
-            // if reduced requested quantity, warning message
-            if ($qtyAddToCart < $intQuantity) {
-                Message::addError(sprintf(
-                    $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
-                    $objProduct->getName(),
-                    $objProduct->quantity
-                ));
-            }
-
-            return $qtyAddToCart; // return unchanged or reduced requested quantity
+        // single product (not having any variants)
+        if (!$objProduct->isVariant()) {
+            return $this->manageStockAndCheckReserved($objProduct, $qtyInCart, $intQuantity);
         }
 
-        // - else - available quantity exceeds requested quantity
-        return $intQuantity; // return unchanged requested quantity
+        // product is a variant
+
+        $objParentProduct = Product::findByPk($objProduct->pid);
+
+        switch ($objProduct->quantity) {
+            case null:
+            case '':
+                $reserved = false;
+                $returnParent = $this->manageStockAndCheckReserved($objParentProduct, $qtyInCart, $intQuantity, $reserved);
+
+                if ($reserved) {
+                    $this->setVariantsReserved($objParentProduct);
+                }
+
+                return $returnParent;
+
+            default: // case 0,1,2,..
+                $returnVariant = $this->manageStockAndCheckReserved($objProduct, $qtyInCart, $intQuantity);
+
+                $reserved = false;
+                $returnParent = $this->manageStockAndCheckReserved($objParentProduct, $qtyInCart, $intQuantity, $reserved);
+
+                if ($reserved) {
+                    $this->setVariantsReserved($objParentProduct);
+                }
+                //return the minimum of $returnVariant and $returnParent
+                return $returnVariant < $returnParent ? $returnVariant : $returnParent;
+        }
     }
 }

@@ -18,4 +18,5 @@ return static function (ECSConfig $ecsConfig): void {
     }
 
     // Adjust the configuration according to your needs.
+
 };

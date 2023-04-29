@@ -17,3 +17,5 @@ parameters:
 
     excludePaths:
         - %currentWorkingDirectory%/src/Resources/*
+
+    treatPhpDocTypesAsCertain: false        
