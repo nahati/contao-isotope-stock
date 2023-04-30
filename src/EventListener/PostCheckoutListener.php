@@ -31,7 +31,7 @@ class PostCheckoutListener
      *
      * @param Product $objParentProduct
      */
-    private function setVariantsSoldout($objParentProduct): void
+    private function setVariantsSoldout(Product $objParentProduct): void
     {
         /** @var IsotopeProductCollection|null $objVariants */
         $objVariants = Database::getInstance()->prepare('SELECT * FROM ' . Product::getTable() . ' WHERE pid = ?')->execute($objParentProduct->getId());
@@ -59,7 +59,7 @@ class PostCheckoutListener
      *
      * @return bool // returns true if product soldout
      */
-    private function manageStockAndCheckSoldout($objProduct, $quantityBought)
+    private function manageStockAndCheckSoldout(Product $objProduct, int $quantityBought)
     {
         switch ($objProduct->quantity ?? null) {
             case null:
