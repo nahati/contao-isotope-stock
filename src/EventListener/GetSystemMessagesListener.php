@@ -41,10 +41,10 @@ class GetSystemMessagesListener
 
         if ($objProducts) {
             while ($objProducts->next()) {
-                $arrMessages[] = '<p class="tl_error">'.sprintf(
+                $arrMessages[] = '<p class="tl_error">' . sprintf(
                     $GLOBALS['TL_LANG']['MSC']['checkProduct'],
                     $objProducts->sku
-                ).'</p>';
+                ) . '</p>';
             }
         }
 

@@ -38,17 +38,16 @@ class AddProductToCollectionListener
     private function setVariantsReserved($objParentProduct): void
     {
         /** @var IsotopeProductCollection|null $objVariants */
-        $objVariants = Database::getInstance()->prepare('SELECT * FROM '.Product::getTable().' WHERE pid = ?')->execute($objParentProduct->getId());
+        $objVariants = Database::getInstance()->prepare('SELECT * FROM ' . Product::getTable() . ' WHERE pid = ?')->execute($objParentProduct->getId());
 
         /** @var Product|null $objVariant */
         foreach ($objVariants->getItems(true) as $objVariant) {
-            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET  inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objVariants->id); //@phpstan-ignore-line
+            Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET  inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objVariant->id);
         }
     }
 
     /**
-     * Manage Stock for a given product and a given quantity bought
-     * Return true, if Soldout.
+     * Manage Stock for a given product and a given quantity bought.
      *
      * @param Product $objProduct
      * @param int     $qtyInCart   // quantity of product already in cart
@@ -66,12 +65,12 @@ class AddProductToCollectionListener
 
             default: // case 0,1,2,..
 
-                $qtyAddToCart = $objProduct->quantity - $qtyInCart;
-                $qtyAddToCart = $qtyAddToCart < 0 ? 0 : $qtyAddToCart; // limit to zero
+                $qtyAddToCart = $objProduct->quantity - $qtyInCart; //  max quantity that could be added to cart
+                $qtyAddToCart = $qtyAddToCart < 0 ? 0 : $qtyAddToCart; // prevent being negative
 
-                // if quantity to add to cart <= requested quantity: set RESERVED
+                // if max quantity that could be added to cart <= requested quantity: set RESERVED
                 if ($qtyAddToCart <= $intQuantity) {
-                    Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objProduct->id);
+                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objProduct->id);
 
                     // if reduced requested quantity, give back true, warning message
                     if ($qtyAddToCart < $intQuantity) {
@@ -87,9 +86,9 @@ class AddProductToCollectionListener
                     }
 
                     return $qtyAddToCart; // return unchanged or reduced requested quantity
-                }
-
-                return $intQuantity; // return unchanged requested quantity
+                } else {
+                    return $intQuantity;
+                } // return unchanged requested quantity
         }
     }
 
@@ -101,7 +100,7 @@ class AddProductToCollectionListener
      * @param mixed                    $intQuantity   // quantity requested for cart
      * @param IsotopeProductCollection $objCollection // ProductCollection in cart
      *
-     * @return mixed
+     * @return mixed // returns false (product not available or soldout) or quantity to be added to cart
      */
     public function __invoke($objProduct, $intQuantity, $objCollection)
     {
@@ -136,7 +135,7 @@ class AddProductToCollectionListener
 
         // If quantity is zero: Set SOLDOUT; message; return false
         if ('0' === $objProduct->quantity) {
-            Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->SOLDOUT, $objProduct->id);
+            Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->SOLDOUT, $objProduct->id);
 
             Message::addError(sprintf(
                 $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
@@ -158,32 +157,33 @@ class AddProductToCollectionListener
         }
 
         // product is a variant
+        else {
+            switch ($objProduct->quantity ?? null) {
+                case null:
+                case '':
+                    $objParentProduct = Product::findByPk($objProduct->pid);
+                    $reserved = false;
+                    $returnParent = $this->manageStockAndCheckReserved($objParentProduct, $qtyInCart, $intQuantity, $reserved);
 
-        $objParentProduct = Product::findByPk($objProduct->pid);
+                    if ($reserved) {
+                        $this->setVariantsReserved($objParentProduct);
+                    }
 
-        switch ($objProduct->quantity) {
-            case null:
-            case '':
-                $reserved = false;
-                $returnParent = $this->manageStockAndCheckReserved($objParentProduct, $qtyInCart, $intQuantity, $reserved);
+                    return $returnParent;
 
-                if ($reserved) {
-                    $this->setVariantsReserved($objParentProduct);
-                }
+                default: // case 0,1,2,..
+                    $returnVariant = $this->manageStockAndCheckReserved($objProduct, $qtyInCart, $intQuantity);
 
-                return $returnParent;
+                    $objParentProduct = Product::findByPk($objProduct->pid);
+                    $reserved = false;
+                    $returnParent = $this->manageStockAndCheckReserved($objParentProduct, $qtyInCart, $intQuantity, $reserved);
 
-            default: // case 0,1,2,..
-                $returnVariant = $this->manageStockAndCheckReserved($objProduct, $qtyInCart, $intQuantity);
+                    if ($reserved) {
+                        $this->setVariantsReserved($objParentProduct);
+                    }
 
-                $reserved = false;
-                $returnParent = $this->manageStockAndCheckReserved($objParentProduct, $qtyInCart, $intQuantity, $reserved);
-
-                if ($reserved) {
-                    $this->setVariantsReserved($objParentProduct);
-                }
-                //return the minimum of $returnVariant and $returnParent
-                return $returnVariant < $returnParent ? $returnVariant : $returnParent;
+                    return min($returnVariant, $returnParent);
+            }
         }
     }
 }

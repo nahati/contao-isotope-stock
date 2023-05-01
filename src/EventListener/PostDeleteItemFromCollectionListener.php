@@ -37,26 +37,30 @@ class PostDeleteItemFromCollectionListener
      */
     public function __invoke($objItem, $objCart): void
     {
-        $objProduct = $objItem->getProduct();
+        /** @var Product|null $objProduct */
+        $objProduct = $objItem->getProduct(true) ?? null;
 
-        // quantity activated but inventory_status not activated
-        if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) { //@phpstan-ignore-line as still working
-            throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
-        }
-
-        // inventory_status is not in use: return without stock-management
-        if (!$objProduct->inventory_status) { //@phpstan-ignore-line as still working
+        if (!$objProduct) {
             return;
         }
 
-        // Return without stock-management: if quantity not >= '0'
-        // e.g. not exists, NUll, empty
-        if (!($objProduct->quantity >= '0')) { //@phpstan-ignore-line as still working
-            return;
+        // inventory_status is not in use (in theory: FALSE, not defined, NULL, '0' or '')
+        if (!$objProduct->inventory_status) {
+            // quantity activated
+            if (null !== $objProduct->quantity) {
+                throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName())); // todo: fix the configuration of producttype
+            }
+
+            return; // no stock-management
+        }
+
+        // Return without stock-management if not limited edition
+        if (!($objProduct->quantity >= '0')) {
+            return; // no stock-management
         }
 
         $this->inventory_status = $objProduct->quantity > 0 ? $this->AVAILABLE : $this->SOLDOUT;
 
-        Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
+        Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
     }
 }

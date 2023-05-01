@@ -25,44 +25,48 @@ use Isotope\ServiceAnnotation\IsotopeHook;
  */
 class SaveCollectionListener
 {
-    private string $inventory_status;
+    // private string $inventory_status;
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     /**
-     * @param ProductCollection $objCart
+     * @param ProductCollection $objCart // cart
      */
     public function __invoke($objCart): void
     {
         foreach ($objCart->getItems() as $objItem) {
-            $objProduct = $objItem->getProduct(true);
+            /** @var Product|null $objProduct */
+            $objProduct = $objItem->getProduct(true) ?? null;
 
-            // quantity activated but inventory_status not activated
-            if ((null === $objProduct->inventory_status) && (null !== $objProduct->quantity)) { //@phpstan-ignore-line as still working
-                throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
+            if (!$objProduct) {
+                continue;
             }
 
-            // inventory_status is not in use: return without stock-management
-            if (!$objProduct->inventory_status) { //@phpstan-ignore-line as still working
-                continue; // next in loop
+            // inventory_status is not in use (in theory: FALSE, not defined, NULL, '0' or '')
+            if (!$objProduct->inventory_status) {
+                // quantity activated
+                if (null !== $objProduct->quantity) {
+                    throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName())); // todo: fix the configuration of producttype
+                }
+
+                continue; // no stock-management
             }
 
-            // Return without stock-management: if quantity not >= '0'
-            // e.g. not exists, NUll, empty
-            if (!($objProduct->quantity >= '0')) { //@phpstan-ignore-line as still working
-                continue; // next in loop
+            // Return without stock-management if not limited edition
+            if (!($objProduct->quantity >= '0')) {
+                continue; // no stock-management
             }
 
-            if ('0' === $objProduct?->quantity) { // @phpstan-ignore-line as still working
-                // If procuct quantity zero: delete Item from cart, set SOLDOUT, message
-                $objItem->delete();
-
-                $this->inventory_status = $this->SOLDOUT;
-                Database::getInstance()->prepare('UPDATE '.Product::getTable().' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->id); // @phpstan-ignore-line as still working
+            // If quantity is zero: set SOLDOUT, message, delete item from cart
+            if ('0' === $objProduct->quantity) {
+                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->SOLDOUT, $objProduct->id);
 
                 Message::addError(sprintf(
                     $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
                     $objProduct->getName()
                 ));
+
+                $objItem->quantity = 0;
+                $objItem->save();
             }
         } // foreach
     }

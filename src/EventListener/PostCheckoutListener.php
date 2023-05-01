@@ -24,6 +24,7 @@ use Isotope\ServiceAnnotation\IsotopeHook;
  */
 class PostCheckoutListener
 {
+    // private string $inventory_status;
     private string $SOLDOUT = '4'; /* product bought, no remaining quantity */
 
     /**
@@ -31,18 +32,16 @@ class PostCheckoutListener
      *
      * @param Product $objParentProduct
      */
-    private function setVariantsSoldout(Product $objParentProduct): void
+    private function setVariantsSoldout($objParentProduct): void
     {
         /** @var IsotopeProductCollection|null $objVariants */
         $objVariants = Database::getInstance()->prepare('SELECT * FROM ' . Product::getTable() . ' WHERE pid = ?')->execute($objParentProduct->getId());
 
         /** @var Product|null $objVariant */
         foreach ($objVariants->getItems(true) as $objVariant) {
-            // If quantity NOT NULL AND NOT empty AND not yet ZERO
             if ($objVariant->quantity) {
                 Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ?,  inventory_status = ?  WHERE id = ?')->execute('0', $this->SOLDOUT, $objVariant->id);
             }
-
             // Quantity IS NULL OR empty OR already ZERO
             else {
                 Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET  inventory_status = ?  WHERE id = ?')->execute($this->SOLDOUT, $objVariant->id);
@@ -59,7 +58,7 @@ class PostCheckoutListener
      *
      * @return bool // returns true if product soldout
      */
-    private function manageStockAndCheckSoldout(Product $objProduct, int $quantityBought)
+    private function manageStockAndCheckSoldout($objProduct, $quantityBought)
     {
         switch ($objProduct->quantity ?? null) {
             case null:
@@ -89,7 +88,7 @@ class PostCheckoutListener
      *
      * @param IsotopeProductCollection $objOrder // ProductCollection in order
      */
-    public function __invoke(IsotopeProductCollection $objOrder): void
+    public function __invoke($objOrder): void
     {
         foreach ($objOrder->getItems() as $objItem) {
             /** @var Product|null $objProduct */
@@ -99,11 +98,11 @@ class PostCheckoutListener
                 continue;
             }
 
-            // inventory_status is not in use (in theory: FALSE, NULL, '0' or '')
+            // inventory_status is not in use (in theory: FALSE, not defined, NULL, '0' or '')
             if (!$objProduct->inventory_status) {
                 // quantity activated
                 if (null !== $objProduct->quantity) {
-                    throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
+                    throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName())); // todo: fix the configuration of producttype
                 }
 
                 continue; // no stock-management
