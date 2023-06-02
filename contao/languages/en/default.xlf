@@ -15,6 +15,9 @@
             <trans-unit id="ERR.quantityNotAvailable">
                 <target>The maximum available quantity for "%s" is %s items</target>
             </trans-unit>
+            <trans-unit id="ERR.adaptCart">
+                <target>Adapt the "%s" and related variants in cart by their quantity!</target>
+            </trans-unit>
             <trans-unit id="MSC.checkProduct">
                 <target>The product "%s" has been marked "reserved" and hence not available. Please
                     check!</target>

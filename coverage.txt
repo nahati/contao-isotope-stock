@@ -1,0 +1,7 @@
+
+
+[1;37;40mCode Coverage Report Summary:[0m
+[37;41m  Classes:  0.00% (0/11)     [0m
+[37;41m  Methods:  0.00% (0/22)     [0m
+[37;41m  Lines:    0.00% (0/283)    [0m
+

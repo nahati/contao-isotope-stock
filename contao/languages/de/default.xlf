@@ -14,6 +14,9 @@
             <trans-unit id="ERR.quantityNotAvailable">
                 <target>Die maximal verfügbare Bestellmenge für "%s" ist %s Stück</target>
             </trans-unit>
+            <trans-unit id="ERR.adaptCart">
+                <target>Passen Sie "%s" und dazugehörige Varianten im Warenkorb mengenmässig an!</target>
+            </trans-unit>
             <trans-unit id="MSC.checkProduct">
                 <target>Das Product "%s" ist reserviert und deshalb nicht verfügbar Bitte überprüfen
                     Sie!</target>

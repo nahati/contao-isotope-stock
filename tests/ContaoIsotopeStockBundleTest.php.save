@@ -1,0 +1,203 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of Nahati/contao-isotope-stock
+ *
+ * (c) Ernst Jendritzki / Nachhaltig im web
+ *
+ * @license LGPL-3.0-or-later
+ */
+
+namespace Nahati\ContaoIsotopeStockBundle\Tests;
+
+use nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle;
+use PHPUnit\Framework\TestCase;
+
+use nahati\ContaoIsotopeStockBundle\Helper\Helper;
+
+
+use nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener;
+use Isotope\Model\ProductCollectionItem;
+use Isotope\Model\ProductCollection\Cart;
+// use Isotope\Model\Product;
+
+class ContaoIsotopeStockBundleTest extends TestCase
+{
+    // private string $inventory_status;
+    private string $AVAILABLE = '2'; /* product available for sale */
+    private string $RESERVED = '3'; /* product in cart, no quantity left */
+    private string $SOLDOUT = '4'; /* product sold, no quantity left */
+
+
+    private $objItem;
+    private $objCart;
+    private $helper;
+    private $arrSet;
+
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'] = 'inventory_status not activated for product %s';
+
+        $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->objItem->product_id = 1;
+        $this->objItem->quantity = 1;
+
+        $this->objCart = $this->getMockBuilder(Cart::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->helper = new Helper();
+
+        $this->arrSet = [
+            'quantity' => 1,
+        ];
+    }
+
+    /**
+     * Testcase01 Bundle can be instantiated
+     * 
+     * @return void 
+     */
+    public function testCanBeInstantiated(): void
+    {
+        $bundle = new ContaoIsotopeStockBundle();
+
+        $this->assertInstanceOf('nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle', $bundle);
+    }
+
+    /**
+     * Testcase02 Item in cart but no corresponding product
+     * 
+     * @return void 
+     */
+    public function testcase02()
+    {
+        $this->objItem->expects($this->once())
+            ->method('getProduct')
+            ->willReturn(null);
+
+        $listener = new UpdateItemInCollectionListener(
+            $this->helper,
+            $this->objItem,
+            $this->arrSet,
+            $this->objCart
+        );
+
+        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        $this->assertEquals(false, $result);
+    }
+
+    /**
+     * Testcase03 Item in cart, corresponding product exists, stockmanagement not configured
+     * 
+     * @return void 
+     */
+    public function testcase03()
+    {
+        $product = $this->getMockBuilder(Product::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->objItem->expects($this->once())
+            ->method('getProduct')
+            ->willReturn($product);
+
+        $listener = new UpdateItemInCollectionListener(
+            $this->helper,
+            $this->objItem,
+            $this->arrSet,
+            $this->objCart
+        );
+
+        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        $this->assertEquals($this->arrSet, $result);
+    }
+
+    /**
+     * Testcase04 Item in cart, corresponding product exists, stockmanagement not correctly configured
+     * 
+     * @return void 
+     */
+    public function testcase04()
+    {stock/src/Helper/Helper.php:34
+/shared/httpd/nahati/contao-isotope
+        $product = $this->getMockBuilder(Product::class)
+            ->setMethods(['getName'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $product->method('getName')->willReturn('Test Product');
+        $product->quantity = 1;
+
+
+        $this->objItem->expects($this->any())
+            ->method('getProduct')
+            ->willReturn($product);
+
+        $this->expectException(\InvalidArgumentException::class); // erwartete Exception
+
+        $listener = new UpdateItemInCollectionListener(
+            $this->helper,
+            $this->objItem,
+            $this->arrSet,
+            $this->objCart
+        );
+
+        // try {
+        //     $listener($this->objItem, $this->arrSet, $this->objCart);
+        // } catch (\InvalidArgumentException $e) {
+        // }
+
+        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        $this->assertEquals($this->arrSet, $result);
+    }
+
+    /**
+     * Testcase05 Item in cart, corresponding product SOLDOUT
+     * 
+     * @return void 
+     */
+    public function testcase05()
+    {
+        $product = $this->getMockBuilder(Product::class)
+            ->setMethods(['getName', 'isVariant'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $product->method('getName')->willReturn('Test Product');
+        $product->inventory_status = '2'; // value (1,2,..) arbitrary in this testcase
+        $product->quantity = '0'; // SOLDOUT
+        $product->id = '31'; // 
+
+        // var_dump($product);
+        // print_r(get_class_methods($product));
+
+        $this->objItem->expects($this->once())
+            ->method('getProduct')
+            ->willReturn($product);
+
+        $product->expects($this->never())
+            ->method('isVariant');
+
+        $listener = new UpdateItemInCollectionListener(
+            $this->helper,
+            $this->objItem,
+            $this->arrSet,
+            $this->objCart
+        );
+
+        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        // $this->assertEquals($result['quantity'], 0);
+        $this->assertEquals($result, false);
+    }
+}

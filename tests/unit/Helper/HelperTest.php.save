@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of Nahati/contao-isotope-stock
+ *
+ * (c) Ernst Jendritzki / Nachhaltig im web
+ *
+ * @license LGPL-3.0-or-later
+ */
+
+namespace Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper;
+
+use PHPUnit\Framework\TestCase;
+
+use nahati\ContaoIsotopeStockBundle\Helper\Helper;
+use Isotope\Model\Product\Standard;
+
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+
+/**
+ * Test the Helper class.
+ *
+ * @covers \nahati\ContaoIsotopeStockBundle\Helper\Helper
+ */
+class HelperTest extends KernelTestCase
+{
+    private $helper;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        self::bootKernel();
+        $this->helper = new Helper();
+    }
+
+    public function testCheckStockmanagement()
+    {
+        // $objProduct = new \stdClass();
+        $objProduct = new Standard();
+
+        // $this->helper->expects($this->once())
+        //     ->method('checkStockmanagement')
+        //     ->willReturn(false);
+
+        // $this->helper->checkStockmanagement($objProduct);
+    }
+}

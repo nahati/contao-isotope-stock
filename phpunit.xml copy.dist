@@ -4,14 +4,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd"
     colors="true"
-    bootstrap="vendor/autoload.php"
     failOnRisky="true"
     failOnWarning="false">
 
   <coverage
       includeUncoveredFiles="true"
       pathCoverage="true"
-      ignoreDeprecatedCodeUnits="true"
+      ignoreDeprecatedCodeUnits="false"
       disableCodeCoverageIgnore="true">
 
     <report>
@@ -45,6 +44,11 @@
     <env
         name="DATABASE_URL"
         value="mysql://root:@127.0.0.1:3306/ContaoIsotopeStockBundleTest" />
+
+    <env
+        name="KERNEL_CLASS"
+        value="Contao\CoreBundle\HttpKernel\Bundle\ContaoModuleBundleKernel" />
+
   </php>
 
   <testsuites>
@@ -56,4 +60,9 @@
     </testsuite>
   </testsuites>
 
+  <source>
+    <include>
+      <directory>./src</directory>
+    </include>
+  </source>
 </phpunit>

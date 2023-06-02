@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="" tests="5" assertions="6" errors="1" warnings="0" failures="0" skipped="0" time="0.181059">
+    <testsuite name="ContaoIsotopeStockBundleTest" tests="5" assertions="6" errors="1" warnings="0" failures="0" skipped="0" time="0.181059">
+      <testsuite name="Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotopeStockBundleTest" file="/shared/httpd/nahati/contao-isotope-stock/tests/ContaoIsotopeStockBundleTest.php" tests="5" assertions="6" errors="1" warnings="0" failures="0" skipped="0" time="0.181059">
+        <testcase name="testCanBeInstantiated" class="Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotopeStockBundleTest" classname="Nahati.ContaoIsotopeStockBundle.Tests.ContaoIsotopeStockBundleTest" file="/shared/httpd/nahati/contao-isotope-stock/tests/ContaoIsotopeStockBundleTest.php" line="67" assertions="1" time="0.019985"/>
+        <testcase name="testcase02" class="Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotopeStockBundleTest" classname="Nahati.ContaoIsotopeStockBundle.Tests.ContaoIsotopeStockBundleTest" file="/shared/httpd/nahati/contao-isotope-stock/tests/ContaoIsotopeStockBundleTest.php" line="79" assertions="2" time="0.034885"/>
+        <testcase name="testcase03" class="Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotopeStockBundleTest" classname="Nahati.ContaoIsotopeStockBundle.Tests.ContaoIsotopeStockBundleTest" file="/shared/httpd/nahati/contao-isotope-stock/tests/ContaoIsotopeStockBundleTest.php" line="102" assertions="2" time="0.040548"/>
+        <testcase name="testcase04" class="Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotopeStockBundleTest" classname="Nahati.ContaoIsotopeStockBundle.Tests.ContaoIsotopeStockBundleTest" file="/shared/httpd/nahati/contao-isotope-stock/tests/ContaoIsotopeStockBundleTest.php" line="129" assertions="1" time="0.047168"/>
+        <testcase name="testcase05" class="Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotopeStockBundleTest" classname="Nahati.ContaoIsotopeStockBundle.Tests.ContaoIsotopeStockBundleTest" file="/shared/httpd/nahati/contao-isotope-stock/tests/ContaoIsotopeStockBundleTest.php" line="167" assertions="0" time="0.038473">
+          <error type="Error">Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotopeStockBundleTest::testcase05
+Error: Call to a member function get() on null
+
+/shared/httpd/nahati/contao-isotope-stock/vendor/contao/core-bundle/src/Resources/contao/library/Contao/Database.php:95
+/shared/httpd/nahati/contao-isotope-stock/vendor/contao/core-bundle/src/Resources/contao/library/Contao/Database.php:169
+/shared/httpd/nahati/contao-isotope-stock/src/Helper/Helper.php:68
+/shared/httpd/nahati/contao-isotope-stock/src/EventListener/UpdateItemInCollectionListener.php:67
+/shared/httpd/nahati/contao-isotope-stock/tests/ContaoIsotopeStockBundleTest.php:196</error>
+        </testcase>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>
