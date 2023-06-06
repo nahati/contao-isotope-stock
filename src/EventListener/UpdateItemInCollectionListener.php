@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace nahati\ContaoIsotopeStockBundle\EventListener;
 
-use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product;
 use Isotope\Model\ProductCollection\Cart;
@@ -32,6 +31,26 @@ class UpdateItemInCollectionListener
      */
     private $helper;
 
+    // private string $inventory_status;
+    private string $AVAILABLE = '2'; /* product available for sale */
+    private string $RESERVED = '3'; /* product in cart, no quantity left */
+
+    /**
+     * Set all variants RESERVED.
+     */
+    private function setAvailableVariantsReserved(Product $objParentProduct): void
+    {
+        // Get all children of the parent product (variants)
+        $objVariants = Product::findBy('pid', $objParentProduct->getId());
+
+        // Set all AVAILABLE variants RESERVED
+        foreach ($objVariants as $variant) {
+            if ($variant->inventory_status === $this->AVAILABLE) {
+                $this->helper->updateInventoryStatus($variant, $this->RESERVED);
+            }
+        }
+    }
+
     /**
      * Handles changes of quantity in cart.
      *
@@ -43,6 +62,9 @@ class UpdateItemInCollectionListener
      */
     public function __invoke($objItem, $arrSet, $objCart)
     {
+        // Instantiate a Helper object
+        $this->helper = new Helper();
+
         /** @var Product|null $objProduct */
         $objProduct = $objItem->getProduct() ?? null;
 
@@ -50,15 +72,9 @@ class UpdateItemInCollectionListener
             return false;
         }
 
-        // Instatiate an Database object
-        $database = Database::getInstance();
-
-        // Instantiate a Helper object
-        $helper = new Helper($database);
-
         // Stockmanagement not or not correctly configured
         if (!$this->helper->checkStockmanagement($objProduct)) {
-            return $arrSet; // return unchanged
+            return $arrSet; // return unchanged or throw exception
         }
 
         if (!(\array_key_exists('quantity', $arrSet) && $arrSet['quantity'])) {
@@ -74,7 +90,7 @@ class UpdateItemInCollectionListener
 
         // Single product (not having any variants)
         if (!$objProduct->isVariant()) {
-            $arrSet['quantity'] -= $this->helper->manageStock($objProduct, $arrSet['quantity']); // decrease by surplus quantity
+            $arrSet['quantity'] -= $this->helper->manageStockAndReturnSurplus($objProduct, $arrSet['quantity']); // decrease by surplus quantity
 
             return $arrSet;
         }
@@ -82,22 +98,24 @@ class UpdateItemInCollectionListener
         // (else) Variant product
 
         // Manage stock for variant product with quantity of this variant
-        $surplusVariant = $this->helper->manageStock($objProduct, $arrSet['quantity']);
+        $surplusVariant = $this->helper->manageStockAndReturnSurplus($objProduct, $arrSet['quantity']);
 
         // Manage stock for parent product with sum of all siblings quantities
         $objParentProduct = Product::findByPk($objProduct->pid);
 
         $reserved = false;
         $anzSiblingsInCart = 0;
-        $surplusParent = $this->helper->manageStock($objParentProduct, $this->helper->sumSiblings($objCart, $objProduct->pid, $anzSiblingsInCart), $reserved);
+        $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $this->helper->sumSiblings($objCart, $objProduct->pid, $anzSiblingsInCart), $reserved);
 
         if ($reserved) {
-            $this->helper->setVariantsReserved($objParentProduct);
+            $this->setAvailableVariantsReserved($objParentProduct);
         }
 
         // Only 1 sibling in cart: reduce quantity by max surplus quantity
         if (1 === $anzSiblingsInCart) {
             $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
+
+            return $arrSet;
         }
 
         // More than 1 sibling in cart: unclear which siblings are meant to be changed
@@ -106,8 +124,8 @@ class UpdateItemInCollectionListener
                 $GLOBALS['TL_LANG']['ERR']['adaptCart'],
                 $objProduct->getName()
             ));
-        }
 
-        return $arrSet;
+            return false;
+        }
     }
 }

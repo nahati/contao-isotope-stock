@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace nahati\ContaoIsotopeStockBundle\Helper;
 
-use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product;
 use Isotope\Model\ProductCollection\Cart;
@@ -24,22 +23,33 @@ use Isotope\Model\ProductCollection\Cart;
  */
 class Helper
 {
-    private $database;
-
     // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
     private string $RESERVED = '3'; /* product in cart, no quantity left */
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
-    public function __construct(Database $database)
+    /**
+     * @param Product $objProduct
+     * @param string  $inventory_status
+     */
+    public function updateInventoryStatus($objProduct, $inventory_status): void
     {
-        $this->database = $database;
+        // Update of product inventory status
+        $objProduct->inventory_status = $inventory_status;
+        $objProduct->save();
+
+        //Todo: check if update was successful?
     }
 
-    private function updateInventoryStatus($productId, $inventory_status)
+    /**
+     * @param Product $objProduct
+     * @param string  $quantity
+     */
+    private function updateQuantity($objProduct, $quantity): void
     {
-        $statement = $this->database->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ? WHERE id = ?');
-        $statement->execute($inventory_status, $productId);
+        // Update of product quantity
+        $objProduct->quantity = $quantity;
+        $objProduct->save();
 
         //Todo: check if update was successful?
     }
@@ -77,24 +87,36 @@ class Helper
      */
     public function isSoldout($objProduct)
     {
-        // Quantity zero:
+        // Quantity zero
         if ('0' === $objProduct->quantity) {
-            // Set SOLDOUT
-            $this->updateInventoryStatus($objProduct->id, $this->SOLDOUT);
-
+            $this->updateInventoryStatus($objProduct, $this->SOLDOUT);
             Message::addError(sprintf(
                 $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
                 $objProduct->getName()
             ));
 
             return true;
-        } else {
+        }
+
+        // InventoryStatus SOLDOUT
+        if ($this->SOLDOUT === $objProduct->inventory_status) {
+            $this->updateQuantity($objProduct, '0');
+            Message::addError(sprintf(
+                $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
+                $objProduct->getName()
+            ));
+
+            return true;
+        }
+
+        // not SOLDOUT
+        else {
             return false;
         }
     }
 
     /**
-     * Sum up quantity of all siblings in cart and give back their number
+     * Sum up quantity of all siblings in cart and give back their number.
      *
      * @param Cart $objCart
      * @param int  $pid               // parent id
@@ -127,7 +149,7 @@ class Helper
     }
 
     /**
-     * Manage Stock for a given product and a given quantity in cart.
+     * Manage Stock for a given product and a given quantity in cart and return the surplus.
      *
      * @param Product $objProduct
      * @param int     $qtyInCart  // quantity in cart (product retr. all siblings)
@@ -135,7 +157,7 @@ class Helper
      *
      * @return int // returns surplus quantity
      */
-    public function manageStock($objProduct, $qtyInCart, &$reserved = false)
+    public function manageStockAndReturnSurplus($objProduct, $qtyInCart, &$reserved = false)
     {
         // Unlimited quantity: no stockmanagement, no surplus quantity
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
@@ -144,37 +166,24 @@ class Helper
 
         // Quantity in Cart < Product quantity
         if ((int) $qtyInCart < (int) $objProduct->quantity) {
-            //  set AVAILABLE unless SOLDOUT
-            if ($objProduct->inventory_status !== $this->SOLDOUT) {
-                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->AVAILABLE, $objProduct->id);
-
-                $reserved = true;
-            }
+            $this->updateInventoryStatus($objProduct, $this->AVAILABLE);
+            $reserved = false;
 
             return 0; // no surplus quantity
         }
 
         // Quantity in Cart == Product quantity
         if ((int) $qtyInCart === (int) $objProduct->quantity) {
-            // set RESERVED unless SOLDOUT
-            if ($objProduct->inventory_status !== $this->SOLDOUT) {
-                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objProduct->id);
-
-                $reserved = true;
-            }
+            $this->updateInventoryStatus($objProduct, $this->RESERVED);
+            $reserved = true;
 
             return 0; // no surplus quantity
         }
 
         // (else) Quantity in Cart > Product quantity
 
-        // set RESERVED unless SOLDOUT
-        if ($objProduct->inventory_status !== $this->SOLDOUT) {
-            Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objProduct->id);
-
-            $reserved = true;
-        }
-
+        $this->updateInventoryStatus($objProduct, $this->RESERVED);
+        $reserved = true;
         Message::addError(sprintf(
             $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
             $objProduct->getName(),
@@ -182,21 +191,5 @@ class Helper
         ));
 
         return (int) $qtyInCart - (int) $objProduct->quantity; // return surplus quantity
-    }
-
-    /**
-     * Set all variants RESERVED.
-     *
-     * @param Product $objParentProduct
-     */
-    public function setVariantsReserved($objParentProduct): void
-    {
-        $objVariants = Database::getInstance()->prepare('SELECT * FROM ' . Product::getTable() . ' WHERE pid = ?')->execute($objParentProduct->getId());
-
-        $arrVariants = $objVariants->fetchAllAssoc();
-
-        foreach ($arrVariants as $arrVariant) {
-            Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET  inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $arrVariant['id']);
-        }
     }
 }
