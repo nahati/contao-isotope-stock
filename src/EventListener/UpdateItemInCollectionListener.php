@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace nahati\ContaoIsotopeStockBundle\EventListener;
 
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Isotope\Message;
 use Isotope\Model\Product;
 use Isotope\Model\ProductCollection\Cart;
@@ -35,13 +36,21 @@ class UpdateItemInCollectionListener
     private string $AVAILABLE = '2'; /* product available for sale */
     private string $RESERVED = '3'; /* product in cart, no quantity left */
 
+    // Inspired by contao/calendar-bundle (constructor injection of ContaoFramework to enable testing)
+    public function __construct(private readonly ContaoFramework $framework)
+    {
+    }
+
     /**
      * Set all variants RESERVED.
      */
     private function setAvailableVariantsReserved(Product $objParentProduct): void
     {
+        // Get an adapter for the Product class
+        $adapter = $this->framework->getAdapter(Product::class);
+
         // Get all children of the parent product (variants)
-        $objVariants = Product::findBy('pid', $objParentProduct->getId());
+        $objVariants = $adapter->findBy('pid', $objParentProduct->getId());
 
         // Set all AVAILABLE variants RESERVED
         foreach ($objVariants as $variant) {
@@ -62,6 +71,9 @@ class UpdateItemInCollectionListener
      */
     public function __invoke($objItem, $arrSet, $objCart)
     {
+        // Initialize the Contao framework
+        $this->framework->initialize();
+
         // Instantiate a Helper object
         $this->helper = new Helper();
 
@@ -101,7 +113,10 @@ class UpdateItemInCollectionListener
         $surplusVariant = $this->helper->manageStockAndReturnSurplus($objProduct, $arrSet['quantity']);
 
         // Manage stock for parent product with sum of all siblings quantities
-        $objParentProduct = Product::findByPk($objProduct->pid);
+
+        // Get an adapter for the Product class
+        $adapter = $this->framework->getAdapter(Product::class);
+        $objParentProduct = $adapter->findByPk($objProduct->pid);
 
         $reserved = false;
         $anzSiblingsInCart = 0;
