@@ -1,0 +1,12 @@
+  _instanceof:
+    Contao\CoreBundle\Framework\FrameworkAwareInterface:
+      calls:
+        - [setFramework, ["@contao.framework"]]
+
+
+contao_calendar.listener.updateItemInCollection:
+  class: nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener
+  arguments:
+    - "@contao.framework"
+  tags:
+    - { name: isotope.hook, hook: updateItemInCollection }

@@ -15,8 +15,23 @@
             <trans-unit id="ERR.quantityNotAvailable">
                 <target>The maximum available quantity for "%s" is %s items</target>
             </trans-unit>
+            <trans-unit id="ERR.parentQuantityNotAvailable">
+                <target>The maximum available quantity for "%s" is %s items</target>
+            </trans-unit>
+            <trans-unit id="ERR.variantQuantityNotAvailable">
+                <target>The maximum available quantity for a variant of "%s" is %s items</target>
+            </trans-unit>
             <trans-unit id="ERR.adaptCart">
-                <target>Adapt the "%s" and related variants in cart by their quantity!</target>
+                <target>Adapt the "%s" in cart by their quantity!</target>
+            </trans-unit>
+            <trans-unit id="ERR.productHasChanged">
+                <target>"%s" has changed in the meanwhile, please start again!</target>
+            </trans-unit>
+            <trans-unit id="ERR.inventoryStatusUpdateFailed">
+                <target>Update of inventory_status failed for product "%s".</target>
+            </trans-unit>
+            <trans-unit id="ERR.quantityUpdateFailed">
+                <target>Update of quantity failed for product "%s".</target>
             </trans-unit>
             <trans-unit id="MSC.checkProduct">
                 <target>The product "%s" has been marked "reserved" and hence not available. Please

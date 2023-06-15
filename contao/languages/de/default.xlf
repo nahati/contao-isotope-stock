@@ -14,8 +14,23 @@
             <trans-unit id="ERR.quantityNotAvailable">
                 <target>Die maximal verfügbare Bestellmenge für "%s" ist %s Stück</target>
             </trans-unit>
+            <trans-unit id="ERR.parentQuantityNotAvailable">
+                <target>Die maximal verfügbare Bestellmenge für "%s" ist %s Stück</target>
+            </trans-unit>
+            <trans-unit id="ERR.variantQuantityNotAvailable">
+                <target>Die maximal verfügbare Bestellmenge für eine Variante von "%s" ist %s Stück</target>
+            </trans-unit>
+            <trans-unit id="ERR.productHasChanged">
+                <target>"%s" wurde zwischenzeitlich geändert, bitte starten Sie erneut!</target>
+            </trans-unit>
             <trans-unit id="ERR.adaptCart">
-                <target>Passen Sie "%s" und dazugehörige Varianten im Warenkorb mengenmässig an!</target>
+                <target>Passen Sie "%s" im Warenkorb mengenmässig an!</target>
+            </trans-unit>
+            <trans-unit id="ERR.inventoryStatusUpdateFailed">
+                <target>Das Update von inventory_status schlug fehl für das Produkt "%s".</target>
+            </trans-unit>
+            <trans-unit id="ERR.quantityUpdateFailed">
+                <target>Das Update von quantity schlug fehl für das Produkt "%s".</target>
             </trans-unit>
             <trans-unit id="MSC.checkProduct">
                 <target>Das Product "%s" ist reserviert und deshalb nicht verfügbar Bitte überprüfen

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace nahati\ContaoIsotopeStockBundle\Helper;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
+use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
@@ -37,31 +38,40 @@ class Helper
      * @param string   $inventory_status;
      * @param Standard $objProduct;
      */
+    // public function updateInventoryStatus($objProduct, $inventory_status): void
+    // {
+    //     // To save the product we need to get a new instance of the product
+    //     // see https://github.com/deployphp/deployer/blob/dea01e1dc919c4354dfdff7595b7eec161edece9/projects/contao413/vendor/contao/core-bundle/src/Resources/contao/models/PageModel.php#L1322
+
+    //     // Get an adapter for the Standard class
+    //     $adapter = $this->framework->getAdapter(Standard::class);
+
+    //     // Get a new instance of the product
+    //     $objProduct1 = $adapter->findPublishedByPk($objProduct->id);
+
+    //     // Saving the object like so assumes that there have not been any other changes to the given object. But it is not so good a solution, as generally methods should be agnostic.
+
+    //     // We check that the product has not been changed in the meantime by comparing tstamp, quantity and inventory_status
+    //     if ($objProduct1->quantity === $objProduct->quantity && $objProduct1->inventory_status === $objProduct->inventory_status && $objProduct1->tstamp === $objProduct->tstamp) {
+    //         $objProduct1->inventory_status = $inventory_status;
+    //         $objProduct1->save();
+    //     } else {
+    //         Message::addError(sprintf(
+    //             $GLOBALS['TL_LANG']['ERR']['productHasChanged'],
+    //             $objProduct->getName() ?: $adapter->findPublishedByPk($objProduct->pid)->getName()
+    //         ));
+    //     }
+
+    //     // TODO: check this solution with the Contao team!
+    // }
+
     public function updateInventoryStatus($objProduct, $inventory_status): void
     {
-        // To save the product we need to get a new instance of the product
-        // see https://github.com/deployphp/deployer/blob/dea01e1dc919c4354dfdff7595b7eec161edece9/projects/contao413/vendor/contao/core-bundle/src/Resources/contao/models/PageModel.php#L1322
+        // Get an adapter for the Database class
+        $adapter = $this->framework->getAdapter(Database::class);
 
-        // Get an adapter for the Standard class
-        $adapter = $this->framework->getAdapter(Standard::class);
-
-        // Get a new instance of the product
-        $objProduct1 = $adapter->findPublishedByPk($objProduct->id);
-
-        // Saving the object like so assumes that there have not been any other changes to the given object. But it is not so good a solution, as generally methods should be agnostic.
-
-        // We check that the product has not been changed in the meantime by comparing tstamp, quantity and inventory_status
-        if ($objProduct1->quantity === $objProduct->quantity && $objProduct1->inventory_status === $objProduct->inventory_status && $objProduct1->tstamp === $objProduct->tstamp) {
-            $objProduct1->inventory_status = $inventory_status;
-            $objProduct1->save();
-        } else {
-            Message::addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR']['productHasChanged'],
-                $objProduct->getName() ?: $adapter->findPublishedByPk($objProduct->pid)->getName()
-            ));
-        }
-
-        // TODO: check this solution with the Contao team!
+        // update inventory_status
+        $adapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventory_status, $objProduct->id);
     }
 
     /**

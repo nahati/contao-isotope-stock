@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper;
 
+use Contao\Database;
 use Contao\TestCase\ContaoTestCase;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
@@ -51,6 +52,34 @@ class HelperTest extends ContaoTestCase
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'inventory_status' => $this->AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->expects($this->once())
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->once())
+            ->method('prepare')
+            ->with('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->once())
+            ->method('execute')
+            ->with($this->RESERVED, 1)
+            ->willReturn(true)
+        ;
+
+        // Mock the adpaters for the framework
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+        ];
+
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
@@ -79,6 +108,7 @@ class HelperTest extends ContaoTestCase
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -135,6 +165,7 @@ class HelperTest extends ContaoTestCase
                     [104, $objVariant4],
                 ]),
             ]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -234,6 +265,7 @@ class HelperTest extends ContaoTestCase
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -270,6 +302,7 @@ class HelperTest extends ContaoTestCase
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -298,6 +331,7 @@ class HelperTest extends ContaoTestCase
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -326,6 +360,7 @@ class HelperTest extends ContaoTestCase
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -486,6 +521,7 @@ class HelperTest extends ContaoTestCase
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
@@ -519,6 +555,7 @@ class HelperTest extends ContaoTestCase
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -553,6 +590,7 @@ class HelperTest extends ContaoTestCase
         // Mock the adpaters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $this->mockAdapter(['prepare' => $this->mockAdapter(['execute' => $this->mockAdapter(['fetchEach' => 1])])])]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
