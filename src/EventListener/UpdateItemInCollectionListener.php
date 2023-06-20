@@ -111,7 +111,8 @@ class UpdateItemInCollectionListener
 
         $reserved = false;
         $anzSiblingsInCart = 0;
-        $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $this->helper->sumSiblings($objCart, $objProduct->pid, $anzSiblingsInCart), $reserved);
+        // Take the sum of all siblings quantities in cart, except the current item, the quantity of which will be added
+        $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'], $reserved);
 
         if ($reserved) {
             $this->helper->setAvailableVariantsReserved($objParentProduct);
@@ -139,13 +140,13 @@ class UpdateItemInCollectionListener
             ));
         }
 
-        // Only 1 sibling in cart: reduce quantity by max surplus quantity
-        if (1 === $anzSiblingsInCart) {
+        // No sibling in cart: reduce quantity by max surplus quantity
+        if (0 === $anzSiblingsInCart) {
             $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
 
             return $arrSet;
         }
-        // Several siblings in Cart -> user has to change his Cart
+        // Siblings in Cart -> user has to change his Cart
         return false;
     }
 }

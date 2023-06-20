@@ -182,15 +182,16 @@ class Helper
     }
 
     /**
-     * Sum up quantity of all siblings in cart and give back their number.
+     * Sum up quantity of all siblings of the product in cart and give back their number.
      *
-     * @param Cart $objCart
-     * @param int  $pid               // parent id
-     * @param int  $anzSiblingsInCart // number of siblings in Cart
+     * @param Standard $objProductToCheck // product to check
+     * @param Cart     $objCart           // unchanged (old) cart (before Update!)
+     * @param int      $pid               // parent id
+     * @param int      $anzSiblingsInCart // number of siblings in Cart
      *
-     * @return int // returns sum
+     * @return int // returns sum of quantitis in Cart for all siblings, not including the productToCheck itself
      */
-    public function sumSiblings($objCart, $pid, &$anzSiblingsInCart)
+    public function sumSiblings($objProductToCheck, $objCart, $pid, &$anzSiblingsInCart)
     {
         $sum = 0;
         $anzSiblingsInCart = 0;
@@ -198,11 +199,14 @@ class Helper
         foreach ($objCart->getItems() as $objItem) {
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
-            // Standard::class => $this->mockConfiguredAdapter(['findPublishedBy' => $this->objCollection, 'findPublishedByPk' => $objParentProduct]),
 
             if (!$objProduct) {
                 continue;
             } // no product
+
+            if ($objProduct->id === $objProductToCheck->id) {
+                continue;
+            } // only siblings, not the productToCheck itself
 
             if ($pid !== $objProduct->pid) {
                 continue;

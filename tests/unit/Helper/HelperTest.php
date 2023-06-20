@@ -680,6 +680,8 @@ class HelperTest extends ContaoTestCase
             ->getMock()
         ;
 
+        $objProduct1 = $this->mockClassWithProperties(Standard::class, ['id' => 101, 'pid' => 1, 'name' => 'product1']);
+
         // Create mock Item objects
         $objItem1 = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
@@ -688,7 +690,7 @@ class HelperTest extends ContaoTestCase
         $objItem1
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn($this->mockClassWithProperties(Standard::class, ['id' => 101, 'pid' => 1, 'name' => 'product1']))
+            ->willReturn($objProduct1)
         ;
         // Access to property quantity of item does not work via a direct set but needs magic method __set
         $objItem1
@@ -770,11 +772,11 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework());
 
         $anzSiblingsInCart = 0;
-        $sum = $this->helper->sumSiblings($objCart, 1, $anzSiblingsInCart);
+        $sum = $this->helper->sumSiblings($objProduct1, $objCart, 1, $anzSiblingsInCart);
 
         // Assert the result
-        $this->assertSame(6, $sum);
-        $this->assertSame(3, $anzSiblingsInCart);
+        $this->assertSame(5, $sum);
+        $this->assertSame(2, $anzSiblingsInCart);
     }
 
     public function testManageStockAndReturnSurplusZeroWhenQuantityIsNull(): void
