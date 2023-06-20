@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper;
 
+use Contao\Database;
 use Contao\TestCase\ContaoTestCase;
+use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
@@ -20,6 +22,10 @@ use nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * Test the Helper class.
+ *
+ * We use adapters for the Contao classes to be able to mock them in the tests.
+ *
+ * In a code version where database queries are prevented by issuing the save() method on the product object, the tests will be different and more meaningful. Updates could then be checked by comparing the product object before and after the update. The save() method needs not to be mocked then. We gave up this approach as of advice from the Contao community. See https://community.contao.org/de/showthread.php?85293-Update-eines-Produkts&p=573595&viewfull=1#post573595
  *
  * @covers \nahati\ContaoIsotopeStockBundle\Helper\Helper
  */
@@ -45,58 +51,394 @@ class HelperTest extends ContaoTestCase
         $this->assertTrue($foo);
     }
 
-    public function testUpdateInventoryStatus(): void
+    public function testUpdateInventoryStatusDoesExcuteDBQueriesWhenProductWasNotChangedMeanwhile(): void
     {
-        // Mock a product with invenory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'inventory_status' => $this->AVAILABLE]);
+        // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called each 2 times.
+
+        // Mock a product with inventory_status AVAILABLE
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
-        // Mock the adpaters for the framework
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('execute')
+            ->willReturn(true)
+        ;
+
+        // Mock the adapters for the framework
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         $this->helper->updateInventoryStatus($product, $this->RESERVED);
 
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
-
-        // Test if the method updateInventoryStatus did the update
-        $this->assertSame($product1->inventory_status, $this->RESERVED);
+        // Here we would like to check if the product object has been updated correctly. Mocking the database adapter does not allow us to do so as far as we could see.
     }
 
-    public function testUpdateQuantity(): void
+    public function testUpdateInventoryStatusDoesNotExecuteDBQueriesWhenInventoryStatusWasChangedMeanwhile(): void
     {
-        // Mock a product with invenory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
-        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
+        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
 
-        // Mock the adpaters for the framework
+        // Mock a product with inventory_status AVAILABLE and method getName()
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
+        // $product
+        //     ->method('getName')
+        //     ->willReturn('foo')
+        // ;
+
+        // Mock a double product with inventory_status SOLDOUT
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->SOLDOUT]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
+
+        $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '%s has changed in the meanwhile, please start again!';
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Mock the adapters for the framework
         $adapters = [
-            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $productDouble]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->updateQuantity($product, '2');
+        $this->helper->updateInventoryStatus($product, $this->RESERVED);
 
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
+        // Here we would like to check if the product object has NOT been updated. Mocking the database adapter does not allow us to do so as far as we could see.
 
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
+        // Also testing if a message has been issued seems difficult, as the addError() method is static and cannot be mocked.
+    }
 
-        // Test if the method updateQuantity did the update
-        $this->assertSame($product1->quantity, '2');
+    public function testUpdateInventoryStatusDoesNotExecuteDBQueriesWhenQuantityWasChangedMeanwhile(): void
+    {
+        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
+
+        // Mock a product with inventory_status AVAILABLE and method getName()
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
+        // $product
+        //     ->method('getName')
+        //     ->willReturn('foo')
+        // ;
+
+        // Mock a double product with inventory_status SOLDOUT and Quantity 0
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
+
+        $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '%s has changed in the meanwhile, please start again!';
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $productDouble]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+        ];
+
+        $this->helper = new Helper($this->mockContaoFramework($adapters));
+
+        $this->helper->updateInventoryStatus($product, $this->RESERVED);
+    }
+
+    public function testUpdateInventoryStatusDoesNotExecuteDBQueriesWhenInventoryStatusAndQuantityWereChangedMeanwhile(): void
+    {
+        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
+
+        // Mock a product with inventory_status AVAILABLE and method getName()
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
+
+        // Mock a double product with inventory_status SOLDOUT and Quantity 0
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->SOLDOUT]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
+
+        $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '%s has changed in the meanwhile, please start again!';
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $productDouble]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+        ];
+
+        $this->helper = new Helper($this->mockContaoFramework($adapters));
+
+        $this->helper->updateInventoryStatus($product, $this->RESERVED);
+    }
+
+    public function testUpdateQuantityDoesExcuteDBQueriesWhenProductWasNotChangedMeanwhile(): void
+    {
+        // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called each 2 times.
+
+        // Mock a product with inventory_status AVAILABLE
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('execute')
+            ->willReturn(true)
+        ;
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+        ];
+
+        $this->helper = new Helper($this->mockContaoFramework($adapters));
+
+        $this->helper->updateQuantity($product, '0');
+    }
+
+    public function testUpdateQuantityDoesNotExecuteDBQueriesWhenInventoryStatusWasChangedMeanwhile(): void
+    {
+        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
+
+        // Mock a product with inventory_status AVAILABLE and method getName()
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
+
+        // Mock a double product with inventory_status SOLDOUT
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->SOLDOUT]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
+
+        $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '%s has changed in the meanwhile, please start again!';
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $productDouble]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+        ];
+
+        $this->helper = new Helper($this->mockContaoFramework($adapters));
+
+        $this->helper->updateQuantity($product, '0');
+    }
+
+    public function testUpdateQuantityDoesNotExecuteDBQueriesWhenQuantityWasChangedMeanwhile(): void
+    {
+        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
+
+        // Mock a product with inventory_status AVAILABLE and method getName()
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
+
+        // Mock a double product with inventory_status SOLDOUT and Quantity 0
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
+
+        $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '%s has changed in the meanwhile, please start again!';
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $productDouble]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+        ];
+
+        $this->helper = new Helper($this->mockContaoFramework($adapters));
+
+        $this->helper->updateQuantity($product, '0');
+    }
+
+    public function testUpdateQuantityDoesNotExecuteDBQueriesWhenInventoryStatusAndQuantityWereChangedMeanwhile(): void
+    {
+        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
+
+        // Mock a product with inventory_status AVAILABLE and method getName()
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
+
+        // Mock a double product with inventory_status SOLDOUT and Quantity 0
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->SOLDOUT]);
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
+
+        $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '%s has changed in the meanwhile, please start again!';
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(0))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $productDouble]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+        ];
+
+        $this->helper = new Helper($this->mockContaoFramework($adapters));
+
+        $this->helper->updateQuantity($product, '0');
     }
 
     public function testSetAvailableVariantsReserved(): void
     {
+        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 6 times each, once for each variant
+
         // Create a mock parent product
         $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'parentProduct']);
 
@@ -115,15 +457,33 @@ class HelperTest extends ContaoTestCase
         // Create a mock variant product, child of the parent product
         $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => $this->SOLDOUT, 'quantity' => '0']);
 
-        // Create a mock product, not a child of the parent product
-        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 105, 'pid' => 2, 'name' => 'product5', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+        //Test should also include $product5 to be sufficient, but we simplify for now
+        // TODO: test with $product5 included and check if it is not updated
+        // // Create a mock product, not a child of the parent product
+        // $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 105, 'pid' => 2, 'name' => 'product5', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
 
         //We have 3 variants with inventory-status AVAILABLE; also 1 variant with inventory-status RESERVED and 1 variant with inventory-status SOLDOUT; lastnotleast 1 product with inventory-status AVAILABLE but not child of the parent product
 
-        //Test should also include $product5 to be sufficient, but we simplify for now
-        // TODO: test with $product5 included and check if it is not updated
-
         // Mock the adapters for the framework
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(6))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(6))
+            ->method('execute')
+        ;
+
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter([
                 'findPublishedBy' => [$objVariant2a, $objVariant2b, $objVariant2c, $objVariant3, $objVariant4],
@@ -135,41 +495,12 @@ class HelperTest extends ContaoTestCase
                     [104, $objVariant4],
                 ]),
             ]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         $this->helper->setAvailableVariantsReserved($objParentProduct);
-
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-
-        // Get a new instance of the collection
-        $objCollection1 = $adapter->findPublishedBy('pid', $objParentProduct->id);
-
-        // assert that there are 5 products in this collection
-        $this->assertCount(5, $objCollection1);
-
-        // Test if the method did update the inventory_status of the variants
-        foreach ($objCollection1 as $variant) {
-            // assert each variant individually
-            switch ($variant->id) {
-                case 1021:
-                case 1022:
-                case 1023:
-                    $this->assertSame($variant->inventory_status, $this->RESERVED);
-                    break;
-                case 103:
-                    $this->assertSame($variant->inventory_status, $this->RESERVED);
-                    break;
-                case 104:
-                    $this->assertSame($variant->inventory_status, $this->SOLDOUT);
-                    break;
-
-                default:
-                    $this->fail('Unexpected variant id: ' . $variant->id); // fail if we have an unexpected variant
-            }
-        }
     }
 
     public function testCheckStockmanagementReturnsFalseWhenInventoryStatusIsNotSetAndQuantityIsNotSet(): void
@@ -232,25 +563,40 @@ class HelperTest extends ContaoTestCase
         $GLOBALS['TL_LANG']['MSC']['productOutOfStock'] = 'The product "%s" is currently out of stock';
 
         // Mock the adpaters for the framework
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         // Test if the method isSoldout returns true
         $this->assertTrue($this->helper->isSoldout($product));
-
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
-
-        // Test if the method updateInventoryStatus did the update
-        $this->assertSame($product1->inventory_status, $this->SOLDOUT);
-
-        // Test if quantity has been kept zero
-        $this->assertSame($product->quantity, '0');
     }
 
     public function testIsSoldoutReturnsTrueAndSetsQuantityZeroWhenInventoryStatusIsSoldout(): void
@@ -268,25 +614,40 @@ class HelperTest extends ContaoTestCase
         $GLOBALS['TL_LANG']['MSC']['productOutOfStock'] = 'The product "%s" is currently out of stock';
 
         // Mock the adpaters for the framework
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         // Test if the method isSoldout returns true
         $this->assertTrue($this->helper->isSoldout($product));
-
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
-
-        // Test if quantity is updated
-        $this->assertSame($product1->quantity, '0');
-
-        // Test if inventory_status has been kept SOLDOUT
-        $this->assertSame($product->inventory_status, $this->SOLDOUT);
     }
 
     public function testIsSoldoutReturnsFalseWhenQuantityIsNotZeroAndInventoryStatusIsNotSoldout(): void
@@ -295,61 +656,24 @@ class HelperTest extends ContaoTestCase
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
-        // Mock the adpaters for the framework
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         // Test if the method isSoldout returns false
         $this->assertFalse($this->helper->isSoldout($product));
-
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
-
-        // Test if product is unchanged
-        $this->assertSame($product1->id, 1);
-        $this->assertSame($product1->name, 'foo');
-        $this->assertSame($product1->quantity, '1');
-        $this->assertSame($product1->inventory_status, $this->AVAILABLE);
-    }
-
-    public function testIsSoldoutReturnsFalseWhenQuantityIsZeroAndInventoryStatusIsNotSoldout(): void
-    {
-        // Mock a product, quantity 1, inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->AVAILABLE]);
-        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
-
-        // Mock the adpaters for the framework
-        $adapters = [
-            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
-        ];
-
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
-
-        // Test if the method isSoldout returns false
-        $this->assertTrue($this->helper->isSoldout($product));
-
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
-
-        // Test if product is changed
-        $this->assertSame($product1->id, 1);
-        $this->assertSame($product1->name, 'foo');
-        $this->assertSame($product1->quantity, '0');
-        $this->assertSame($product1->inventory_status, $this->SOLDOUT);
     }
 
     public function testSumSiblingsWhenThereAreVariantsInCartAndAlsoNonVariantsAndAlsoItemsWithoutProduct(): void
     {
-        // Create a mock product, the parent product
-        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'parentProduct']);
-
         // Create a mock Cart object
         $objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
@@ -483,10 +807,35 @@ class HelperTest extends ContaoTestCase
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => $this->AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
-        // Mock the adpaters for the framework
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
+
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         $this->isToBeReserved = false; // init: nothing is to be reserved
@@ -496,18 +845,6 @@ class HelperTest extends ContaoTestCase
 
         // Assert that product is not to be reserved
         $this->assertFalse($this->isToBeReserved);
-
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
-
-        // Assert that the product quantity is still 5
-        $this->assertSame('5', $product1->quantity);
-
-        // Assert that the product inventory_status is still AVAILABLE
-        $this->assertSame($product1->inventory_status, $this->AVAILABLE);
     }
 
     public function testManageStockAndReturnSurplusReturnsZeroAndSetsInventoryStatusReservedAndSetsIsToBeReservedTrueWhenQuantityInCartIsEqualToProductQuantity(): void
@@ -516,9 +853,33 @@ class HelperTest extends ContaoTestCase
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => $this->AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
-        // Mock the adpaters for the framework
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -530,15 +891,6 @@ class HelperTest extends ContaoTestCase
 
         // Test if the method manageStockAndReturnSurplus returns IsToBeReserved True when quantityInCart = 5
         $this->assertTrue($this->isToBeReserved);
-
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
-
-        // Test that the product has changed to RESERVED
-        $this->assertSame($product1->inventory_status, $this->RESERVED);
     }
 
     public function testManageStockAndReturnANonZeroSurplusAndSetInventoryStatusReservedAndSetReservedTrueWhenQuantityInCartIsGreaterThanProductQuantity(): void
@@ -550,9 +902,34 @@ class HelperTest extends ContaoTestCase
         $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'] = 'The maximum available quantity for "%s" is %s items';
 
         $this->isToBeReserved = false;
-        // Mock the adpaters for the framework
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(2))
+            ->method('execute')
+        ;
+
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
         $adapters = [
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
@@ -562,14 +939,5 @@ class HelperTest extends ContaoTestCase
 
         // Test if the method manageStockAndReturnSurplus returns IsToBeReserved True
         $this->assertTrue($this->isToBeReserved);
-
-        // Get the adapter for the Standard class
-        $adapter = $adapters[Standard::class];
-
-        // Get a new instance of the product
-        $product1 = $adapter->findPublishedByPk($product->id);
-
-        // Test that the product has changed to RESERVED
-        $this->assertSame($product1->inventory_status, $this->RESERVED);
     }
 }

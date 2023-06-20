@@ -15,12 +15,14 @@ declare(strict_types=1);
 namespace nahati\ContaoIsotopeStockBundle\Helper;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
+use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 
 /**
  * Reuseable small services for stockmanagement.
+ * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
  */
 class Helper
 {
@@ -34,34 +36,33 @@ class Helper
     }
 
     /**
-     * @param string   $inventory_status;
-     * @param Standard $objProduct;
+     * @param string   $inventory_status
+     * @param Standard $objProduct
      */
     public function updateInventoryStatus($objProduct, $inventory_status): void
     {
-        // To save the product we need to get a new instance of the product
-        // see https://github.com/deployphp/deployer/blob/dea01e1dc919c4354dfdff7595b7eec161edece9/projects/contao413/vendor/contao/core-bundle/src/Resources/contao/models/PageModel.php#L1322
-
         // Get an adapter for the Standard class
-        $adapter = $this->framework->getAdapter(Standard::class);
+        $standardAdapter = $this->framework->getAdapter(Standard::class);
 
-        // Get a new instance of the product
-        $objProduct1 = $adapter->findPublishedByPk($objProduct->id);
+        $objProductDouble = $standardAdapter->findPublishedByPk($objProduct->id);
 
-        // Saving the object like so assumes that there have not been any other changes to the given object. But it is not so good a solution, as generally methods should be agnostic.
+        // Get an adapter for the Database class
+        $databaseAdapter = $this->framework->getAdapter(Database::class);
 
-        // We check that the product has not been changed in the meantime by comparing tstamp, quantity and inventory_status
-        if ($objProduct1->quantity === $objProduct->quantity && $objProduct1->inventory_status === $objProduct->inventory_status && $objProduct1->tstamp === $objProduct->tstamp) {
-            $objProduct1->inventory_status = $inventory_status;
-            $objProduct1->save();
+        // We check if relevant properties of the product have been changed in the meantime
+        if ($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) {
+            // no changes -> update inventory_status
+            $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
+            $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventory_status, $objProduct->id);
         } else {
-            Message::addError(sprintf(
+            // Get an adapter for the Message class
+            $messageAdapter = $this->framework->getAdapter(Message::class);
+
+            $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['ERR']['productHasChanged'],
-                $objProduct->getName() ?: $adapter->findPublishedByPk($objProduct->pid)->getName()
+                $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName()
             ));
         }
-
-        // TODO: check this solution with the Contao team!
     }
 
     /**
@@ -70,27 +71,29 @@ class Helper
      * */
     public function updateQuantity($objProduct, $quantity): void
     {
-        // To save the product we need to get a new instance of the product
-        // see https://github.com/contao/core/issues/6506
-
         // Get an adapter for the Standard class
-        $adapter = $this->framework->getAdapter(Standard::class);
+        $standardAdapter = $this->framework->getAdapter(Standard::class);
 
-        // Get a new instance of the product
-        $objProduct1 = $adapter->findPublishedByPk($objProduct->id);
+        $objProductDouble = $standardAdapter->findPublishedByPk($objProduct->id);
 
-        // We check that the product has not been changed in the meantime by comparing tstamp, quantity and inventory_status
-        if ($objProduct1->quantity === $objProduct->quantity && $objProduct1->inventory_status === $objProduct->inventory_status && $objProduct1->tstamp === $objProduct->tstamp) {
-            $objProduct1->quantity = $quantity;
-            $objProduct1->save();
+        // Get an adapter for the Database class
+        $databaseAdapter = $this->framework->getAdapter(Database::class);
+
+        // We check if relevant properties of the product have been changed in the meantime
+        if ($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) {
+            // no changes -> update quantity
+            $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
+            $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantity, $objProduct->id);
         } else {
-            Message::addError(sprintf(
+            // Get an adapter for the Message class
+            $messageAdapter = $this->framework->getAdapter(Message::class);
+
+            // Changes -> error message
+            $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['ERR']['productHasChanged'],
-                $objProduct->getName() ?: $adapter->findPublishedByPk($objProduct->pid)->getName()
+                $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName()
             ));
         }
-
-        // TODO: check this solution with the Contao team!
     }
 
     /**
@@ -99,13 +102,10 @@ class Helper
     public function setAvailableVariantsReserved(Standard $objParentProduct): void
     {
         // Get an adapter for the Standard class
-        $adapter = $this->framework->getAdapter(Standard::class);
+        $standardAdapter = $this->framework->getAdapter(Standard::class);
 
         // Get all children of the parent product (variants)
-        $objVariants = $adapter->findPublishedBy('pid', $objParentProduct->id);
-
-        // dump('objVariants ', $objVariants);
-        // die();
+        $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
 
         // Set all AVAILABLE variants RESERVED
         foreach ($objVariants as $variant) {
@@ -148,11 +148,14 @@ class Helper
      */
     public function isSoldout($objProduct)
     {
-        // Quantity zero
+        // Quantity zeroquantity
         if ('0' === $objProduct->quantity) {
             $this->updateInventoryStatus($objProduct, $this->SOLDOUT);
 
-            Message::addError(sprintf(
+            // Get an adapter for the Message class
+            $messageAdapter = $this->framework->getAdapter(Message::class);
+
+            $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
                 $objProduct->getName()
             ));
@@ -163,7 +166,10 @@ class Helper
         // InventoryStatus SOLDOUT
         if ($this->SOLDOUT === $objProduct->inventory_status) {
             $this->updateQuantity($objProduct, '0');
-            Message::addError(sprintf(
+
+            $messageAdapter = $this->framework->getAdapter(Message::class);
+
+            $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
                 $objProduct->getName()
             ));
@@ -192,6 +198,7 @@ class Helper
         foreach ($objCart->getItems() as $objItem) {
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
+            // Standard::class => $this->mockConfiguredAdapter(['findPublishedBy' => $this->objCollection, 'findPublishedByPk' => $objParentProduct]),
 
             if (!$objProduct) {
                 continue;
@@ -227,6 +234,7 @@ class Helper
         // Quantity in Cart < Product quantity
         if ((int) $qtyInCart < (int) $objProduct->quantity) {
             $this->updateInventoryStatus($objProduct, $this->AVAILABLE);
+
             $isToBeReserved = false;
 
             return 0; // no surplus quantity
@@ -235,6 +243,7 @@ class Helper
         // Quantity in Cart == Product quantity
         if ((int) $qtyInCart === (int) $objProduct->quantity) {
             $this->updateInventoryStatus($objProduct, $this->RESERVED);
+
             $isToBeReserved = true;
 
             return 0; // no surplus quantity
@@ -243,6 +252,7 @@ class Helper
         // (else) Quantity in Cart > Product quantity
 
         $this->updateInventoryStatus($objProduct, $this->RESERVED);
+
         $isToBeReserved = true;
 
         return (int) $qtyInCart - (int) $objProduct->quantity; // return surplus quantity

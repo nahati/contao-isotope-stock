@@ -31,21 +31,17 @@ class UpdateItemInCollectionListener
      * @var Helper
      */
     private $helper;
-    // private Adapter $adapter;
-
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product in cart, no quantity left */
 
     // Inspired by contao/calendar-bundle (constructor injection of ContaoFramework to enable testing)
     public function __construct(private readonly ContaoFramework $framework)
     {
-        // // Get an adapter for the Product class
-        // $adapter = $framework->getAdapter(Standard::class);
     }
 
     /**
-     * Handles changes of quantity in cart.
+     * Invoked when Cart is refreshed
+     * Handles changes of quantity in cart and also handles concurring changes.
+     *
+     * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
      *
      * @param ProductCollectionItem $objItem // item in cart
      * @param array<mixed>          $arrSet  // properties of item in cart
@@ -55,9 +51,6 @@ class UpdateItemInCollectionListener
      */
     public function __invoke($objItem, $arrSet, $objCart)
     {
-        // // Initialize the Contao framework
-        // $this->framework->initialize();
-
         // Instantiate a Helper object
         $this->helper = new Helper($this->framework);
 
@@ -92,7 +85,10 @@ class UpdateItemInCollectionListener
             $arrSet['quantity'] -= $surplus; // decrease by surplus quantity
 
             if ($surplus > 0) {
-                Message::addError(sprintf(
+                // Get an adapter for the Message class
+                $messageAdapter = $this->framework->getAdapter(Message::class);
+
+                $messageAdapter->addError(sprintf(
                     $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
                     $objProduct->getName(),
                     $objProduct->quantity
@@ -101,6 +97,7 @@ class UpdateItemInCollectionListener
 
             return $arrSet;
         }
+
         // (else) Variant product
 
         // Manage stock for variant product with quantity of this variant
@@ -121,15 +118,21 @@ class UpdateItemInCollectionListener
         }
 
         if ($surplusParent > 0) {
-            Message::addError(sprintf(
+            // Get an adapter for the Message class
+            $messageAdapter = $this->framework->getAdapter(Message::class);
+
+            $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['ERR']['parentQuantityNotAvailable'],
-                $objProduct->getName(),
-                $objProduct->quantity
+                $objParentProduct->getName(),
+                $objParentProduct->quantity
             ));
         }
 
         if ($surplusVariant > 0) {
-            Message::addError(sprintf(
+            // Get an adapter for the Message class
+            $messageAdapter = $this->framework->getAdapter(Message::class);
+
+            $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['ERR']['variantQuantityNotAvailable'],
                 $objProduct->getName(),
                 $objProduct->quantity
@@ -139,8 +142,10 @@ class UpdateItemInCollectionListener
         // Only 1 sibling in cart: reduce quantity by max surplus quantity
         if (1 === $anzSiblingsInCart) {
             $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
-        }
 
-        return $arrSet;
+            return $arrSet;
+        }
+        // Several siblings in Cart -> user has to change his Cart
+        return false;
     }
 }
