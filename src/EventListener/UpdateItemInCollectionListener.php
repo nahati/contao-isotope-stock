@@ -12,7 +12,7 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-namespace nahati\ContaoIsotopeStockBundle\EventListener;
+namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Isotope\Message;
@@ -20,7 +20,7 @@ use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
 use Isotope\ServiceAnnotation\IsotopeHook;
-use nahati\ContaoIsotopeStockBundle\Helper\Helper;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * @IsotopeHook("updateItemInCollection")

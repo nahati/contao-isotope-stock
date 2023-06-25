@@ -12,7 +12,7 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-namespace nahati\ContaoIsotopeStockBundle\EventListener;
+namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
 use Contao\Database;
 use Isotope\Model\Product;

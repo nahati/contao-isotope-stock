@@ -18,7 +18,7 @@ use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
-use nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener;
+use Nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener;
 
 /**
  * Test the UpdateItemInCollectionListener class.

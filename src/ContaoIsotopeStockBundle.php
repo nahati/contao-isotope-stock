@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-namespace nahati\ContaoIsotopeStockBundle;
+namespace Nahati\ContaoIsotopeStockBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

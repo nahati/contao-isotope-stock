@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\Tests;
 
-use nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle;
-use PHPUnit\Framework\TestCase;
+use Contao\TestCase\ContaoTestCase;
+use Nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle;
 
-class ContaoIsotopeStockBundleTest extends TestCase
+class ContaoIsotopeStockBundleTest extends ContaoTestCase
 {
     protected function setUp(): void
     {
@@ -26,6 +26,6 @@ class ContaoIsotopeStockBundleTest extends TestCase
     {
         $bundle = new ContaoIsotopeStockBundle();
 
-        $this->assertInstanceOf('nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle', $bundle);
+        $this->assertInstanceOf('Nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle', $bundle);
     }
 }

@@ -5,7 +5,7 @@
 
 
 contao_calendar.listener.updateItemInCollection:
-  class: nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener
+  class: Nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener
   arguments:
     - "@contao.framework"
   tags:

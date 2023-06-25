@@ -39,12 +39,12 @@
     },
     "autoload": {
         "psr-4": {
-            "nahati\\ContaoIsotopeStockBundle\\": "src/"
+            "Nahati\\ContaoIsotopeStockBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "nahati\\ContaoIsotopeStockBundle\\Tests\\": "tests/"
+            "Nahati\\ContaoIsotopeStockBundle\\Tests\\": "tests/"
         }
     },
     "config": {
@@ -62,7 +62,7 @@
             "bin-links": false,
             "target-directory": "tools"
         },
-        "contao-manager-plugin": "nahati\\ContaoIsotopeStockBundle\\ContaoManager\\Plugin"
+        "contao-manager-plugin": "Nahati\\ContaoIsotopeStockBundle\\ContaoManager\\Plugin"
     },
     "scripts": {
         "all": [

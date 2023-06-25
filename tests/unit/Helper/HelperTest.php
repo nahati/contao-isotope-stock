@@ -18,7 +18,7 @@ use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
-use nahati\ContaoIsotopeStockBundle\Helper\Helper;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * Test the Helper class.
@@ -27,7 +27,7 @@ use nahati\ContaoIsotopeStockBundle\Helper\Helper;
  *
  * In a code version where database queries are prevented by issuing the save() method on the product object, the tests will be different and more meaningful. Updates could then be checked by comparing the product object before and after the update. The save() method needs not to be mocked then. We gave up this approach as of advice from the Contao community. See https://community.contao.org/de/showthread.php?85293-Update-eines-Produkts&p=573595&viewfull=1#post573595
  *
- * @covers \nahati\ContaoIsotopeStockBundle\Helper\Helper
+ * @covers \Nahati\ContaoIsotopeStockBundle\Helper\Helper
  */
 class HelperTest extends ContaoTestCase
 {

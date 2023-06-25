@@ -12,13 +12,13 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-namespace nahati\ContaoIsotopeStockBundle\ContaoManager;
+namespace Nahati\ContaoIsotopeStockBundle\ContaoManager;
 
 use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
 use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
-use nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle;
+use Nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle;
 
 class Plugin implements BundlePluginInterface
 {
