@@ -26,6 +26,11 @@ ini_set('display_startup_errors', true);
 
 spl_autoload_register(
     static function ($class): void {
+        if ('Template' === $class) {
+            return; // Exclude the class Template
+        }
+        // TODO: Fix the "Template class already there" error and remove this condition
+
         if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false)) {
             return;
         }

@@ -26,13 +26,16 @@ use Isotope\Model\ProductCollection\Cart;
  */
 class Helper
 {
+    private ContaoFramework $framework;
+
     // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
     private string $RESERVED = '3'; /* product in cart, no quantity left */
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
-    public function __construct(private readonly ContaoFramework $framework)
+    public function __construct(ContaoFramework $framework)
     {
+        $this->framework = $framework;
     }
 
     /**

@@ -13,9 +13,6 @@ declare(strict_types=1);
 namespace Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
-use Isotope\Model\Product\Standard;
-use Isotope\Model\ProductCollection\Cart as IsotopeCart;
-use Isotope\Model\ProductCollectionItem;
 use Nahati\ContaoIsotopeStockBundle\Tests\IntegrationTestCase;
 
 /**
@@ -23,22 +20,22 @@ use Nahati\ContaoIsotopeStockBundle\Tests\IntegrationTestCase;
  */
 class UpdateItemInCollectionListenerTest extends IntegrationTestCase
 {
-    private ProductCollectionItem $objItem;
-    private IsotopeCart $objCart;
-    private mixed $arrSet;
-    private Standard $objProduct;
-    private Standard $objProduct1;
-    private Standard $objProduct2;
-    private Standard $objProduct3;
-    private Standard $objProduct4;
-    private Standard $objProduct6;
-    private Standard $objParentProduct;
+    // private ProductCollectionItem $objItem;
+    // private Cart $objCart;
+    // private mixed $arrSet;
+    // private Standard $objProduct;
+    // private Standard $objProduct1;
+    // private Standard $objProduct2;
+    // private Standard $objProduct3;
+    // private Standard $objProduct4;
+    // private Standard $objProduct6;
+    // private Standard $objParentProduct;
 
     // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $SOLDOUT = '4'; /* product in cart though soldout */
+    // private string $AVAILABLE = '2'; /* product available for sale */
+    // private string $SOLDOUT = '4'; /* product in cart though soldout */
 
-    private ContaoFramework $framework;
+    protected ContaoFramework $framework;
 
     /**
      * setup() is called for each Testcase and contains the basic setup for the tests.
@@ -46,10 +43,7 @@ class UpdateItemInCollectionListenerTest extends IntegrationTestCase
      */
     protected function setUp(): void
     {
-        // parent::setUp();
-
-        // // Instantiate a ContaoFramework object
-        // $this->framework = $this->mockContaoFramework();
+        parent::setUp();
     }
 
     // Dummy Test
@@ -59,17 +53,28 @@ class UpdateItemInCollectionListenerTest extends IntegrationTestCase
         $this->assertTrue($foo);
     }
 
-    public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductHasQuantityZeroAndHenceIsSoldout(): void
+    // TODO: Fix whats missing and add all testcases
+
+    // Due to missing support and documentation the integration test cannot be coded yet.
+    // I tried several approaches unsuccesfully. If anyone wants to help, you are welcome!
+    public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductIsSoldout(): void
     {
         // $listener = new UpdateItemInCollectionListener($this->framework);
 
-        // // Fetch the Cart from the test database
+        // Fetch the Cart from the test database
         // $this->objCart = $this->fetchCart();
-        $this->objCart = new IsotopeCart();
+
+        // Fetch an Item of this Cart and get the product
+        // ... and set its inventory_status to SOLDOUT ...
 
         // $result = $listener($this->objItem, $this->arrSet, $this->objCart);
 
-        // // Test if Listener returns Quantity Zero
+        // Test if Listener returns Quantity Zero
         // $this->assertSame(0, $result['quantity']);
+
+        $foo = true;
+        $this->assertTrue($foo);
     }
+
+    // More testcases should be added here later
 }

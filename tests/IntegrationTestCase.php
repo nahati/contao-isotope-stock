@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Nahati\ContaoIsotopeStockBundle\Tests;
 
 use Contao\System;
-use Contao\TestCase\ContaoTestCase;
+use Contao\TestCase\FunctionalTestCase;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Isotope\Model\ProductCollection\Cart;
@@ -23,7 +23,7 @@ use Isotope\Model\ProductCollection\Cart;
 * It contains the basic setup for the tests.
 */
 
-class IntegrationTestCase extends ContaoTestCase
+class IntegrationTestCase extends FunctionalTestCase
 {
     /**
      * setup() is called for each Testcase and contains the refresh of the test database.
@@ -35,26 +35,31 @@ class IntegrationTestCase extends ContaoTestCase
     {
         parent::setUp();
 
+        // static::bootKernel();
+
+        // $framework = static::getContainer()->get('contao.framework');
+
         $this->db = System::getContainer()->get('database_connection');
 
-        // Drop all tables
-        foreach ($this->db->createSchemaManager()->listTableNames() as $table) {
-            $sql = 'DROP TABLE IF EXISTS ' . $table;
-            $this->db->executeStatement($sql);
-        }
-        // Check that this->db is empty
-        $this->assertSame([], $this->db->createSchemaManager()->listTableNames());
+        // // Drop all tables
+        // foreach ($this->db->createSchemaManager()->listTableNames() as $table) {
+        //     $sql = 'DROP TABLE IF EXISTS ' . $table;
+        //     $this->db->executeStatement($sql);
+        // }
+        // // Check that this->db is empty
+        // $this->assertSame([], $this->db->createSchemaManager()->listTableNames());
 
         // Create tables and insert data
-        $this->loadFixture('isotope.sql');
+        // $this->loadFixture('isotope.sql');
+        // TODO: load the isotope.sql file
 
-        $queryBuilder = $this->db->createQueryBuilder();
-        $queryBuilder->select('*')->from('tl_iso_product');
-        $stm = $queryBuilder->executeQuery();
-        $data = $stm->fetchAllAssociative();
+        // $queryBuilder = $this->db->createQueryBuilder();
+        // $queryBuilder->select('*')->from('tl_iso_product');
+        // $stm = $queryBuilder->executeQuery();
+        // $data = $stm->fetchAllAssociative();
 
-        // Check that this->db is not empty
-        $this->assertNotEmpty($data);
+        // // Check that this->db is not empty
+        // $this->assertNotEmpty($data);
     }
 
     public function loadFixture(string $fileName): void
@@ -66,44 +71,14 @@ class IntegrationTestCase extends ContaoTestCase
 
     public function fetchCart(): Cart
     {
-        // $this->result = $this->db->prepare('SELECT * FROM tl_iso_product_collection WHERE uniqid=?')->executeQuery(['232cce7be9a38f5bf33b02a517543ac4d7a124094a5969ebeda2b5da50da59d5']);
+        // return the Cart object with id 1
+        $queryBuilder = $this->db->createQueryBuilder();
+        $queryBuilder->select('*')->from('tl_iso_product_collection')->where('id = 1');
+        // $stm = $queryBuilder->executeQuery();
+        // $data = $stm->fetchAllAssociative();
 
-        // $this->result = $queryBuilder->executeQuery();
-
-        // $strTable = 'tl_iso_product_collection';
-        // $objCart = Collection::createFromDbResult($this->result, $strTable);
-
-        // dump($this->result);
-
-        // $cookieHash = '232cce7be9a38f5bf33b02a517543ac4d7a124094a5969ebeda2b5da50da59d5';
-        // $storeId = '0';
-
-        // $objCart = ProductCollection::findOneBy(array('uniqid=?', 'store_id=?'), array($cookieHash, $storeId));
-
-        // return $objCart;
-
-        // $cookieHash = 'b4cc176ddaa930a598cbce1604ba8ceea747e8948e36003fb90bd49ea127a5af';
-        // $storeId = '0';
-
-        // // Erstelle einen QueryBuilder, um die Abfrage zu erstellen
-        // $queryBuilder = $this->db->createQueryBuilder();
-        // $queryBuilder->select('*')
-        //     ->from('tl_iso_product_collection')
-        //     ->where('uniqid = :uniqid')
-        //     ->andWhere('store_id = :store_id')
-        //     ->setParameter('uniqid', $cookieHash)
-        //     ->setParameter('store_id', $storeId);
-
-        // // Führe die Abfrage aus
-        // $stmt = $queryBuilder->execute();
-        // $data = $stmt->fetchAllAssociative();
-
-        // // Überprüfe, ob ein Ergebnis vorhanden ist
-        // if (empty($data)) {
-        //     throw new \Exception('No cart found.');
-        // }
-
-        // Erstelle ein neues Cart-Objekt und setze die Daten
+        // TODO: get the parameter for the Cart constructor of type Database\Result!
+        // return new Cart($data[0]);
         return new Cart();
     }
 }

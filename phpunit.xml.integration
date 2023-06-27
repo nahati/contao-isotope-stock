@@ -33,15 +33,24 @@
     <ini
         name="error_reporting"
         value="-1" />
-
-    <server
-        name="APP_ENV"
-        value="test" />
-
     <env
         name="SYMFONY_DEPRECATIONS_HELPER"
-        value="weak" />
-
+        value="max[self]=0" />
+    <env
+        name="SYMFONY_PATCH_TYPE_DECLARATIONS"
+        value="deprecations=0" />
+    <env
+        name="DISABLE_HTTP_CACHE"
+        value="1" />
+    <env
+        name="APP_SECRET"
+        value="foobar" />
+    <env
+        name="APP_ENV"
+        value="test" />
+    <env
+        name="APP_DEBUG"
+        value="" />
     <env
         name="DATABASE_URL"
         value="mysql://root:@127.0.0.1:3306/ContaoIsotopeStockBundleTest" />

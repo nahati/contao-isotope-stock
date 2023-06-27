@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
+use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
@@ -27,14 +28,17 @@ use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
  */
 class UpdateItemInCollectionListener
 {
+    private ContaoFramework $framework;
+
     /**
      * @var Helper
      */
     private $helper;
 
     // Inspired by contao/calendar-bundle (constructor injection of ContaoFramework to enable testing)
-    public function __construct(private readonly ContaoFramework $framework)
+    public function __construct(ContaoFramework $framework)
     {
+        $this->framework = $framework;
     }
 
     /**
@@ -86,6 +90,7 @@ class UpdateItemInCollectionListener
 
             if ($surplus > 0) {
                 // Get an adapter for the Message class
+                /** @var Adapter<Message> $messageAdapter */
                 $messageAdapter = $this->framework->getAdapter(Message::class);
 
                 $messageAdapter->addError(sprintf(
@@ -106,6 +111,7 @@ class UpdateItemInCollectionListener
         // Manage stock for parent product with sum of all siblings quantities
 
         // Get an adapter for the Standard class
+        /** @var Adapter<Standard> $adapter */
         $adapter = $this->framework->getAdapter(Standard::class);
         $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
 

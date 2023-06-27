@@ -8,10 +8,6 @@
             "name": "Ernst Jendritzki",
             "email": "ernst.jendritzki@nachhaltig-im-web.de",
             "homepage": "https://www.nachhaltig-im-web.de"
-        },
-        {
-            "name": "Benny Born and Michael Bösherz, numero2",
-            "role": "authors of numero2/contao-isotope-simple-erp v1.0.4, which was taken as basis for this extension"
         }
     ],
     "support": {
@@ -66,12 +62,14 @@
     },
     "scripts": {
         "all": [
-            "@unit-tests",
             "@ecs",
-            "@phpstan"
+            "@phpstan",
+            "@unit-tests",
+            "@integration-tests"
         ],
         "ecs": "@php tools/ecs/vendor/bin/ecs check src tests --config ecs.php --fix --ansi",
         "phpstan": "@php tools/phpstan/vendor/bin/phpstan analyze --ansi",
-        "unit-tests": "@php vendor/bin/phpunit --colors=always"
+        "unit-tests": "@php vendor/bin/phpunit --colors=always",
+        "integration-tests": "@php vendor/bin/phpunit -c phpunit.xml.integration"
     }
 }
