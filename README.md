@@ -4,13 +4,7 @@ This bundle adds a stock-management to Isotope.
 
 ## Important note
 
-THIS VERSION IS IN PROGRESS, COMMUNITY HELP WANTED!
-
-I have not been successful in building the environment for integration tests. We will need to extend this version in this point.
-
-To enable instantiating Isotope or Contao classes, in my opinion a Contao framework must be set up (not a mocked one!). Missing documentation and support I stopped at this point after long time of searching for examples and trying several approaches
-
-When this will be done, I am willing to add the new features for all usecases.
+THIS VERSION IS IN PROGRESS!
 
 ## Last changes
 
