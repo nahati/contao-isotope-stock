@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\Tests;
 
-use Contao\System;
 use Contao\TestCase\FunctionalTestCase;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
@@ -33,13 +32,13 @@ class IntegrationTestCase extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
+        // parent::setUp();
 
         // static::bootKernel();
 
         // $framework = static::getContainer()->get('contao.framework');
 
-        $this->db = System::getContainer()->get('database_connection');
+        // $this->db = System::getContainer()->get('database_connection');
 
         // // Drop all tables
         // foreach ($this->db->createSchemaManager()->listTableNames() as $table) {

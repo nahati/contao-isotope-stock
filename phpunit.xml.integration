@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd"
     colors="true"
-    bootstrap="tests/bootstrap.php"
+    bootstrap="vendor/autoload.php"
     failOnRisky="true"
     failOnWarning="false">
 
@@ -49,16 +49,17 @@
         name="APP_ENV"
         value="test" />
     <env
-        name="APP_DEBUG"
-        value="" />
-    <env
         name="DATABASE_URL"
         value="mysql://root:@127.0.0.1:3306/ContaoIsotopeStockBundleTest" />
+    <env
+        name="KERNEL_CLASS"
+        value="Nahati\ContaoIsotopeStockBundle\Tests\Integration\app\AppKernel" />
+
   </php>
 
   <testsuites>
     <testsuite name="integration">
-      <directory>./tests/integration</directory>
+      <directory>./tests/Integration</directory>
     </testsuite>
   </testsuites>
 

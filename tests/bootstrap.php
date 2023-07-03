@@ -26,11 +26,6 @@ ini_set('display_startup_errors', true);
 
 spl_autoload_register(
     static function ($class): void {
-        if ('Template' === $class) {
-            return; // Exclude the class Template
-        }
-        // TODO: Fix the "Template class already there" error and remove this condition
-
         if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false)) {
             return;
         }
@@ -39,7 +34,7 @@ spl_autoload_register(
             return;
         }
 
-        $namespaced = 'Contao\\' . $class;
+        $namespaced = 'Nahati\\ContaoIsotopeStockBundle\\Tests\\Integration\\' . $class;
 
         if (class_exists($namespaced) || interface_exists($namespaced) || trait_exists($namespaced)) {
             class_alias($namespaced, $class);
@@ -47,9 +42,7 @@ spl_autoload_register(
     }
 );
 
-define('TL_ROOT', __DIR__ . '/../');
 define('TL_MODE', '');
-define('TL_ERROR', 'error');
 define('BE_USER_LOGGED_IN', false);
 
 $container = new ContainerBuilder(
