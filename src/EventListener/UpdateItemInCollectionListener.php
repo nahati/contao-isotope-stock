@@ -36,6 +36,7 @@ class UpdateItemInCollectionListener
     private $helper;
 
     // Inspired by contao/calendar-bundle (constructor injection of ContaoFramework to enable testing)
+
     public function __construct(ContaoFramework $framework)
     {
         $this->framework = $framework;

@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Nahati\ContaoIsotopeStockBundle\Tests\Integration\app;
 
 use Contao\CoreBundle\ContaoCoreBundle;
-use Contao\NewsBundle\ContaoNewsBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Knp\Bundle\MenuBundle\KnpMenuBundle;
 use Knp\Bundle\TimeBundle\KnpTimeBundle;
@@ -31,7 +30,10 @@ use Terminal42\ServiceAnnotationBundle\Terminal42ServiceAnnotationBundle;
 
 class AppKernel extends Kernel
 {
-    public function registerBundles(): array
+    /**
+     * @return array<mixed>
+     */
+    public function registerBundles()
     {
         return [
             new FrameworkBundle(),
@@ -74,6 +76,9 @@ class AppKernel extends Kernel
     public function registerContainerConfiguration(LoaderInterface $loader): void
     {
         $loader->load(__DIR__ . '/config/config_' . $this->environment . '.yml');
+
+        // // Also load the Isotope config
+        // $loader->load(__DIR__ . '/config/config_isotope.php');
     }
 
     protected function build(ContainerBuilder $container): void

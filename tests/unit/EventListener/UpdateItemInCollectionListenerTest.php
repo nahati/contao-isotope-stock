@@ -120,9 +120,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
         $adapters = [];
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
 
-        $this->assertFalse($result);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        $this->assertFalse($return);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedArrsetWhenStockmanagementIsNotConfigured(): void
@@ -144,10 +145,11 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
         $adapters = [];
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test that result is unchanged
-        $this->assertSame($result, $this->arrSet);
+        $this->assertSame($return, $this->arrSet);
     }
 
     public function testUpdateItemInCollectionListenerThrowsInvalidArgumentExceptionWhenStockmanagementIsBadlyConfigured(): void
@@ -184,10 +186,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test that result is unchanged
-        $this->assertSame($result, $this->arrSet);
+        $this->assertSame($return, $this->arrSet);
     }
 
     public function testUpdateItemInCollectionListenerReturnsFalseWhenParameterArrsetNotContainsKeyQuantity(): void
@@ -199,10 +201,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns false
-        $this->assertFalse($result);
+        $this->assertFalse($return);
     }
 
     public function testUpdateItemInCollectionListenerReturnsFalseWhenParameterArrsetKeyQuantityIsEmpty(): void
@@ -216,10 +218,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns false
-        $this->assertFalse($result);
+        $this->assertFalse($return);
     }
 
     public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductHasQuantityZeroAndHenceIsSoldout(): void
@@ -278,10 +280,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns Quantity Zero
-        $this->assertSame(0, $result['quantity']);
+        $this->assertSame(0, $return['quantity']);
     }
 
     public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductHasInventoryStatusSoldoutAndHenceIsSoldout(): void
@@ -340,10 +342,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns Quantity Zero
-        $this->assertSame(0, $result['quantity']);
+        $this->assertSame(0, $return['quantity']);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
@@ -374,10 +376,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns unchanged Quantity
-        $this->assertSame($result, $this->arrSet);
+        $this->assertSame($return, $this->arrSet);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantity(): void
@@ -428,10 +430,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns unchanged Quantity
-        $this->assertSame($result, $this->arrSet);
+        $this->assertSame($return, $this->arrSet);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantity(): void
@@ -488,10 +490,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns unchanged Quantity
-        $this->assertSame($result, $this->arrSet);
+        $this->assertSame($return, $this->arrSet);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndQuantityInCartIsGreaterThanProductQuantity(): void
@@ -553,10 +555,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns reduced Quantity
-        $this->assertSame(1, $result['quantity']);
+        $this->assertSame(1, $return['quantity']);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsAVariantAndParentProductHasUnlimitedQuantity(): void
@@ -711,10 +713,10 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if Listener returns unchanged Quantity
-        $this->assertSame($result, $this->arrSet);
+        $this->assertSame($return, $this->arrSet);
     }
 
     public function testUpdateItemInCollectionListenerReturnsReducedQuantityInArrsetByTheSurplusWhenProductIsAVariantAndSumOfSiblingsInCartQuantityExceedsParentProductQuantity(): void
@@ -892,9 +894,9 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
 
         $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
 
-        $result = $listener($this->objItem, $this->arrSet, $this->objCart);
+        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // // Test that Listener returns unchanged quantity
-        $this->assertSame($result, false);
+        $this->assertSame($return, false);
     }
 }

@@ -14,3 +14,6 @@
 
 # Readme
 README skeleton bundle.md
+
+# Database exports
+/tests/integration/Fixtures/*.sql
