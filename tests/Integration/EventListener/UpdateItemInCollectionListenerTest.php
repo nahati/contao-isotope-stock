@@ -72,7 +72,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         }
 
         // Create tables and insert data
-        $this->loadFixture('zfr00_cleverquir-4-Produkte-Im Warenkorb.sql');
+        $this->loadFixture('ContaoIsotopeStockBundleTest.sql');
 
         // These assignments link the tables with the model classes. Now you can use the model classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_producttype'] = ProductType::class;
