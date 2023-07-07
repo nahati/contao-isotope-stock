@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.1">
+    <file>
+        <body>
+            <trans-unit id="tl_iso_product.quantity.0">
+                <target>Available quantity</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.quantity.1">
+                <target>If limited edition, enter the available quantity for this product</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.inventory_status.0">
+                <target>Inventory status</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.inventory_status.1">
+                <target>Is this product unsellable, available, reserved or
+                    sold out?</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

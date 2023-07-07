@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd"
+    colors="true"
+    bootstrap="vendor/autoload.php"
+    failOnRisky="true"
+    failOnWarning="false">
+
+  <coverage
+      includeUncoveredFiles="true"
+      pathCoverage="true"
+      ignoreDeprecatedCodeUnits="true"
+      disableCodeCoverageIgnore="true">
+
+    <report>
+      <html
+          outputDirectory="html-coverage"
+          lowUpperBound="50"
+          highLowerBound="90" />
+
+      <text
+          outputFile="coverage.txt"
+          showUncoveredFiles="false"
+          showOnlySummary="true" />
+
+    </report>
+
+  </coverage>
+
+  <php>
+    <ini
+        name="error_reporting"
+        value="-1" />
+
+    <server
+        name="APP_ENV"
+        value="test" />
+
+    <env
+        name="SYMFONY_DEPRECATIONS_HELPER"
+        value="weak" />
+
+    <env
+        name="DATABASE_URL"
+        value="mysql://root:@127.0.0.1:3306/ContaoIsotopeStockBundleTest" />
+  </php>
+
+  <testsuites>
+    <testsuite name="unit">
+      <directory>./tests/unit</directory>
+    </testsuite>
+  </testsuites>
+
+</phpunit>

@@ -1,0 +1,10 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Nahati\ContaoIsotopeStockBundle\EventListener\:
+    resource: "../src/EventListener/"
+
+  Nahati\ContaoIsotopeStockBundle\Helper\:
+    resource: "../src/Helper/"
