@@ -461,6 +461,9 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
     {
+        // Instantiate the Item with id '3105' of this Cart
+        $this->objItem = ProductCollectionItem::findByPk('3105');
+
         // Create an arry $arrSet with quantity 1
         $this->arrSet = ['quantity' => 1];
 
