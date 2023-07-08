@@ -17,6 +17,7 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Contao\TestCase\FunctionalTestCase;
 use Isotope\Model\Group;
+use Isotope\Model\Product;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
 use Isotope\Model\ProductCollection\Cart;
@@ -416,6 +417,8 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         $GLOBALS['TL_DCA']['tl_iso_product']['attributes'] = [];
 
+        Product::registerModelType("standard", Standard::class);
+
         // Alternatively, but not recommended, you can load objects from the database like this:
         //
         // /** @var string $query */
@@ -458,20 +461,6 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
     {
-        // Instantiate the Item with id '3105' of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3105');
-        // dump($this->objItem);
-
-        // /** @var Standard|null $objProduct */
-        // $objProduct = Standard::findByPk('88');
-        // dump($objProduct);
-        // // This is working now
-
-        // /** @var Standard|null $objProduct */
-        // $objProduct = $this->objItem->getProduct() ?? null;
-        // dump($objProduct);
-        // // TODO: This does not yet work! Hard to find out how to enable this!
-
         // Create an arry $arrSet with quantity 1
         $this->arrSet = ['quantity' => 1];
 
@@ -480,6 +469,5 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 1]);
-        // assert fails because $this->objItem->getProduct() is null, see above
     }
 }
