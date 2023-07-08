@@ -16,15 +16,12 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Contao\TestCase\FunctionalTestCase;
-use Isotope\Model\Group;
 use Isotope\Model\Product;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
-use Isotope\Model\ProductPrice;
 use Isotope\Model\ProductType;
-use Isotope\Model\TaxClass;
 use Nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener;
 
 /**
@@ -43,7 +40,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     private Cart $objCart;
     private mixed $arrSet;
 
-    // private Standard $objProduct;
+    private Standard $objProduct;
     // private Standard $objProduct1;
     // private Standard $objProduct2;
     // private Standard $objProduct3;
@@ -51,8 +48,9 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     // private Standard $objProduct6;
     // private Standard $objParentProduct;
 
-    private string $inventory_status;
+    // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
+    private string $RESERVED = '3'; /* product reserved, not available for more sales */
     private string $SOLDOUT = '4'; /* product in cart though soldout */
 
     private mixed $return;
@@ -69,14 +67,14 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         $this->databaseAdapter = $this->framework->getAdapter(Database::class);
 
-        // // Drop all tables
-        // foreach ($this->databaseAdapter->getInstance()->listTables() as $table) {
-        //     $sql = 'DROP TABLE IF EXISTS ' . $table;
-        //     $this->databaseAdapter->getInstance()->execute($sql);
-        // }
+        // Drop all tables
+        foreach ($this->databaseAdapter->getInstance()->listTables() as $table) {
+            $sql = 'DROP TABLE IF EXISTS ' . $table;
+            $this->databaseAdapter->getInstance()->execute($sql);
+        }
 
-        // // Create tables and insert data
-        // $this->loadFixture('ContaoIsotopeStockBundleTest.sql');
+        // Create tables and insert data
+        $this->loadFixture('ContaoIsotopeStockBundleTest-initial.sql');
 
         // These assignments link the tables with the model classes. Now you can use the model classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_producttype'] = ProductType::class;
@@ -108,7 +106,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         $GLOBALS['TL_DCA']['tl_iso_product']['attributes'] = [];
 
-        Product::registerModelType("standard", Standard::class);
+        Product::registerModelType('standard', Standard::class);
     }
 
     private function loadFixture(string $fileName): void
@@ -116,7 +114,6 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
 
         $this->databaseAdapter->getInstance()->execute($sql);
-        // $this->connection->executeStatement($sql);
     }
 
     /**
@@ -127,21 +124,36 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        // Instantiate a Cart object with id '263'
-        $this->objCart = Cart::findByPk('263');
+        // Instantiate a Cart object with given id
+        $this->objCart = Cart::findByPk('265');
 
-        // dump($this->objCart);
+        // Reset Product-table to initial state
+        $sql = 'DROP TABLE ' . 'tl_iso_product';
+        $this->databaseAdapter->getInstance()->execute($sql);
+        $this->loadFixture('tl_iso_product-initial.sql');
+
+        // Reset ProductCollection-table to initial state
+        $sql = 'DROP TABLE ' . 'tl_iso_product_collection';
+        $this->databaseAdapter->getInstance()->execute($sql);
+        $this->loadFixture('tl_iso_product_collection-265-initial.sql');
+
+        // Reset ProductCollectionItem-table to initial state
+        $sql = 'DROP TABLE ' . 'tl_iso_product_collection_item';
+        $this->databaseAdapter->getInstance()->execute($sql);
+        $this->loadFixture('tl_iso_product_collection_item-initial.sql');
     }
 
-    // public function testTrueIsTrue(): void
-    // {
-    //     $this->assertTrue(true);
-    // }
+    public function testTrueIsTrue(): void
+    {
+        $this->assertTrue(true);
+    }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
     {
-        // Instantiate the Item with id '3105' of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3105');
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk('3112');
+
+        // Item 3111 belongs to product 88 with unlimited quantity
 
         // Create an arry $arrSet with quantity 1
         $this->arrSet = ['quantity' => 1];
@@ -151,5 +163,55 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 1]);
+    }
+
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantity(): void
+    {
+        // Instantiate the Item with given id of this is Cart
+        $this->objItem = ProductCollectionItem::findByPk('3113');
+
+        // This Item belongs to product 89 with quantity 2, inventory_status AVAILABLE
+
+        // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
+        $this->arrSet = ['quantity' => 1];
+
+        $listener = new UpdateItemInCollectionListener($this->framework);
+        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        // Test if arrSet is returned unchanged
+        $this->assertSame($this->return, ['quantity' => 1]);
+
+        // Test if inventory_status of the product is still AVAILABLE
+        $this->objProduct = Standard::findByPk('89');
+        $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
+    }
+
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    {
+        // Instantiate the Item with given id of this is Cart
+        $this->objItem = ProductCollectionItem::findByPk('3113');
+
+        // This Item belongs to product 89 with quantity 2, inventory_status AVAILABLE
+
+        // Create an arry $arrSet with quantity 2 (quantity in Cart is 2)
+        $this->arrSet = ['quantity' => 2];
+
+        $listener = new UpdateItemInCollectionListener($this->framework);
+        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        // Test if arrSet is returned unchanged
+        $this->assertSame($this->return, ['quantity' => 2]);
+
+        // Test if inventory_status of the product has been set to RESERVED
+
+        // The following does not work, because the method findByPk() does not return the current state of the database,
+        // as it does not reflect any changes that have been made to the product outside of the current transaction or connection.
+        // $this->objProduct = Standard::findByPk('89');
+        // $this->assertSame($this->objProduct->inventory_status, $this->RESERVED);
+        // Therefore we use the DatabaseAdapter to get the current state of the database.
+
+        $databaseAdapter = $this->framework->getAdapter(Database::class);
+        $objResult = $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(89);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
     }
 }
