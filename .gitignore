@@ -15,3 +15,7 @@
 # Readme
 README skeleton bundle.md
 
+# cache and logs
+/var/cache/*
+/var/logs/*
+/var/log/*

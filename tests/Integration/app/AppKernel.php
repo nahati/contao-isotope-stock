@@ -77,8 +77,8 @@ class AppKernel extends Kernel
     {
         $loader->load(__DIR__ . '/config/config_' . $this->environment . '.yml');
 
-        // // Also load the Isotope config
-        // $loader->load(__DIR__ . '/config/config_isotope.php');
+        // Also load the Isotope config
+        $loader->load(__DIR__ . '/config/config.php');
     }
 
     protected function build(ContainerBuilder $container): void

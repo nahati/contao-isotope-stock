@@ -1,66 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd"
-    colors="true"
-    bootstrap="vendor/autoload.php"
-    failOnRisky="true"
-    failOnWarning="false">
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd"
+                colors="true"
+                bootstrap="tests/bootstrap.php"
+                failOnRisky="true"
+                failOnWarning="false">
 
-  <coverage
-      includeUncoveredFiles="true"
-      pathCoverage="true"
-      ignoreDeprecatedCodeUnits="true"
-      disableCodeCoverageIgnore="true">
+        <coverage
+                        includeUncoveredFiles="true"
+                        pathCoverage="true"
+                        ignoreDeprecatedCodeUnits="true"
+                        disableCodeCoverageIgnore="true">
 
-    <report>
-      <html
-          outputDirectory="html-coverage"
-          lowUpperBound="50"
-          highLowerBound="90" />
+                <report>
+                        <html
+                                        outputDirectory="html-coverage"
+                                        lowUpperBound="50"
+                                        highLowerBound="90" />
 
-      <text
-          outputFile="coverage.txt"
-          showUncoveredFiles="false"
-          showOnlySummary="true" />
+                        <text
+                                        outputFile="coverage.txt"
+                                        showUncoveredFiles="false"
+                                        showOnlySummary="true" />
 
-    </report>
+                </report>
 
-  </coverage>
+        </coverage>
 
-  <php>
-    <ini
-        name="error_reporting"
-        value="-1" />
-    <env
-        name="SYMFONY_DEPRECATIONS_HELPER"
-        value="max[self]=0" />
-    <env
-        name="SYMFONY_PATCH_TYPE_DECLARATIONS"
-        value="deprecations=0" />
-    <env
-        name="DISABLE_HTTP_CACHE"
-        value="1" />
-    <env
-        name="APP_SECRET"
-        value="foobar" />
-    <env
-        name="APP_ENV"
-        value="test" />
-    <env
-        name="DATABASE_URL"
-        value="mysql://root:@127.0.0.1:3306/ContaoIsotopeStockBundleTest" />
-    <env
-        name="KERNEL_CLASS"
-        value="Nahati\ContaoIsotopeStockBundle\Tests\Integration\app\AppKernel" />
+        <php>
+                <ini
+                                name="error_reporting"
+                                value="-1" />
+                <env
+                                name="SYMFONY_DEPRECATIONS_HELPER"
+                                value="weak" />
+                <env
+                                name="SYMFONY_PATCH_TYPE_DECLARATIONS"
+                                value="deprecations=0" />
+                <env
+                                name="DISABLE_HTTP_CACHE"
+                                value="1" />
+                <env
+                                name="APP_SECRET"
+                                value="test" />
+                <env
+                                name="APP_ENV"
+                                value="test" />
+                <env
+                                name="DATABASE_URL"
+                                value="mysql://root:@127.0.0.1:3306/ContaoIsotopeStockBundleTest" />
+                <env
+                                name="KERNEL_CLASS"
+                                value="Nahati\ContaoIsotopeStockBundle\Tests\Integration\app\AppKernel" />
 
-  </php>
+        </php>
 
-  <testsuites>
-    <testsuite name="integration">
-      <directory>./tests/Integration</directory>
-    </testsuite>
-  </testsuites>
+        <testsuites>
+                <testsuite name="integration">
+                        <directory>./tests/Integration</directory>
+                </testsuite>
+        </testsuites>
 
 </phpunit>

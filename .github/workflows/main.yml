@@ -24,7 +24,7 @@ jobs:
             - name: Install the dependencies
               run: |
                   composer install --no-interaction --no-progress
-                  composer bin ecs install --no-interaction --no-progress 
+                  composer bin ecs install --no-interaction --no-progress
             - name: Run ECS
               run: tools/ecs/vendor/bin/ecs check src tests --config ecs.php --no-progress-bar --ansi --fix
 
