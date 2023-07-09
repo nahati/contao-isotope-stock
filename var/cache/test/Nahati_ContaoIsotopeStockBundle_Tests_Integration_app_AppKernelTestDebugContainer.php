@@ -16,6 +16,6 @@ if (!\class_exists(Nahati_ContaoIsotopeStockBundle_Tests_Integration_app_AppKern
 
 return new \ContainerJxqw6Bh\Nahati_ContaoIsotopeStockBundle_Tests_Integration_app_AppKernelTestDebugContainer([
     'container.build_hash' => 'Jxqw6Bh',
-    'container.build_id' => 'accf0305',
-    'container.build_time' => 1688841922,
+    'container.build_id' => '1ff38ee7',
+    'container.build_time' => 1688908147,
 ], __DIR__.\DIRECTORY_SEPARATOR.'ContainerJxqw6Bh');

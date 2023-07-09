@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jul 08, 2023 at 09:39 PM
+-- Generation Time: Jul 09, 2023 at 03:18 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -445,13 +445,13 @@ CREATE TABLE `tl_cron_job` (
 --
 
 INSERT INTO `tl_cron_job` (`id`, `name`, `lastRun`) VALUES
-(1, 'Contao\\CoreBundle\\Cron\\LegacyCron::onMinutely', '2023-07-08 23:39:01'),
-(2, 'Contao\\CoreBundle\\Cron\\LegacyCron::onHourly', '2023-07-08 23:28:13'),
-(3, 'Contao\\CoreBundle\\Cron\\LegacyCron::onDaily', '2023-07-08 21:22:58'),
-(4, 'Contao\\CoreBundle\\Cron\\LegacyCron::onWeekly', '2023-07-08 21:22:58'),
+(1, 'Contao\\CoreBundle\\Cron\\LegacyCron::onMinutely', '2023-07-09 17:17:07'),
+(2, 'Contao\\CoreBundle\\Cron\\LegacyCron::onHourly', '2023-07-09 17:15:32'),
+(3, 'Contao\\CoreBundle\\Cron\\LegacyCron::onDaily', '2023-07-09 17:15:32'),
+(4, 'Contao\\CoreBundle\\Cron\\LegacyCron::onWeekly', '2023-07-09 17:15:32'),
 (5, 'Contao\\CoreBundle\\Cron\\LegacyCron::onMonthly', '2023-07-08 21:22:58'),
-(6, 'Contao\\CoreBundle\\Cron\\PurgeExpiredDataCron::onHourly', '2023-07-08 23:28:13'),
-(7, 'Contao\\CoreBundle\\Cron\\PurgePreviewLinksCron', '2023-07-08 21:22:58'),
+(6, 'Contao\\CoreBundle\\Cron\\PurgeExpiredDataCron::onHourly', '2023-07-09 17:15:32'),
+(7, 'Contao\\CoreBundle\\Cron\\PurgePreviewLinksCron', '2023-07-09 17:15:32'),
 (56, 'Contao\\CoreBundle\\Cron\\Cron::updateMinutelyCliCron', '2023-02-02 18:42:36'),
 (57, 'Contao\\CoreBundle\\Cron\\MessengerCron', '2023-02-02 18:42:36'),
 (58, 'Contao\\CoreBundle\\Cron\\PurgeOptInTokensCron', '2023-02-02 18:42:36'),
@@ -1464,9 +1464,7 @@ CREATE TABLE `tl_iso_product_collection` (
 --
 
 INSERT INTO `tl_iso_product_collection` (`id`, `tstamp`, `type`, `member`, `locked`, `store_id`, `settings`, `checkout_info`, `payment_data`, `shipping_data`, `source_collection_id`, `document_number`, `uniqid`, `order_status`, `date_paid`, `date_shipped`, `sendNotification`, `config_id`, `payment_id`, `shipping_id`, `billing_address_id`, `shipping_address_id`, `subtotal`, `tax_free_subtotal`, `total`, `tax_free_total`, `currency`, `language`, `notes`, `coupons`) VALUES
-(263, 1688846530, 'cart', 0, NULL, 0, NULL, NULL, NULL, NULL, 0, '', '98c9f94fa4ab41b4f7ee8648e9bcd5ef480bf7d229e052a86ed0b774beef1350', 0, NULL, NULL, '', 1, 0, 0, 0, 0, '300.00', '300.00', '300.00', '300.00', 'EUR', '', NULL, NULL),
-(264, 1688761561, 'order', 0, NULL, 0, NULL, NULL, NULL, NULL, 263, '', '64a874d8379f54.29166569', 0, NULL, NULL, '', 1, 0, 0, 0, 0, '300.00', '300.00', '300.00', '300.00', 'EUR', '', NULL, NULL),
-(265, 1688852342, 'cart', 0, NULL, 0, NULL, NULL, NULL, NULL, 0, '', '3161333539776f90b06464b29a4a5e355ff30ceede343c8da0b12595699ec19c', 0, NULL, NULL, '', 1, 0, 0, 0, 0, '100.00', '100.00', '100.00', '100.00', 'EUR', '', NULL, NULL);
+(265, 1688915859, 'cart', 0, NULL, 0, NULL, NULL, NULL, NULL, 0, '', '3161333539776f90b06464b29a4a5e355ff30ceede343c8da0b12595699ec19c', 0, NULL, NULL, '', 1, 0, 0, 0, 0, '100.00', '100.00', '100.00', '100.00', 'EUR', '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1700,7 +1698,8 @@ CREATE TABLE `tl_iso_requestcache` (
 INSERT INTO `tl_iso_requestcache` (`id`, `tstamp`, `store_id`, `config`) VALUES
 (1, 1688846355, 0, 0x613a333a7b733a373a2266696c74657273223b4e3b733a383a22736f7274696e6773223b4e3b733a363a226c696d697473223b613a313a7b693a33323b4f3a32363a2249736f746f70655c5265717565737443616368655c4c696d6974223a313a7b733a31313a22002a00696e744c696d6974223b693a323b7d7d7d),
 (2, 1688846360, 0, 0x613a333a7b733a373a2266696c74657273223b4e3b733a383a22736f7274696e6773223b4e3b733a363a226c696d697473223b613a313a7b693a33323b4f3a32363a2249736f746f70655c5265717565737443616368655c4c696d6974223a313a7b733a31313a22002a00696e744c696d6974223b693a31353b7d7d7d),
-(3, 1688852147, 0, 0x613a333a7b733a373a2266696c74657273223b4e3b733a383a22736f7274696e6773223b4e3b733a363a226c696d697473223b613a313a7b693a33323b4f3a32363a2249736f746f70655c5265717565737443616368655c4c696d6974223a313a7b733a31313a22002a00696e744c696d6974223b693a353b7d7d7d);
+(3, 1688852147, 0, 0x613a333a7b733a373a2266696c74657273223b4e3b733a383a22736f7274696e6773223b4e3b733a363a226c696d697473223b613a313a7b693a33323b4f3a32363a2249736f746f70655c5265717565737443616368655c4c696d6974223a313a7b733a31313a22002a00696e744c696d6974223b693a353b7d7d7d),
+(4, 1688915833, 0, 0x613a333a7b733a373a2266696c74657273223b4e3b733a383a22736f7274696e6773223b4e3b733a363a226c696d697473223b613a313a7b693a33323b4f3a32363a2249736f746f70655c5265717565737443616368655c4c696d6974223a313a7b733a31313a22002a00696e744c696d6974223b693a31303b7d7d7d);
 
 -- --------------------------------------------------------
 
@@ -2084,7 +2083,15 @@ INSERT INTO `tl_log` (`id`, `tstamp`, `source`, `action`, `username`, `text`, `f
 (86, 1688852274, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
 (87, 1688852278, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
 (88, 1688852298, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
-(89, 1688852342, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36');
+(89, 1688852342, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
+(90, 1688915732, 'FE', 'CRON', 'test', 'Purged the temp folder', 'Contao\\Automator::purgeTempFolder', 'N/A'),
+(91, 1688915732, 'FE', 'CRON', 'test', 'Purged the expired double opt-in tokens', 'Contao\\Automator::purgeOptInTokens', 'N/A'),
+(92, 1688915828, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
+(93, 1688915834, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
+(94, 1688915838, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
+(95, 1688915841, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
+(96, 1688915847, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'),
+(97, 1688915859, 'FE', 'ERROR', 'anon.', 'Module class &quot;&quot; (module &quot;visitors&quot;) does not exist', 'Contao\\Controller::getFrontendModule', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36');
 
 -- --------------------------------------------------------
 
@@ -3288,206 +3295,6 @@ INSERT INTO `tl_version` (`id`, `pid`, `tstamp`, `version`, `fromTable`, `userid
 --
 
 --
--- Indexes for table `tl_article`
---
-ALTER TABLE `tl_article`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `alias` (`alias`),
-  ADD KEY `pid_published_incolumn_start_stop` (`pid`,`published`,`inColumn`,`start`,`stop`);
-
---
--- Indexes for table `tl_calendar`
---
-ALTER TABLE `tl_calendar`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `tl_calendar_events`
---
-ALTER TABLE `tl_calendar_events`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `alias` (`alias`),
-  ADD KEY `pid_published_featured_start_stop` (`pid`,`published`,`featured`,`start`,`stop`);
-
---
--- Indexes for table `tl_calendar_feed`
---
-ALTER TABLE `tl_calendar_feed`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `alias` (`alias`);
-
---
--- Indexes for table `tl_comments`
---
-ALTER TABLE `tl_comments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `published` (`published`),
-  ADD KEY `source_parent_published` (`source`,`parent`,`published`);
-
---
--- Indexes for table `tl_comments_notify`
---
-ALTER TABLE `tl_comments_notify`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `source_parent_active_email` (`source`,`parent`,`active`,`email`),
-  ADD KEY `tokenremove` (`tokenRemove`);
-
---
--- Indexes for table `tl_content`
---
-ALTER TABLE `tl_content`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid_ptable_invisible_start_stop` (`pid`,`ptable`,`invisible`,`start`,`stop`),
-  ADD KEY `type` (`type`);
-
---
--- Indexes for table `tl_crawl_queue`
---
-ALTER TABLE `tl_crawl_queue`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `job_id` (`job_id`),
-  ADD KEY `uri_hash` (`uri_hash`),
-  ADD KEY `processed` (`processed`);
-
---
--- Indexes for table `tl_cron_job`
---
-ALTER TABLE `tl_cron_job`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `name` (`name`);
-
---
--- Indexes for table `tl_faq`
---
-ALTER TABLE `tl_faq`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid_published` (`pid`,`published`);
-
---
--- Indexes for table `tl_faq_category`
---
-ALTER TABLE `tl_faq_category`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `tl_files`
---
-ALTER TABLE `tl_files`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uuid` (`uuid`),
-  ADD KEY `pid` (`pid`),
-  ADD KEY `path` (`path`(768)),
-  ADD KEY `extension` (`extension`);
-
---
--- Indexes for table `tl_form`
---
-ALTER TABLE `tl_form`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `alias` (`alias`);
-
---
--- Indexes for table `tl_form_field`
---
-ALTER TABLE `tl_form_field`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid_invisible` (`pid`,`invisible`);
-
---
--- Indexes for table `tl_image_size`
---
-ALTER TABLE `tl_image_size`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid` (`pid`);
-
---
--- Indexes for table `tl_image_size_item`
---
-ALTER TABLE `tl_image_size_item`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid` (`pid`);
-
---
--- Indexes for table `tl_iso_address`
---
-ALTER TABLE `tl_iso_address`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid_store_id` (`pid`,`store_id`);
-
---
--- Indexes for table `tl_iso_attribute`
---
-ALTER TABLE `tl_iso_attribute`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `type` (`type`);
-
---
--- Indexes for table `tl_iso_attribute_option`
---
-ALTER TABLE `tl_iso_attribute_option`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `ptable_pid` (`ptable`,`pid`);
-
---
--- Indexes for table `tl_iso_baseprice`
---
-ALTER TABLE `tl_iso_baseprice`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `tl_iso_config`
---
-ALTER TABLE `tl_iso_config`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `tl_iso_document`
---
-ALTER TABLE `tl_iso_document`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `tl_iso_download`
---
-ALTER TABLE `tl_iso_download`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid` (`pid`);
-
---
--- Indexes for table `tl_iso_gallery`
---
-ALTER TABLE `tl_iso_gallery`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `tl_iso_group`
---
-ALTER TABLE `tl_iso_group`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid` (`pid`);
-
---
--- Indexes for table `tl_iso_label`
---
-ALTER TABLE `tl_iso_label`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `language` (`language`);
-
---
--- Indexes for table `tl_iso_orderstatus`
---
-ALTER TABLE `tl_iso_orderstatus`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid` (`pid`),
-  ADD KEY `paid` (`paid`);
-
---
--- Indexes for table `tl_iso_payment`
---
-ALTER TABLE `tl_iso_payment`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `tl_iso_product`
 --
 ALTER TABLE `tl_iso_product`
@@ -3499,29 +3306,6 @@ ALTER TABLE `tl_iso_product`
   ADD KEY `start` (`start`),
   ADD KEY `sku` (`sku`),
   ADD KEY `gtin` (`gtin`);
-
---
--- Indexes for table `tl_iso_productcache`
---
-ALTER TABLE `tl_iso_productcache`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `uniqid_requestcache_id_keywords_expires` (`uniqid`,`requestcache_id`,`keywords`,`expires`),
-  ADD KEY `page_id_module_id_requestcache_id_keywords_expires` (`page_id`,`module_id`,`requestcache_id`,`keywords`,`expires`);
-
---
--- Indexes for table `tl_iso_producttype`
---
-ALTER TABLE `tl_iso_producttype`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `variants` (`variants`);
-
---
--- Indexes for table `tl_iso_product_category`
---
-ALTER TABLE `tl_iso_product_category`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pid` (`pid`),
-  ADD KEY `page_id` (`page_id`);
 
 --
 -- Indexes for table `tl_iso_product_collection`
@@ -3892,196 +3676,10 @@ ALTER TABLE `tl_version`
 --
 
 --
--- AUTO_INCREMENT for table `tl_article`
---
-ALTER TABLE `tl_article`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
-
---
--- AUTO_INCREMENT for table `tl_calendar`
---
-ALTER TABLE `tl_calendar`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_calendar_events`
---
-ALTER TABLE `tl_calendar_events`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_calendar_feed`
---
-ALTER TABLE `tl_calendar_feed`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_comments`
---
-ALTER TABLE `tl_comments`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `tl_comments_notify`
---
-ALTER TABLE `tl_comments_notify`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_content`
---
-ALTER TABLE `tl_content`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=255;
-
---
--- AUTO_INCREMENT for table `tl_crawl_queue`
---
-ALTER TABLE `tl_crawl_queue`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_cron_job`
---
-ALTER TABLE `tl_cron_job`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
-
---
--- AUTO_INCREMENT for table `tl_faq`
---
-ALTER TABLE `tl_faq`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `tl_faq_category`
---
-ALTER TABLE `tl_faq_category`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `tl_files`
---
-ALTER TABLE `tl_files`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
-
---
--- AUTO_INCREMENT for table `tl_form`
---
-ALTER TABLE `tl_form`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `tl_form_field`
---
-ALTER TABLE `tl_form_field`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT for table `tl_image_size`
---
-ALTER TABLE `tl_image_size`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_image_size_item`
---
-ALTER TABLE `tl_image_size_item`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_iso_address`
---
-ALTER TABLE `tl_iso_address`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=203;
-
---
--- AUTO_INCREMENT for table `tl_iso_attribute`
---
-ALTER TABLE `tl_iso_attribute`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT for table `tl_iso_attribute_option`
---
-ALTER TABLE `tl_iso_attribute_option`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `tl_iso_baseprice`
---
-ALTER TABLE `tl_iso_baseprice`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_iso_config`
---
-ALTER TABLE `tl_iso_config`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `tl_iso_document`
---
-ALTER TABLE `tl_iso_document`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `tl_iso_download`
---
-ALTER TABLE `tl_iso_download`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_iso_gallery`
---
-ALTER TABLE `tl_iso_gallery`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `tl_iso_group`
---
-ALTER TABLE `tl_iso_group`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_iso_label`
---
-ALTER TABLE `tl_iso_label`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `tl_iso_orderstatus`
---
-ALTER TABLE `tl_iso_orderstatus`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
-
---
--- AUTO_INCREMENT for table `tl_iso_payment`
---
-ALTER TABLE `tl_iso_payment`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
 -- AUTO_INCREMENT for table `tl_iso_product`
 --
 ALTER TABLE `tl_iso_product`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
-
---
--- AUTO_INCREMENT for table `tl_iso_productcache`
---
-ALTER TABLE `tl_iso_productcache`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `tl_iso_producttype`
---
-ALTER TABLE `tl_iso_producttype`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `tl_iso_product_category`
---
-ALTER TABLE `tl_iso_product_category`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `tl_iso_product_collection`
@@ -4141,7 +3739,7 @@ ALTER TABLE `tl_iso_related_product`
 -- AUTO_INCREMENT for table `tl_iso_requestcache`
 --
 ALTER TABLE `tl_iso_requestcache`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tl_iso_rule`
@@ -4201,7 +3799,7 @@ ALTER TABLE `tl_link_data`
 -- AUTO_INCREMENT for table `tl_log`
 --
 ALTER TABLE `tl_log`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
 
 --
 -- AUTO_INCREMENT for table `tl_member`

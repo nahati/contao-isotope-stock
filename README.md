@@ -90,3 +90,8 @@ Apply changes to update the packages. Update Database.
 
       composer require nahati/contao-isotope-stock
       vendor/bin/contao-console contao:migrate
+
+## Special thanks
+
+...to @andreas.schempp for kind help to securely handle a product update
+...to @zoglo for kind help to get integration test running
