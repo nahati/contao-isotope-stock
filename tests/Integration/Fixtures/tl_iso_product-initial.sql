@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jul 09, 2023 at 03:18 PM
+-- Generation Time: Jul 09, 2023 at 05:14 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -92,16 +92,11 @@ INSERT INTO `tl_iso_product` (`id`, `pid`, `gid`, `tstamp`, `language`, `dateAdd
 (50, 0, 0, 1688850131, '', 1682537805, 7, 'a:1:{i:0;s:2:\"33\";}', NULL, '', 'figur-6', '', 'S0006', 'Skulptur 6 &#40;quantity 2, SOLDOUT&#41;', NULL, '<p>Figur 6</p>', '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"kg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '4', '2', 0),
 (51, 50, 0, 1688850217, '', 0, 0, NULL, 0x613a313a7b693a303b733a31353a227368697070696e675f776569676874223b7d, '', '', '', '', 'Variante Kopie von Skulptur 6 &#40;quantity 2, SOLDOUT&#41;', NULL, NULL, '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"mg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '4', '2', 2),
 (52, 50, 0, 1688850184, '', 0, 0, NULL, 0x613a313a7b693a303b733a31353a227368697070696e675f776569676874223b7d, '', '', '', '', 'Variante Original von Skulptur 6 &#40;quantity 1, SOLDOUT&#41;', NULL, NULL, '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"mg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '4', '1', 1),
-(88, 0, 0, 1688848903, '', 1688593283, 6, 'a:1:{i:0;s:2:\"32\";}', NULL, '', 'bild-unlimited', '', 'B0001', 'Bild 1 &#40;no variants, unlimited&#41;', NULL, '<p>Bild 1</p>', '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"kg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '50', '60', '0,2', '2', '', 0),
-(89, 0, 0, 1688852265, '', 1688846985, 6, 'a:1:{i:0;s:2:\"32\";}', NULL, '', 'bild-2-quantity-2', '', 'B0002', 'Bild 2 &#40;no variants, quantity &#61; 2&#41;', NULL, '<p>Bild 2</p>', '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"kg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '50', '60', '0,2', '2', '2', 0),
-(90, 0, 0, 0, '', 1688850377, 7, 'a:1:{i:0;s:2:\"33\";}', NULL, '', '', '', '', 'Skulptur 6 &#40;quantity 2, SOLDOUT&#41;', NULL, '<p>Figur 6</p>', '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"kg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '4', '2', 0),
-(91, 90, 0, 1688850377, '', 0, 0, NULL, 0x613a313a7b693a303b733a31353a227368697070696e675f776569676874223b7d, '', '', '', '', 'Variante Kopie von Skulptur 6 &#40;quantity 2, SOLDOUT&#41;', NULL, NULL, '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"mg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '', '', '', '', '', '', '', '4', '2', 2),
-(92, 90, 0, 1688850377, '', 0, 0, NULL, 0x613a313a7b693a303b733a31353a227368697070696e675f776569676874223b7d, '', '', '', '', 'Variante Original von Skulptur 6 &#40;quantity 1, SOLDOUT&#41;', NULL, NULL, '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"mg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '', '', '', '', '', '', '', '4', '1', 1),
-(93, 0, 0, 1688850431, '', 1688850385, 7, 'a:1:{i:0;s:2:\"33\";}', NULL, '', 'skulptur-7-quantity-100', '', 'S0007', 'Skulptur 7 &#40;quantity 100&#41;', NULL, '<p>Figur 6</p>', '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"kg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '2', '100', 0),
-(94, 93, 0, 1688850504, '', 0, 0, NULL, 0x613a323a7b693a303b733a383a227175616e74697479223b693a313b733a31353a227368697070696e675f776569676874223b7d, '', '', '', '', 'Variante 1 von Skulptur 7 &#40;quantity -&#41;', NULL, NULL, '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"mg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '2', '2', 2),
-(95, 93, 0, 1688850481, '', 0, 0, NULL, 0x613a323a7b693a303b733a383a227175616e74697479223b693a313b733a31353a227368697070696e675f776569676874223b7d, '', '', '', '', 'Variante 1 von Skulptur 7 &#40;quantity -&#41;', NULL, NULL, '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"mg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '2', '1', 1),
+(88, 0, 0, 1688920168, '', 1688593283, 6, 'a:1:{i:0;s:2:\"32\";}', NULL, '', 'bild-unlimited', '', 'B0001', 'Bild 1 &#40;no variants, unlimited&#41;', NULL, '<p>Bild 1</p>', '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"kg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '50', '60', '0,2', '2', '', 0),
+(89, 0, 0, 1688919651, '', 1688846985, 6, 'a:1:{i:0;s:2:\"32\";}', NULL, '', 'bild-3-no-variants-quantity-2-reserved', '', 'B0003', 'Bild 3 &#40;no variants, quantity &#61; 2, RESERVED&#41;', NULL, '<p>Bild 2</p>', '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"kg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '50', '60', '0,2', '2', '2', 0),
 (96, 35, 0, 1688850958, '', 0, 0, NULL, 0x613a313a7b693a303b733a31363a22696e76656e746f72795f737461747573223b7d, '', '', '', '', 'Eintrittskarte online', NULL, NULL, '', NULL, NULL, '', '', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '2', '', 2),
-(97, 35, 0, 1688850975, '', 0, 0, NULL, 0x613a313a7b693a303b733a31363a22696e76656e746f72795f737461747573223b7d, '', '', '', '', 'Eintrittskarte Schalter', NULL, NULL, '', NULL, NULL, '', '', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '2', '', 1);
+(97, 35, 0, 1688850975, '', 0, 0, NULL, 0x613a313a7b693a303b733a31363a22696e76656e746f72795f737461747573223b7d, '', '', '', '', 'Eintrittskarte Schalter', NULL, NULL, '', NULL, NULL, '', '', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '2', '', 1),
+(100, 0, 0, 1688922752, '', 1688920236, 6, 'a:1:{i:0;s:2:\"32\";}', NULL, '', 'bild-2-no-variants-quantity-2', '', 'B0002', 'Bild 2 &#40;no variants, quantity &#61; 2&#41;', NULL, '<p>Bild 2</p>', '', NULL, NULL, '', 'a:2:{s:4:\"unit\";s:2:\"kg\";s:5:\"value\";s:0:\"\";}', '', '', '0.00', NULL, '', NULL, '', '1', '', '', '', '', '', '', '2', '2', 0);
 
 --
 -- Indexes for dumped tables
@@ -128,7 +123,7 @@ ALTER TABLE `tl_iso_product`
 -- AUTO_INCREMENT for table `tl_iso_product`
 --
 ALTER TABLE `tl_iso_product`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

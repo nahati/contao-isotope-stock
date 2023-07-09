@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jul 09, 2023 at 03:19 PM
+-- Generation Time: Jul 09, 2023 at 05:14 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -48,16 +48,9 @@ CREATE TABLE `tl_iso_product_collection_item` (
 --
 
 INSERT INTO `tl_iso_product_collection_item` (`id`, `pid`, `tstamp`, `product_id`, `type`, `sku`, `name`, `configuration`, `quantity`, `price`, `tax_free_price`, `tax_id`, `jumpTo`) VALUES
-(3102, 263, 1688846529, 35, 'standard', 'K0001', 'Schneller schlau', 0x613a303a7b7d, 2, '100.00', '100.00', '', 58),
-(3103, 263, 1688571424, 45, 'standard', 'S0002', 'Erstickungsgefährdet', 0x613a313a7b733a363a22737461747573223b693a313b7d, 1, '0.00', '0.00', '', 33),
-(3104, 263, 1688571460, 44, 'standard', 'S0002', 'Erstickungsgefährdet', 0x613a313a7b733a363a22737461747573223b693a323b7d, 2, '0.00', '0.00', '', 33),
-(3105, 263, 1688846529, 88, 'standard', 'B0001', 'Bild unlimited', 0x613a303a7b7d, 1, '100.00', '100.00', '', 32),
-(3106, 264, 1688761560, 35, 'standard', 'K0001', 'Schneller schlau', 0x613a303a7b7d, 2, '100.00', '100.00', '', 58),
-(3107, 264, 1688761560, 45, 'standard', 'S0002', 'Erstickungsgefährdet', 0x613a313a7b733a363a22737461747573223b693a313b7d, 1, '0.00', '0.00', '', 33),
-(3108, 264, 1688761560, 44, 'standard', 'S0002', 'Erstickungsgefährdet', 0x613a313a7b733a363a22737461747573223b693a323b7d, 2, '0.00', '0.00', '', 33),
-(3109, 264, 1688761560, 88, 'standard', 'B0001', 'Bild unlimited', 0x613a303a7b7d, 1, '100.00', '100.00', '', 32),
 (3112, 265, 1688852341, 88, 'standard', 'B0001', 'Bild 1 &#40;no variants, unlimited&#41;', 0x613a303a7b7d, 1, '100.00', '100.00', '', 32),
-(3113, 265, 1688852341, 89, 'standard', 'B0002', 'Bild 2 &#40;no variants, quantity &#61; 2&#41;', 0x613a303a7b7d, 1, '0.00', '0.00', '', 32);
+(3115, 265, 1688922775, 100, 'standard', 'B0002', 'Bild 2 &#40;no variants, quantity &#61; 2&#41;', 0x613a303a7b7d, 1, '0.00', '0.00', '', 32),
+(3116, 265, 1688922805, 89, 'standard', 'B0003', 'Bild 3 &#40;no variants, quantity &#61; 2, RESERVED&#41;', 0x613a303a7b7d, 1, '0.00', '0.00', '', 32);
 
 --
 -- Indexes for dumped tables
@@ -79,7 +72,7 @@ ALTER TABLE `tl_iso_product_collection_item`
 -- AUTO_INCREMENT for table `tl_iso_product_collection_item`
 --
 ALTER TABLE `tl_iso_product_collection_item`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3114;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3117;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
