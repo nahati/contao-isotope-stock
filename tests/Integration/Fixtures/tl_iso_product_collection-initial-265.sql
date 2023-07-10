@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jul 09, 2023 at 07:58 PM
+-- Generation Time: Jul 10, 2023 at 04:48 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -65,7 +65,7 @@ CREATE TABLE `tl_iso_product_collection` (
 --
 
 INSERT INTO `tl_iso_product_collection` (`id`, `tstamp`, `type`, `member`, `locked`, `store_id`, `settings`, `checkout_info`, `payment_data`, `shipping_data`, `source_collection_id`, `document_number`, `uniqid`, `order_status`, `date_paid`, `date_shipped`, `sendNotification`, `config_id`, `payment_id`, `shipping_id`, `billing_address_id`, `shipping_address_id`, `subtotal`, `tax_free_subtotal`, `total`, `tax_free_total`, `currency`, `language`, `notes`, `coupons`) VALUES
-(265, 1688932532, 'cart', 0, NULL, 0, NULL, NULL, NULL, NULL, 0, '', '3161333539776f90b06464b29a4a5e355ff30ceede343c8da0b12595699ec19c', 0, NULL, NULL, '', 1, 0, 0, 0, 0, '111170.00', '111170.00', '111170.00', '111170.00', 'EUR', '', NULL, NULL);
+(265, 1689001414, 'cart', 0, NULL, 0, NULL, NULL, NULL, NULL, 0, '', '3161333539776f90b06464b29a4a5e355ff30ceede343c8da0b12595699ec19c', 0, NULL, NULL, '', 1, 0, 0, 0, 0, '111170.00', '111170.00', '111170.00', '111170.00', 'EUR', '', NULL, NULL);
 
 --
 -- Indexes for dumped tables
