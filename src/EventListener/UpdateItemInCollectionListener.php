@@ -125,7 +125,11 @@ class UpdateItemInCollectionListener
             $this->helper->setAvailableVariantsReserved($objParentProduct);
         }
 
+        $surplus = false; // init
+
         if ($surplusParent > 0) {
+            $surplus = true;
+
             // Get an adapter for the Message class
             $messageAdapter = $this->framework->getAdapter(Message::class);
 
@@ -137,6 +141,8 @@ class UpdateItemInCollectionListener
         }
 
         if ($surplusVariant > 0) {
+            $surplus = true;
+
             // Get an adapter for the Message class
             $messageAdapter = $this->framework->getAdapter(Message::class);
 
@@ -145,6 +151,10 @@ class UpdateItemInCollectionListener
                 $objProduct->getName(),
                 $objProduct->quantity
             ));
+        }
+
+        if (!$surplus) {
+            return $arrSet;
         }
 
         // No sibling in cart: reduce quantity by max surplus quantity
