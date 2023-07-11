@@ -28,7 +28,9 @@
         "phpunit/phpunit": "^9.5",
         "contao/test-case": "^4.13",
         "symfony/phpunit-bridge": "^6.1",
-        "contao/phpstan": "@dev"
+        "contao/phpstan": "@dev",
+        "squizlabs/php_codesniffer": "3.*",
+        "slevomat/coding-standard": "~8.0"
     },
     "conflict": {
         "contao/manager-plugin": "<2.0 || >=3.0"

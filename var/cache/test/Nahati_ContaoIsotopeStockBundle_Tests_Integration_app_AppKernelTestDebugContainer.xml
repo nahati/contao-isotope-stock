@@ -341,7 +341,7 @@
       <parameter key="codefog/contao-haste">4.25.26</parameter>
       <parameter key="composer/ca-bundle">1.3.6</parameter>
       <parameter key="contao-community-alliance/composer-plugin">3.2.2</parameter>
-      <parameter key="contao-components/ace">1.23.2</parameter>
+      <parameter key="contao-components/ace">1.23.3</parameter>
       <parameter key="contao-components/chosen">1.2.5</parameter>
       <parameter key="contao-components/colorbox">1.6.6</parameter>
       <parameter key="contao-components/colorpicker">1.5.2</parameter>
@@ -358,13 +358,14 @@
       <parameter key="contao-components/tablesort">4.0.1</parameter>
       <parameter key="contao-components/tablesorter">2.31.3</parameter>
       <parameter key="contao-components/tinymce4">5.10.7</parameter>
-      <parameter key="contao/core-bundle">4.13.25</parameter>
+      <parameter key="contao/core-bundle">4.13.26</parameter>
       <parameter key="contao/image">1.2.0</parameter>
       <parameter key="contao/imagine-svg">1.0.3</parameter>
       <parameter key="contao/manager-plugin">2.12.0</parameter>
       <parameter key="contao/phpstan">0.12.8</parameter>
-      <parameter key="contao/test-case">4.13.25</parameter>
+      <parameter key="contao/test-case">4.13.26</parameter>
       <parameter key="dasprid/enum">1.0.4</parameter>
+      <parameter key="dealerdirect/phpcodesniffer-composer-installer">1.0.0</parameter>
       <parameter key="dflydev/dot-access-data">3.0.2</parameter>
       <parameter key="doctrine/annotations">2.0.1</parameter>
       <parameter key="doctrine/cache">2.2.0</parameter>
@@ -415,12 +416,13 @@
       <parameter key="phar-io/manifest">2.0.3</parameter>
       <parameter key="phar-io/version">3.2.1</parameter>
       <parameter key="php-http/client-common">2.7.0</parameter>
-      <parameter key="php-http/discovery">1.19.0</parameter>
+      <parameter key="php-http/discovery">1.19.1</parameter>
       <parameter key="php-http/httplug">2.4.0</parameter>
       <parameter key="php-http/message">1.16.0</parameter>
       <parameter key="php-http/message-factory">1.1.0</parameter>
       <parameter key="php-http/promise">1.1.0</parameter>
       <parameter key="phpspec/php-diff">1.1.3</parameter>
+      <parameter key="phpstan/phpdoc-parser">1.22.1</parameter>
       <parameter key="phpstan/phpstan">0.12.100</parameter>
       <parameter key="phpstan/phpstan-phpunit">0.12.22</parameter>
       <parameter key="phpstan/phpstan-symfony">0.12.44</parameter>
@@ -429,7 +431,7 @@
       <parameter key="phpunit/php-invoker">3.1.1</parameter>
       <parameter key="phpunit/php-text-template">2.0.4</parameter>
       <parameter key="phpunit/php-timer">5.0.3</parameter>
-      <parameter key="phpunit/phpunit">9.6.9</parameter>
+      <parameter key="phpunit/phpunit">9.6.10</parameter>
       <parameter key="psr/cache">2.0.0</parameter>
       <parameter key="psr/clock">1.0.0</parameter>
       <parameter key="psr/container">1.1.2</parameter>
@@ -460,8 +462,10 @@
       <parameter key="sebastian/type">3.2.1</parameter>
       <parameter key="sebastian/version">3.0.2</parameter>
       <parameter key="simplepie/simplepie">1.8.0</parameter>
+      <parameter key="slevomat/coding-standard">8.13.1</parameter>
       <parameter key="spatie/schema-org">3.14.0</parameter>
       <parameter key="spomky-labs/otphp">10.0.3</parameter>
+      <parameter key="squizlabs/php_codesniffer">3.7.2</parameter>
       <parameter key="symfony-cmf/routing">2.3.4</parameter>
       <parameter key="symfony-cmf/routing-bundle">2.5.1</parameter>
       <parameter key="symfony/asset">5.4.21</parameter>
@@ -527,7 +531,7 @@
       <parameter key="terminal42/contao-conditionalselectmenu">4.0.4</parameter>
       <parameter key="terminal42/contao-tablelookupwizard">4.0.2</parameter>
       <parameter key="terminal42/dc_multilingual">4.4.1</parameter>
-      <parameter key="terminal42/dcawizard">2.6.3</parameter>
+      <parameter key="terminal42/dcawizard">2.7.3</parameter>
       <parameter key="terminal42/escargot">1.5.2</parameter>
       <parameter key="terminal42/notification_center">1.6.14</parameter>
       <parameter key="terminal42/service-annotation-bundle">1.1.5</parameter>
@@ -10718,7 +10722,7 @@
       <argument type="service" id="contao.assets.assets_context"/>
     </service>
     <service id="assets._version_contao-components/ace" class="Symfony\Component\Asset\VersionStrategy\StaticVersionStrategy">
-      <argument>1.23.2</argument>
+      <argument>1.23.3</argument>
       <argument>%%s?v=%%s</argument>
     </service>
     <service id="assets._package_contao-components/ace" class="Symfony\Component\Asset\PathPackage">

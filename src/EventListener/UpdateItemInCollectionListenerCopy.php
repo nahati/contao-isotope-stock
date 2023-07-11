@@ -125,17 +125,20 @@ class UpdateItemInCollectionListener
         // Take the sum of all siblings quantities in cart, except the current item, the quantity of which will be added
         $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'], $setInventoryStatusTo);
 
-        if ($setInventoryStatusTo == $this->AVAILABLE) {
+        if ($setInventoryStatusTo === $this->AVAILABLE) {
             $this->helper->setParentAndChildProductsAvailable($objParentProduct);
-        } elseif ($setInventoryStatusTo == $this->RESERVED) {
+        } elseif ($setInventoryStatusTo === $this->RESERVED) {
             $this->helper->setParentAndChildProductsReserved($objParentProduct);
         }
-        // do nothing if $setInventoryStatusTo = \null
+        // do nothing if $setInventoryStatusTo = \null   
 
-        $surplus = false; // init 
+
+        $surplus = FALSE; // init         
+
+
 
         if ($surplusParent > 0) {
-            $surplus = true;
+            $surplus = TRUE;
 
             // Get an adapter for the Message class
             $messageAdapter = $this->framework->getAdapter(Message::class);
@@ -148,7 +151,7 @@ class UpdateItemInCollectionListener
         }
 
         if ($surplusVariant > 0) {
-            $surplus = true;
+            $surplus = TRUE;
 
             // Get an adapter for the Message class
             $messageAdapter = $this->framework->getAdapter(Message::class);
@@ -165,12 +168,12 @@ class UpdateItemInCollectionListener
         }
 
         // No sibling in cart: reduce quantity by max surplus quantity
-        if (0 === $anzSiblingsInCart) {
+        if ($anzSiblingsInCart === 0) {
             $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
 
             return $arrSet;
         }
-        // Siblings in Cart -> user has to change his Cart
-        return false;
+        // Siblings in Cart -> user has to change his Cart 
+        return FALSE;
     }
 }

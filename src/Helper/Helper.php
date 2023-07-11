@@ -100,9 +100,9 @@ class Helper
     }
 
     /**
-     * Set all AVAILABLE variants RESERVED.
+     * Set parent product and all child products RESERVED.
      */
-    public function setAvailableVariantsReserved(Standard $objParentProduct): void
+    public function setParentAndChildProductsReserved(Standard $objParentProduct): void
     {
         // Get an adapter for the Standard class
         $standardAdapter = $this->framework->getAdapter(Standard::class);
@@ -110,10 +110,35 @@ class Helper
         // Get all children of the parent product (variants)
         $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
 
+        // Set parent product RESERVED
+        $this->updateInventoryStatus($objParentProduct, $this->RESERVED);
+
         // Set all AVAILABLE variants RESERVED
         foreach ($objVariants as $variant) {
             if ($variant->inventory_status === $this->AVAILABLE) {
                 $this->updateInventoryStatus($variant, $this->RESERVED);
+            }
+        }
+    }
+
+    /**
+     * Set parent product and all child products AVAILABLE.
+     */
+    public function setParentAndChildProductsAvailable(Standard $objParentProduct): void
+    {
+        // Get an adapter for the Standard class
+        $standardAdapter = $this->framework->getAdapter(Standard::class);
+
+        // Get all children of the parent product (variants)
+        $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
+
+        // Set parent product AVAILABLE
+        $this->updateInventoryStatus($objParentProduct, $this->AVAILABLE);
+
+        // Set all RESERVED variants AVAILABLE
+        foreach ($objVariants as $variant) {
+            if ($variant->inventory_status === $this->RESERVED) {
+                $this->updateInventoryStatus($variant, $this->AVAILABLE);
             }
         }
     }
@@ -226,12 +251,12 @@ class Helper
      * Manage Stock for a given product and a given quantity in cart and return the surplus.
      *
      * @param Standard $objProduct
-     * @param int      $qtyInCart      // quantity in cart (product retr. all siblings)
-     * @param bool     $isToBeReserved // returns true if product reserved
+     * @param int      $qtyInCart            // quantity in cart (product retr. all siblings)
+     * @param bool     $setInventoryStatusTo // returns the Value, to which the inventory-status has been set
      *
      * @return int // returns surplus quantity
      */
-    public function manageStockAndReturnSurplus($objProduct, $qtyInCart, &$isToBeReserved = false)
+    public function manageStockAndReturnSurplus($objProduct, $qtyInCart, &$setInventoryStatusTo = null)
     {
         // Unlimited quantity: no stockmanagement, no surplus quantity
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
@@ -242,7 +267,7 @@ class Helper
         if ((int) $qtyInCart < (int) $objProduct->quantity) {
             $this->updateInventoryStatus($objProduct, $this->AVAILABLE);
 
-            $isToBeReserved = false;
+            $setInventoryStatusTo = $this->AVAILABLE;
 
             return 0; // no surplus quantity
         }
@@ -251,7 +276,7 @@ class Helper
         if ((int) $qtyInCart === (int) $objProduct->quantity) {
             $this->updateInventoryStatus($objProduct, $this->RESERVED);
 
-            $isToBeReserved = true;
+            $setInventoryStatusTo = $this->RESERVED;
 
             return 0; // no surplus quantity
         }
@@ -260,7 +285,7 @@ class Helper
 
         $this->updateInventoryStatus($objProduct, $this->RESERVED);
 
-        $isToBeReserved = true;
+        $setInventoryStatusTo = $this->RESERVED;
 
         return (int) $qtyInCart - (int) $objProduct->quantity; // return surplus quantity
     }
