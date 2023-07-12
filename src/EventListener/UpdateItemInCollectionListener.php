@@ -126,7 +126,7 @@ class UpdateItemInCollectionListener
         $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'], $setInventoryStatusTo);
 
         if ($setInventoryStatusTo === $this->AVAILABLE) {
-            $this->helper->setParentAndChildProductsAvailable($objParentProduct);
+            $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
         } elseif ($setInventoryStatusTo === $this->RESERVED) {
             $this->helper->setParentAndChildProductsReserved($objParentProduct);
         }
@@ -150,6 +150,8 @@ class UpdateItemInCollectionListener
         if ($surplusVariant > 0) {
             $surplus = true;
 
+            $arrSet['quantity'] -= $surplusVariant; // decrease by surplus quantity
+
             // Get an adapter for the Message class
             $messageAdapter = $this->framework->getAdapter(Message::class);
 
@@ -160,7 +162,7 @@ class UpdateItemInCollectionListener
             ));
         }
 
-        if (!$surplus) {
+        if (!$surplusParent) {
             return $arrSet;
         }
 

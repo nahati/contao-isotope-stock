@@ -167,7 +167,11 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         $GLOBALS['TL_LANG']['ERR']['adaptCart'] = 'Adapt the "%s" and related variants in cart by their quantity!';
 
-        $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '%s" has changed in the meanwhile, please start again!';
+        $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '"%s" has changed in the meanwhile, please start again!';
+
+        $GLOBALS['TL_LANG']['ERR']['parentQuantityNotAvailable'] = 'The maximum available quantity for "%s" is %s items';
+
+        $GLOBALS['TL_LANG']['ERR']['variantQuantityNotAvailable'] = 'The maximum available quantity for a variant of "%s" is %s items';
     }
 
     /**
@@ -188,7 +192,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a test has run to check the database tables.
 
         // Instantiate a Cart object with given id
-        $this->objCart = Cart::findByPk('265');
+        $this->objCart = Cart::findByPk('265',  array('return' => 'Model'));
 
         // Check if Cart object exists
         $this->assertNotNull($this->objCart);
@@ -218,7 +222,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3112');
+        $this->objItem = ProductCollectionItem::findByPk('3112',  array('return' => 'Model'));
 
         // Create an arry $arrSet with quantity 1
         $this->arrSet = ['quantity' => 1];
@@ -238,7 +242,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3115');
+        $this->objItem = ProductCollectionItem::findByPk('3115',  array('return' => 'Model'));
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
         $this->arrSet = ['quantity' => 1];
@@ -249,15 +253,14 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 1]);
 
-        // The following does not work, because the method findByPk() does not return the current state of the database, probably because it does not reflect any changes that have been made to the product outside of the current transaction or connection.
-        // $this->objProduct = Standard::findByPk('100');
-        // $this->assertSame($this->objProduct->inventory_status, $this->RESERVED);
+        // Fetch the object from database (if the 2. parameter is missing, the object might be taken from the registry, which is not neccesarily up to date)  
+        $this->objProduct = Standard::findByPk('100',  array('return' => 'Model'));
+        $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
 
-        // Therefore we use the DatabaseAdapter to get the current state of the database.
-        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(100);
-
-        // Test if inventory_status of the product is AVAILABLE
-        $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
+        // // Alternatively we could use the DatabaseAdapter to get the current state of the database.
+        // $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(100);
+        // // Test if inventory_status of the product is AVAILABLE
+        // $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsAvailableWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
@@ -280,7 +283,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->assertSame($this->return, ['quantity' => 1]);
 
         // Test if inventory_status of the product is still AVAILABLE
-        $this->objProduct = Standard::findByPk('89');
+        $this->objProduct = Standard::findByPk('89',  array('return' => 'Model'));
         $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
     }
 
@@ -292,7 +295,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3115');
+        $this->objItem = ProductCollectionItem::findByPk('3115',  array('return' => 'Model'));
 
         // Create an arry $arrSet with quantity 2 (quantity in Cart is 2)
         $this->arrSet = ['quantity' => 2];
@@ -318,7 +321,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 3
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3115');
+        $this->objItem = ProductCollectionItem::findByPk('3115',  array('return' => 'Model'));
 
         // This Item belongs to product 100 with quantity 2, inventory_status AVAILABLE
 
@@ -348,7 +351,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3117');
+        $this->objItem = ProductCollectionItem::findByPk('3117',  array('return' => 'Model'));
 
         // Create an arry $arrSet with quantity 1
         $this->arrSet = ['quantity' => 1];
@@ -379,7 +382,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119');
+        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
         $this->arrSet = ['quantity' => 1];
@@ -415,7 +418,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // -> Parent product 32, quantity 2, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119');
+        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
         $this->arrSet = ['quantity' => 1];
@@ -465,7 +468,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // -> Parent product 32, quantity 1, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119');
+        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
         $this->arrSet = ['quantity' => 1];
@@ -511,7 +514,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119');
+        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 2)
         $this->arrSet = ['quantity' => 2];
@@ -527,6 +530,155 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->assertSame($objResult->inventory_status, $this->RESERVED);
 
         // Test if inventory_status of all siblings (excluding the product in charge) is unchanged
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute(32, 44);
+
+        while ($objResult->next()) {
+            $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
+        }
+
+        // Test if inventory_status of the parent is AVAILABLE
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(32);
+        $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
+    }
+
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    {
+        // Cart 265
+
+        // Given Item:
+        // Item 3119
+        // product 44: quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        // quantity in Cart 2
+
+        // Item 3120
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // quantity in Cart 1
+
+        // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
+        // Modify the product data to match this testcase, i.e. set quantity of parent product to 3
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute('3', 32);
+        // -> Parent product 32, quantity 3, AVAILABLE, Skulptur 2
+
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+
+        // Create an arry $arrSet with quantity 2 (quantity in Cart is 2)
+        $this->arrSet = ['quantity' => 2];
+
+        $listener = new UpdateItemInCollectionListener(self::$framework);
+        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        // Test if arrSet is returned unchanged
+        $this->assertSame($this->return, ['quantity' => 2]);
+
+        // Test if inventory_status of the product is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(44);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+
+        // Test if inventory_status of all siblings (excluding the product in charge) is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute(32, 44);
+
+        while ($objResult->next()) {
+            $this->assertSame($objResult->inventory_status, $this->RESERVED);
+        }
+
+        // Test if inventory_status of the parent is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(32);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+    }
+
+    /**
+     * Remark: This testcase retuns false, giving the user the responsibility to decide how to change the cart.
+     * (The user could - in this constellation - decide to delete the given item from the Cart or delete the sibling item from the Cart.).
+     */
+    public function testUpdateItemInCollectionListenerReturnsFalseAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    {
+        // Cart 265
+
+        // Given Item:
+        // Item 3119
+        // product 44: quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        // quantity in Cart 2
+
+        // Item 3120
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // quantity in Cart 1
+
+        // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
+        // Modify the product data to match this testcase, i.e. set quantity of parent product to 2
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute('2', 32);
+        // -> Parent product 32, quantity 2, AVAILABLE, Skulptur 2
+
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+
+        // Create an arry $arrSet with quantity 2 (quantity in Cart is 2)
+        $this->arrSet = ['quantity' => 2];
+
+        $listener = new UpdateItemInCollectionListener(self::$framework);
+        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        // Test if returned false
+        $this->assertFalse($this->return);
+
+        // Test if inventory_status of the product is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(44);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+
+        // Test if inventory_status of all siblings (excluding the product in charge) is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute(32, 44);
+
+        while ($objResult->next()) {
+            $this->assertSame($objResult->inventory_status, $this->RESERVED);
+        }
+
+        // Test if inventory_status of the parent is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(32);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+    }
+
+    /**
+     * THIS_REMARK_DEFINES_THE_START_OF_A_SECTION_OF_TESTS_WITH_VARIANT_PRODUCTS_WHERE_QUANTITY_IN_CART_IS_GREATER_THAN_PRODUCT_QUANTITY.
+     */
+    /**
+     * Remark: This testcase retuns false, giving the user the responsibility to decide how to change the cart.
+     * (The user could - in this constellation - decide to delete the given item from the Cart or delete the sibling item from the Cart.).
+     */
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    {
+        // Cart 265
+
+        // Given Item:
+        // Item 3119
+        // product 44: quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        // quantity in Cart 3
+
+        // Item 3120
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // quantity in Cart 1
+
+        // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
+        // Modify the product data to match this testcase, i.e. set quantity of parent product to 5
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute('5', 32);
+        // -> Parent product 32, quantity 5, AVAILABLE, Skulptur 2
+
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+
+        // Create an arry $arrSet with quantity 3 (quantity in Cart is 3)
+        $this->arrSet = ['quantity' => 3];
+
+        $listener = new UpdateItemInCollectionListener(self::$framework);
+        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        // Test if arrSet is returned reduced
+        $this->assertSame($this->return, ['quantity' => 2]);
+
+        // Test if inventory_status of the product is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(44);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+
+        // Test if inventory_status of all siblings (excluding the product in charge) is AVAILABLE
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute(32, 44);
 
         while ($objResult->next()) {

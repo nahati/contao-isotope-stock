@@ -122,15 +122,15 @@ class Helper
     }
 
     /**
-     * Set parent product and all child products AVAILABLE.
+     * Set parent product and all siblings products AVAILABLE.
      */
-    public function setParentAndChildProductsAvailable(Standard $objParentProduct): void
+    public function setParentAndSiblingsProductsAvailable(Standard $objParentProduct, int $id): void
     {
         // Get an adapter for the Standard class
         $standardAdapter = $this->framework->getAdapter(Standard::class);
 
-        // Get all children of the parent product (variants)
-        $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
+        // Get all children of the parent product (variants) except the product with the given id
+        $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id, ['exclude' => $id]);
 
         // Set parent product AVAILABLE
         $this->updateInventoryStatus($objParentProduct, $this->AVAILABLE);
