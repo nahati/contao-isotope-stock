@@ -252,7 +252,7 @@ class Helper
      *
      * @param Standard $objProduct
      * @param int      $qtyInCart            // quantity in cart (product retr. all siblings)
-     * @param bool     $setInventoryStatusTo // returns the Value, to which the inventory-status has been set
+     * @param mixed    $setInventoryStatusTo // returns the Value, to which the inventory-status has been set
      *
      * @return int // returns surplus quantity
      */
