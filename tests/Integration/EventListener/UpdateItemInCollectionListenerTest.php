@@ -253,14 +253,15 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 1]);
 
-        // Fetch the object from database (if the 2. parameter is missing, the object might be taken from the registry, which is not neccesarily up to date)  
-        $this->objProduct = Standard::findByPk('100',  array('return' => 'Model'));
-        $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
+        // This by unknown reason does not give back an up to date object
+        // // Fetch the object from database (if the 2. parameter is missing, the object might be taken from the registry, which is not neccesarily up to date)  
+        // $this->objProduct = Standard::findByPk('100',  array('return' => 'Model'));
+        // $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
 
-        // // Alternatively we could use the DatabaseAdapter to get the current state of the database.
-        // $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(100);
-        // // Test if inventory_status of the product is AVAILABLE
-        // $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
+        // Alternatively therefore we use the DatabaseAdapter to get the current state of the database.
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(100);
+        // Test if inventory_status of the product is AVAILABLE
+        $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsAvailableWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
@@ -282,9 +283,9 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 1]);
 
-        // Test if inventory_status of the product is still AVAILABLE
-        $this->objProduct = Standard::findByPk('89',  array('return' => 'Model'));
-        $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(89);
+        // Test if inventory_status of the product is AVAILABLE
+        $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
     }
 
     public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantity(): void
@@ -306,10 +307,13 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 2]);
 
-        // Therefore we use the DatabaseAdapter to get the current state of the database.
+        // This by unknown reasons does not work (we will get an old state of the object)
+        // $this->objProduct = Standard::findByPk('100',  array('return' => 'Model'));
+        // // Test if inventory_status of the product has been set to RESERVED
+        // $this->assertSame($this->objProduct->inventory_status, $this->RESERVED);
+
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(100);
 
-        // Test if inventory_status of the product has been set to RESERVED
         $this->assertSame($objResult->inventory_status, $this->RESERVED);
     }
 
