@@ -19,6 +19,7 @@ use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
+use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 
 /**
  * Reuseable small services for stockmanagement.
@@ -40,12 +41,12 @@ class Helper
 
     /**
      * @param string $message
-     * @param string $name
-     * @param int    $quantity
+     * @param string $name of the product
+     * @param int    $quantity of the product
      *
-     * return void
+     * @return void
      */
-    public function issueMessage($message, $name, $quantity = 0): void
+    public function issueErrorMessage($message, $name, $quantity = 0): void
     {
         // Get an adapter for the Message class
         $messageAdapter = $this->framework->getAdapter(Message::class);
@@ -64,11 +65,15 @@ class Helper
         }
     }
 
+
     /**
-     * @param string   $inventory_status
+     * @param string   $inventory_status, set empty if not to be updated
+     * @param string   $quantity, leave away if not to be updated
      * @param Standard $objProduct
+     *
+     * @return Boolean // update done
      */
-    public function updateInventoryStatus($objProduct, $inventory_status): void
+    public function updateInventory($objProduct, $inventory_status = '', $quantity = '')
     {
         // Get an adapter for the Standard class
         $standardAdapter = $this->framework->getAdapter(Standard::class);
@@ -80,40 +85,37 @@ class Helper
 
         // We check if relevant properties of the product have been changed in the meantime
         if ($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) {
+
             // no changes -> update inventory_status
             $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
-            $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventory_status, $objProduct->id);
+
+            if ('' !== $quantity && '' !== $inventory_status) {
+
+                // update quantity and inventory_status
+                $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=?, inventory_status=? WHERE id=?')->execute($quantity, $inventory_status, $objProduct->id);
+            } elseif ('' !== $inventory_status) {
+
+                // update inventory_status
+                $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventory_status, $objProduct->id);
+            } elseif ('' !== $quantity) {
+
+                // update quantity
+                $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantity, $objProduct->id);
+            }
+            return true;
+            //
         } else {
-            $this->issueMessage('productHasChanged', $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName());
+
+            // changes -> notify the user
+            $this->issueErrorMessage('productHasChanged', $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName());
+
+            return false;
         }
     }
 
-    /**
-     * @param string   $quantity;
-     * @param Standard $objProduct;
-     * */
-    public function updateQuantity($objProduct, $quantity): void
-    {
-        // Get an adapter for the Standard class
-        $standardAdapter = $this->framework->getAdapter(Standard::class);
-
-        $objProductDouble = $standardAdapter->findPublishedByPk($objProduct->id);
-
-        // Get an adapter for the Database class
-        $databaseAdapter = $this->framework->getAdapter(Database::class);
-
-        // We check if relevant properties of the product have been changed in the meantime
-        if ($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) {
-            // no changes -> update quantity
-            $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
-            $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantity, $objProduct->id);
-        } else {
-            $this->issueMessage('productHasChanged', $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName());
-        }
-    }
 
     /**
-     * Set parent product and all child products RESERVED.
+     * Set parent product and all available child products RESERVED.
      */
     public function setParentAndChildProductsReserved(Standard $objParentProduct): void
     {
@@ -124,18 +126,18 @@ class Helper
         $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
 
         // Set parent product RESERVED
-        $this->updateInventoryStatus($objParentProduct, $this->RESERVED);
+        $this->updateInventory($objParentProduct, $this->RESERVED);
 
         // Set all AVAILABLE variants RESERVED
         foreach ($objVariants as $variant) {
             if ($variant->inventory_status === $this->AVAILABLE) {
-                $this->updateInventoryStatus($variant, $this->RESERVED);
+                $this->updateInventory($variant, $this->RESERVED);
             }
         }
     }
 
     /**
-     * Set parent product and all siblings products AVAILABLE.
+     * Set parent product and all reserved siblings products AVAILABLE.
      */
     public function setParentAndSiblingsProductsAvailable(Standard $objParentProduct, int $id): void
     {
@@ -146,12 +148,12 @@ class Helper
         $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id, ['exclude' => $id]);
 
         // Set parent product AVAILABLE
-        $this->updateInventoryStatus($objParentProduct, $this->AVAILABLE);
+        $this->updateInventory($objParentProduct, $this->AVAILABLE);
 
         // Set all RESERVED variants AVAILABLE
         foreach ($objVariants as $variant) {
             if ($variant->inventory_status === $this->RESERVED) {
-                $this->updateInventoryStatus($variant, $this->AVAILABLE);
+                $this->updateInventory($variant, $this->AVAILABLE);
             }
         }
     }
@@ -169,13 +171,18 @@ class Helper
     {
         // inventory_status not activated
         if (!isset($objProduct->inventory_status)) {
-            // quantity activated: configure ProductType correctly!
+
+            // quantity activated
             if (isset($objProduct->quantity)) {
+
                 throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
             }
 
             return false;
-        } else {
+        }
+        // inventory_status activated 
+        else {
+
             return true;
         }
     }
@@ -189,20 +196,22 @@ class Helper
      */
     public function isSoldout($objProduct)
     {
-        // Quantity zeroquantity
+        // Quantity zero
         if ('0' === $objProduct->quantity) {
-            $this->updateInventoryStatus($objProduct, $this->SOLDOUT);
+            $this->updateInventory($objProduct, $this->SOLDOUT);
 
-            $this->issueMessage('productOutOfStock', $objProduct->getName());
+            $this->issueErrorMessage('productOutOfStock', $objProduct->getName());
 
             return true;
         }
 
         // InventoryStatus SOLDOUT
         if ($this->SOLDOUT === $objProduct->inventory_status) {
-            $this->updateQuantity($objProduct, '0');
 
-            $this->issueMessage('productOutOfStock', $objProduct->getName());
+            // update quantity to zero
+            $this->updateInventory($objProduct, '', '0');
+
+            $this->issueErrorMessage('productOutOfStock', $objProduct->getName());
 
             return true;
         }
@@ -217,9 +226,9 @@ class Helper
      * @param Standard $objProductToCheck // product to check
      * @param Cart     $objCart           // unchanged (old) cart (before Update!)
      * @param int      $pid               // parent id
-     * @param int      $anzSiblingsInCart // number of siblings in Cart
+     * @param int      $anzSiblingsInCart // number of siblings in Cart // passed by reference
      *
-     * @return int // returns sum of quantitis in Cart for all siblings, not including the productToCheck itself
+     * @return int // returns sum of quantitis in Cart for all siblings (not including the productToCheck itself)
      */
     public function sumSiblings($objProductToCheck, $objCart, $pid, &$anzSiblingsInCart)
     {
@@ -230,17 +239,20 @@ class Helper
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
 
+            // No product
             if (!$objProduct) {
                 continue;
-            } // no product
+            }
 
+            // Not a siblings (but the productToCheck itself)
             if ($objProduct->id === $objProductToCheck->id) {
                 continue;
-            } // only siblings, not the productToCheck itself
+            }
 
+            // not a sibling (no or different parent)
             if ($pid !== $objProduct->pid) {
                 continue;
-            } // not a sibling
+            }
 
             $sum += $objItem->quantity;
             ++$anzSiblingsInCart;
@@ -262,12 +274,12 @@ class Helper
     {
         // Unlimited quantity: no stockmanagement, no surplus quantity
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
-            return 0;
+            return 0; // no surplus quantity
         }
 
         // Quantity in Cart < Product quantity
         if ((int) $qtyInCart < (int) $objProduct->quantity) {
-            $this->updateInventoryStatus($objProduct, $this->AVAILABLE);
+            $this->updateInventory($objProduct, $this->AVAILABLE);
 
             $setInventoryStatusTo = $this->AVAILABLE;
 
@@ -276,7 +288,7 @@ class Helper
 
         // Quantity in Cart == Product quantity
         if ((int) $qtyInCart === (int) $objProduct->quantity) {
-            $this->updateInventoryStatus($objProduct, $this->RESERVED);
+            $this->updateInventory($objProduct, $this->RESERVED);
 
             $setInventoryStatusTo = $this->RESERVED;
 
@@ -285,7 +297,7 @@ class Helper
 
         // (else) Quantity in Cart > Product quantity
 
-        $this->updateInventoryStatus($objProduct, $this->RESERVED);
+        $this->updateInventory($objProduct, $this->RESERVED);
 
         $setInventoryStatusTo = $this->RESERVED;
 

@@ -23,6 +23,11 @@ use Isotope\ServiceAnnotation\IsotopeHook;
 use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
+ * /**
+ * Inspired by contao/calendar-bundle (injection of ContaoFramework to enable testing)
+ *
+ * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
+ * 
  * @IsotopeHook("updateItemInCollection")
  */
 class UpdateItemInCollectionListener
@@ -34,11 +39,9 @@ class UpdateItemInCollectionListener
     private string $RESERVED = '3'; /* product in cart, no quantity left */
 
     /**
-     * @var Helper
+     * @var Helper // make use of methods from the Helper class  
      */
     private $helper;
-
-    // Inspired by contao/calendar-bundle (constructor injection of ContaoFramework to enable testing)
 
     public function __construct(ContaoFramework $framework)
     {
@@ -51,11 +54,11 @@ class UpdateItemInCollectionListener
      *
      * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
      *
-     * @param ProductCollectionItem $objItem // item in cart
-     * @param array<mixed>          $arrSet  // properties of item in cart
-     * @param Cart                  $objCart // cart
+     * @param ProductCollectionItem $objItem // Item in Cart
+     * @param array<mixed>          $arrSet  // Properties of item in cart, esp. quantity in Cart
+     * @param Cart                  $objCart // Cart
      *
-     * @return mixed // new arrSet (changed or unchanged quantity)
+     * @return mixed // New arrSet (changed or unchanged quantity or false)
      */
     public function __invoke($objItem, $arrSet, $objCart)
     {
@@ -65,15 +68,20 @@ class UpdateItemInCollectionListener
         /** @var Standard|null $objProduct */
         $objProduct = $objItem->getProduct() ?? null;
 
+        // No product
         if (!$objProduct) {
             return false;
         }
 
         // Stockmanagement not or not correctly configured
         if (!$this->helper->checkStockmanagement($objProduct)) {
-            return $arrSet; // return unchanged or throw exception
+
+            // if not correctly configured, throw exception
+
+            return $arrSet; // return unchanged quantity
         }
 
+        // none or invalid quantity in Cart
         if (!(\array_key_exists('quantity', $arrSet) && $arrSet['quantity'])) {
             return false;
         }
@@ -82,75 +90,82 @@ class UpdateItemInCollectionListener
         if ($this->helper->isSoldout($objProduct)) {
             $arrSet['quantity'] = 0;
 
-            return $arrSet;
+            return $arrSet; // return quantity = 0
         }
 
         // Single product (not having any variants)
         if (!$objProduct->isVariant()) {
+            //
             /** @var int $surplus */
             $surplus = $this->helper->manageStockAndReturnSurplus($objProduct, $arrSet['quantity']);
 
             $arrSet['quantity'] -= $surplus; // decrease by surplus quantity
 
             if ($surplus > 0) {
-                $this->helper->issueMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
+                $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
             }
 
             return $arrSet;
         }
+        // Variant product
+        else {
+            //
+            // Manage stock for variant product with quantity of this variant
+            $surplusVariant = $this->helper->manageStockAndReturnSurplus($objProduct, $arrSet['quantity']);
 
-        // (else) Variant product
+            // Get an adapter for the Standard class
+            /** @var Adapter<Standard> $adapter */
+            $adapter = $this->framework->getAdapter(Standard::class);
 
-        // Manage stock for variant product with quantity of this variant
-        $surplusVariant = $this->helper->manageStockAndReturnSurplus($objProduct, $arrSet['quantity']);
+            // Get the parent product
+            $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
 
-        // Manage stock for parent product with sum of all siblings quantities
+            $setInventoryStatusTo = null;
+            $anzSiblingsInCart = 0;
 
-        // Get an adapter for the Standard class
-        /** @var Adapter<Standard> $adapter */
-        $adapter = $this->framework->getAdapter(Standard::class);
-        $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+            // Get the sum of the quantity of all siblings in cart (i.e. not including the current product) and add the quantity of the current product.
+            /** @var int qtyFamily // overall quantity in cart for all the parent's childs */
+            $qtyFamily = $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'];
 
-        $setInventoryStatusTo = null;
-        $anzSiblingsInCart = 0;
+            // Manage stock for parent product with overall quantity in cart for all it's childs
+            $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
 
-        // Take the sum of all siblings quantities in cart (not including the current product) and add the quantity of the current product
-        $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'], $setInventoryStatusTo);
+            if ($setInventoryStatusTo === $this->AVAILABLE) {
+                $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
+            } elseif ($setInventoryStatusTo === $this->RESERVED) {
+                $this->helper->setParentAndChildProductsReserved($objParentProduct);
+            }
+            // do nothing if $setInventoryStatusTo = \null
 
-        if ($setInventoryStatusTo === $this->AVAILABLE) {
-            $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
-        } elseif ($setInventoryStatusTo === $this->RESERVED) {
-            $this->helper->setParentAndChildProductsReserved($objParentProduct);
-        }
-        // do nothing if $setInventoryStatusTo = \null
+            // More in cart than the variant can afford
+            if ($surplusVariant > 0) {
+                $arrSet['quantity'] -= $surplusVariant; // decrease by surplus quantity
 
-        if ($surplusParent > 0) {
-            $this->helper->issueMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
-        }
+                $this->helper->issueErrorMessage('variantQuantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
+            }
 
-        if ($surplusVariant > 0) {
-            $arrSet['quantity'] -= $surplusVariant; // decrease by surplus quantity
+            // More in cart than the parent can afford
+            if ($surplusParent > 0) {
 
-            $this->helper->issueMessage('variantQuantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
-        }
+                $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
 
-        if ($surplusParent) {
-            // No sibling in cart: reduce quantity by max surplus quantity
-            if (0 === $anzSiblingsInCart) {
-                $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
+                // No sibling in cart
+                if (0 === $anzSiblingsInCart) {
+                    $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by surplus quantity
 
+                    return $arrSet;
+                }
+
+                // Siblings in cart
+                else {
+                    return false; //  user is asked to check his cart
+                }
+            }
+
+            // $surplusParent = 0
+            else {
                 return $arrSet;
             }
-
-            // Siblings in Cart: user is asked to check his Cart
-            else {
-                return false;
-            }
-        }
-
-        // $surplusParent = 0
-        else {
-            return $arrSet;
         }
     }
 }
