@@ -16,7 +16,6 @@ namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
 use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
-use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
@@ -94,15 +93,7 @@ class UpdateItemInCollectionListener
             $arrSet['quantity'] -= $surplus; // decrease by surplus quantity
 
             if ($surplus > 0) {
-                // Get an adapter for the Message class
-                /** @var Adapter<Message> $messageAdapter */
-                $messageAdapter = $this->framework->getAdapter(Message::class);
-
-                $messageAdapter->addError(sprintf(
-                    $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
-                    $objProduct->getName(),
-                    $objProduct->quantity
-                ));
+                $this->helper->issueMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
             }
 
             return $arrSet;
@@ -122,7 +113,8 @@ class UpdateItemInCollectionListener
 
         $setInventoryStatusTo = null;
         $anzSiblingsInCart = 0;
-        // Take the sum of all siblings quantities in cart, except the current item, the quantity of which will be added
+
+        // Take the sum of all siblings quantities in cart (not including the current product) and add the quantity of the current product
         $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'], $setInventoryStatusTo);
 
         if ($setInventoryStatusTo === $this->AVAILABLE) {
@@ -132,47 +124,33 @@ class UpdateItemInCollectionListener
         }
         // do nothing if $setInventoryStatusTo = \null
 
-        $surplus = false; // init
-
         if ($surplusParent > 0) {
-            $surplus = true;
-
-            // Get an adapter for the Message class
-            $messageAdapter = $this->framework->getAdapter(Message::class);
-
-            $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR']['parentQuantityNotAvailable'],
-                $objParentProduct->getName(),
-                $objParentProduct->quantity
-            ));
+            $this->helper->issueMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
         }
 
         if ($surplusVariant > 0) {
-            $surplus = true;
-
             $arrSet['quantity'] -= $surplusVariant; // decrease by surplus quantity
 
-            // Get an adapter for the Message class
-            $messageAdapter = $this->framework->getAdapter(Message::class);
-
-            $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR']['variantQuantityNotAvailable'],
-                $objProduct->getName(),
-                $objProduct->quantity
-            ));
+            $this->helper->issueMessage('variantQuantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
         }
 
-        if (!$surplusParent) {
+        if ($surplusParent) {
+            // No sibling in cart: reduce quantity by max surplus quantity
+            if (0 === $anzSiblingsInCart) {
+                $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
+
+                return $arrSet;
+            }
+
+            // Siblings in Cart: user is asked to check his Cart
+            else {
+                return false;
+            }
+        }
+
+        // $surplusParent = 0
+        else {
             return $arrSet;
         }
-
-        // No sibling in cart: reduce quantity by max surplus quantity
-        if (0 === $anzSiblingsInCart) {
-            $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
-
-            return $arrSet;
-        }
-        // Siblings in Cart -> user has to change his Cart
-        return false;
     }
 }

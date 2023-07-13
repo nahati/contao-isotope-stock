@@ -39,6 +39,32 @@ class Helper
     }
 
     /**
+     * @param string $message
+     * @param string $name
+     * @param int    $quantity
+     *
+     * return void
+     */
+    public function issueMessage($message, $name, $quantity = 0): void
+    {
+        // Get an adapter for the Message class
+        $messageAdapter = $this->framework->getAdapter(Message::class);
+
+        if (0 === $quantity) {
+            $messageAdapter->addError(sprintf(
+                $GLOBALS['TL_LANG']['ERR'][$message],
+                $name
+            ));
+        } else {
+            $messageAdapter->addError(sprintf(
+                $GLOBALS['TL_LANG']['ERR'][$message],
+                $name,
+                $quantity
+            ));
+        }
+    }
+
+    /**
      * @param string   $inventory_status
      * @param Standard $objProduct
      */
@@ -58,13 +84,7 @@ class Helper
             $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
             $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventory_status, $objProduct->id);
         } else {
-            // Get an adapter for the Message class
-            $messageAdapter = $this->framework->getAdapter(Message::class);
-
-            $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR']['productHasChanged'],
-                $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName()
-            ));
+            $this->issueMessage('productHasChanged', $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName());
         }
     }
 
@@ -88,14 +108,7 @@ class Helper
             $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
             $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantity, $objProduct->id);
         } else {
-            // Get an adapter for the Message class
-            $messageAdapter = $this->framework->getAdapter(Message::class);
-
-            // Changes -> error message
-            $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR']['productHasChanged'],
-                $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName()
-            ));
+            $this->issueMessage('productHasChanged', $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName());
         }
     }
 
@@ -180,13 +193,7 @@ class Helper
         if ('0' === $objProduct->quantity) {
             $this->updateInventoryStatus($objProduct, $this->SOLDOUT);
 
-            // Get an adapter for the Message class
-            $messageAdapter = $this->framework->getAdapter(Message::class);
-
-            $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
-                $objProduct->getName()
-            ));
+            $this->issueMessage('productOutOfStock', $objProduct->getName());
 
             return true;
         }
@@ -195,12 +202,7 @@ class Helper
         if ($this->SOLDOUT === $objProduct->inventory_status) {
             $this->updateQuantity($objProduct, '0');
 
-            $messageAdapter = $this->framework->getAdapter(Message::class);
-
-            $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
-                $objProduct->getName()
-            ));
+            $this->issueMessage('productOutOfStock', $objProduct->getName());
 
             return true;
         }

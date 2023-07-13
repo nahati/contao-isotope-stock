@@ -8,7 +8,7 @@
             <trans-unit id="ERR.productNotAvailable">
                 <target>Dieses Produkt "%s" ist nicht verfügbar</target>
             </trans-unit>
-            <trans-unit id="MSC.productOutOfStock">
+            <trans-unit id="ERR.productOutOfStock">
                 <target>Das Produkt "%s" ist aktuell nicht verfügbar</target>
             </trans-unit>
             <trans-unit id="ERR.quantityNotAvailable">

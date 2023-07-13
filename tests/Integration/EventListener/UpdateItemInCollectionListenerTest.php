@@ -40,7 +40,6 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     private static $databaseAdapter;
 
     private ProductCollectionItem $objItem;
-    private Standard $objProduct;
     private Cart $objCart;
     private mixed $arrSet;
     private mixed $return;
@@ -69,7 +68,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     }
 
     /**
-     * Set the database to an initial status.
+     * Set the database to an initial state.
      */
     private static function resetDatabase(): void
     {
@@ -192,7 +191,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a test has run to check the database tables.
 
         // Instantiate a Cart object with given id
-        $this->objCart = Cart::findByPk('265',  array('return' => 'Model'));
+        $this->objCart = Cart::findByPk('265', ['return' => 'Model']);
 
         // Check if Cart object exists
         $this->assertNotNull($this->objCart);
@@ -206,6 +205,9 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         parent::tearDown();
     }
 
+    /**
+     * This test is just to check if the tests are working.
+     */
     // public function testTrueIsTrue(): void
     // {
     //     $this->assertTrue(true);
@@ -222,7 +224,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3112',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3112', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 1
         $this->arrSet = ['quantity' => 1];
@@ -242,7 +244,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3115',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3115', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
         $this->arrSet = ['quantity' => 1];
@@ -253,8 +255,8 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 1]);
 
-        // This by unknown reason does not give back an up to date object
-        // // Fetch the object from database (if the 2. parameter is missing, the object might be taken from the registry, which is not neccesarily up to date)  
+        // Fetch the object from database (if the 2. parameter is missing, the object might be taken from the registry, which is not neccesarily up to date);
+        // this by unknown reason does not give back an up to date object, nethertheless.
         // $this->objProduct = Standard::findByPk('100',  array('return' => 'Model'));
         // $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
 
@@ -296,7 +298,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3115',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3115', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 2 (quantity in Cart is 2)
         $this->arrSet = ['quantity' => 2];
@@ -307,13 +309,9 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 2]);
 
-        // This by unknown reasons does not work (we will get an old state of the object)
-        // $this->objProduct = Standard::findByPk('100',  array('return' => 'Model'));
-        // // Test if inventory_status of the product has been set to RESERVED
-        // $this->assertSame($this->objProduct->inventory_status, $this->RESERVED);
-
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(100);
 
+        // Test if inventory_status of the product is RESERVED
         $this->assertSame($objResult->inventory_status, $this->RESERVED);
     }
 
@@ -325,7 +323,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 3
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3115',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3115', ['return' => 'Model']);
 
         // This Item belongs to product 100 with quantity 2, inventory_status AVAILABLE
 
@@ -340,7 +338,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(100);
 
-        // Test if inventory_status of the product has been set to RESERVED
+        // Test if inventory_status of the product is RESERVED
         $this->assertSame($objResult->inventory_status, $this->RESERVED);
     }
 
@@ -355,7 +353,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3117',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3117', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 1
         $this->arrSet = ['quantity' => 1];
@@ -386,7 +384,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
         $this->arrSet = ['quantity' => 1];
@@ -422,7 +420,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // -> Parent product 32, quantity 2, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
         $this->arrSet = ['quantity' => 1];
@@ -472,7 +470,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // -> Parent product 32, quantity 1, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 1)
         $this->arrSet = ['quantity' => 1];
@@ -518,7 +516,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 1 (quantity in Cart is 2)
         $this->arrSet = ['quantity' => 2];
@@ -564,7 +562,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // -> Parent product 32, quantity 3, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 2 (quantity in Cart is 2)
         $this->arrSet = ['quantity' => 2];
@@ -614,7 +612,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // -> Parent product 32, quantity 2, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 2 (quantity in Cart is 2)
         $this->arrSet = ['quantity' => 2];
@@ -667,7 +665,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // -> Parent product 32, quantity 5, AVAILABLE, Skulptur 2
 
         // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk('3119',  array('return' => 'Model'));
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
 
         // Create an arry $arrSet with quantity 3 (quantity in Cart is 3)
         $this->arrSet = ['quantity' => 3];
