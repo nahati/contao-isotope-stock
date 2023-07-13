@@ -24,10 +24,10 @@ use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * /**
- * Inspired by contao/calendar-bundle (injection of ContaoFramework to enable testing)
+ * Inspired by contao/calendar-bundle (injection of ContaoFramework to enable testing).
  *
  * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
- * 
+ *
  * @IsotopeHook("updateItemInCollection")
  */
 class UpdateItemInCollectionListener
@@ -39,7 +39,7 @@ class UpdateItemInCollectionListener
     private string $RESERVED = '3'; /* product in cart, no quantity left */
 
     /**
-     * @var Helper // make use of methods from the Helper class  
+     * @var Helper // make use of methods from the Helper class
      */
     private $helper;
 
@@ -75,7 +75,6 @@ class UpdateItemInCollectionListener
 
         // Stockmanagement not or not correctly configured
         if (!$this->helper->checkStockmanagement($objProduct)) {
-
             // if not correctly configured, throw exception
 
             return $arrSet; // return unchanged quantity
@@ -95,7 +94,6 @@ class UpdateItemInCollectionListener
 
         // Single product (not having any variants)
         if (!$objProduct->isVariant()) {
-            //
             /** @var int $surplus */
             $surplus = $this->helper->manageStockAndReturnSurplus($objProduct, $arrSet['quantity']);
 
@@ -146,7 +144,6 @@ class UpdateItemInCollectionListener
 
             // More in cart than the parent can afford
             if ($surplusParent > 0) {
-
                 $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
 
                 // No sibling in cart

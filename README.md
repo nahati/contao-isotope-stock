@@ -75,13 +75,21 @@ Use this, if you just want to want to combine shop and gallery.
 If you have limited editions, activate `quantity` to enable stock-management for this product-type. Then you also MUST activate `inventory_status`.
 For products with no limit keep the quantity field empty. Then there will be no stock-management for this product.
 
+## Code Coverage
+
+Folgende Coverage-Berichte sind verfügbar:
+
+- [Unit-Tests](https://github.com/nahati/contao-isotope-stock/actions/artifacts/<UNIT_ARTIFACT_ID>)
+- [Integrationstests](https://github.com/nahati/contao-isotope-stock/actions/artifacts/<INTEGRATION_ARTIFACT_ID>)
+- [Integrationstests - Testmethoden](https://github.com/nahati/contao-isotope-stock/actions/artifacts/<TESTDOX_ARTIFACT_ID>)
+
 ## Minimum requirements
 
 - PHP 8.1
 - Contao 4.13.16
 - Isotope 2.8.10
 
-## Installation with Contao Manager
+\*\*\*\*## Installation with Contao Manager
 
 Search for `nahati/contao-isotope-stock` in Contao Manager and add it to your installation.
 Apply changes to update the packages. Update Database.

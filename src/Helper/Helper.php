@@ -19,7 +19,6 @@ use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
-use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 
 /**
  * Reuseable small services for stockmanagement.
@@ -41,10 +40,8 @@ class Helper
 
     /**
      * @param string $message
-     * @param string $name of the product
+     * @param string $name     of the product
      * @param int    $quantity of the product
-     *
-     * @return void
      */
     public function issueErrorMessage($message, $name, $quantity = 0): void
     {
@@ -65,10 +62,9 @@ class Helper
         }
     }
 
-
     /**
      * @param string   $inventory_status, set empty if not to be updated
-     * @param string   $quantity, leave away if not to be updated
+     * @param string   $quantity,         leave away if not to be updated
      * @param Standard $objProduct
      *
      * @return Boolean // update done
@@ -85,34 +81,28 @@ class Helper
 
         // We check if relevant properties of the product have been changed in the meantime
         if ($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) {
-
             // no changes -> update inventory_status
             $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
 
             if ('' !== $quantity && '' !== $inventory_status) {
-
                 // update quantity and inventory_status
                 $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=?, inventory_status=? WHERE id=?')->execute($quantity, $inventory_status, $objProduct->id);
             } elseif ('' !== $inventory_status) {
-
                 // update inventory_status
                 $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventory_status, $objProduct->id);
             } elseif ('' !== $quantity) {
-
                 // update quantity
                 $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantity, $objProduct->id);
             }
-            return true;
-            //
-        } else {
 
+            return true;
+        } else {
             // changes -> notify the user
             $this->issueErrorMessage('productHasChanged', $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName());
 
             return false;
         }
     }
-
 
     /**
      * Set parent product and all available child products RESERVED.
@@ -171,18 +161,15 @@ class Helper
     {
         // inventory_status not activated
         if (!isset($objProduct->inventory_status)) {
-
             // quantity activated
             if (isset($objProduct->quantity)) {
-
                 throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName()));
             }
 
             return false;
         }
-        // inventory_status activated 
+        // inventory_status activated
         else {
-
             return true;
         }
     }
@@ -207,7 +194,6 @@ class Helper
 
         // InventoryStatus SOLDOUT
         if ($this->SOLDOUT === $objProduct->inventory_status) {
-
             // update quantity to zero
             $this->updateInventory($objProduct, '', '0');
 

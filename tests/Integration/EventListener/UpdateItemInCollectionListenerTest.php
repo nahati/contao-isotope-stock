@@ -691,4 +691,97 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(32);
         $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
     }
+
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    {
+        // Cart 265
+
+        // Given Item:
+        // Item 3119
+        // product 44: quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        // quantity in Cart 3
+
+        // Item 3120
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // quantity in Cart 1
+
+        // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
+
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
+
+        // Create an arry $arrSet with quantity 3 (quantity in Cart is 3)
+        $this->arrSet = ['quantity' => 3];
+
+        $listener = new UpdateItemInCollectionListener(self::$framework);
+        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        // Test if arrSet is returned reduced
+        $this->assertSame($this->return, ['quantity' => 2]);
+
+        // Test if inventory_status of the product is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(44);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+
+        // Test if inventory_status of all siblings (excluding the product in charge) is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute(32, 44);
+
+        while ($objResult->next()) {
+            $this->assertSame($objResult->inventory_status, $this->RESERVED);
+        }
+
+        // Test if inventory_status of the parent is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(32);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+    }
+
+    /**
+     * Remark: This testcase retuns false, giving the user the responsibility to decide how to change the cart.
+     * (The user could - in this constellation - decide to delete the given item from the Cart or delete the sibling item from the Cart.).
+     */
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    {
+        // Cart 265
+
+        // Given Item:
+        // Item 3119
+        // product 44: quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        // quantity in Cart 3
+
+        // Item 3120
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // quantity in Cart 1
+
+        // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
+        // Modify the product data to match this testcase, i.e. set quantity of parent product to 3
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute('3', 32);
+        // -> Parent product 32, quantity 3, AVAILABLE, Skulptur 2
+
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk('3119', ['return' => 'Model']);
+
+        // Create an arry $arrSet with quantity 3 (quantity in Cart is 3)
+        $this->arrSet = ['quantity' => 3];
+
+        $listener = new UpdateItemInCollectionListener(self::$framework);
+        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
+
+        // Test if returned false
+        $this->assertFalse($this->return);
+
+        // Test if inventory_status of the product is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(44);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+
+        // Test if inventory_status of all siblings (excluding the product in charge) is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute(32, 44);
+
+        while ($objResult->next()) {
+            $this->assertSame($objResult->inventory_status, $this->RESERVED);
+        }
+
+        // Test if inventory_status of the parent is RESERVED
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(32);
+        $this->assertSame($objResult->inventory_status, $this->RESERVED);
+    }
 }

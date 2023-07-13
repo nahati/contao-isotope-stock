@@ -8,11 +8,10 @@
     failOnRisky="true"
     failOnWarning="false">
 
-  <coverage
-      includeUncoveredFiles="true"
-      pathCoverage="true"
-      ignoreDeprecatedCodeUnits="true"
-      disableCodeCoverageIgnore="true">
+  <coverage>
+    <include>
+      <directory>./src</directory>
+    </include>
 
     <report>
       <html
@@ -23,7 +22,7 @@
       <text
           outputFile="coverage.txt"
           showUncoveredFiles="false"
-          showOnlySummary="true" />
+          showOnlySummary="false" />
 
     </report>
 
@@ -60,6 +59,9 @@
   <testsuites>
     <testsuite name="unit">
       <directory>./tests/unit</directory>
+    </testsuite>
+    <testsuite name="integration">
+      <directory>./tests/Integration</directory>
     </testsuite>
   </testsuites>
 

@@ -80,15 +80,28 @@ jobs:
             - name: Install the dependencies
               run: composer install --no-interaction --no-progress
 
-            - name: Run the unit tests
-              run: vendor/bin/phpunit --colors=always
+            - name: Run PHPUnit Unit Tests with HTML Coverage
+              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html=coverage/unit
 
-            - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  -c phpunit.xml.integration --colors=always
-              env:
-                  DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+            - name: Upload Unit Test Coverage Artifact
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-coverage
+                  path: coverage/unit
 
-            - name: Run the functional tests with MySQLi
-              run: vendor/bin/phpunit  -c phpunit.xml.integration --colors=always
+            - name: Run the integration tests with MySQLi
+              run: vendor/bin/phpunit  --colors=always --testsuite=integration  --coverage-html=coverage/integration --testdox-html=coverage/integration/testdox.html
               env:
                   DATABASE_URL: mysqli://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+
+            - name: Upload Integration Test Coverage Artifact
+              uses: actions/upload-artifact@v2
+              with:
+                  name: integration-coverage
+                  path: coverage/integration
+
+            - name: Upload TestDox Report Artifact
+              uses: actions/upload-artifact@v2
+              with:
+                  name: testdox-report
+                  path: coverage/integration/testdox.html

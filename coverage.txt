@@ -1,7 +1,14 @@
 
 
-[1;37;40mCode Coverage Report Summary:[0m
-[37;41m  Classes:  0.00% (0/11)     [0m
-[37;41m  Methods:  0.00% (0/22)     [0m
-[37;41m  Lines:    0.00% (0/283)    [0m
+Code Coverage Report:     
+  2023-07-13 21:31:30     
+                          
+ Summary:                 
+  Classes:  0.00% (0/11)  
+  Methods: 15.38% (4/26)  
+  Lines:   27.61% (90/326)
 
+Nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener
+  Methods:  50.00% ( 1/ 2)   Lines:  82.05% ( 32/ 39)
+Nahati\ContaoIsotopeStockBundle\Helper\Helper
+  Methods:  33.33% ( 3/ 9)   Lines:  74.36% ( 58/ 78)
