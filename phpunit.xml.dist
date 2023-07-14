@@ -63,6 +63,9 @@
     <testsuite name="integration">
       <directory>./tests/Integration</directory>
     </testsuite>
+    <testsuite name="reset">
+      <directory>./tests/reset</directory>
+    </testsuite>
   </testsuites>
 
 </phpunit>
