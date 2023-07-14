@@ -101,5 +101,5 @@ Apply changes to update the packages. Update Database.
 
 ## Special thanks
 
-...to @andreas.schempp for kind help to securely handle a product update
-...to @zoglo for kind help to get integration test running
+- to @andreas.schempp for kind advices how to securely handle a product update
+- to @zoglo for kind help to get integration test running

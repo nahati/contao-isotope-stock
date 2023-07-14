@@ -64,7 +64,8 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         self::$databaseAdapter = self::$framework->getAdapter(Database::class);
         self::resetDatabase();
 
-        self::setIsotopeSpecificThings();
+        // Do needed Isotope initializations
+        self::DoSomeIsotopeInitializations();
     }
 
     /**
@@ -115,10 +116,9 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     }
 
     /**
-     * Sets the necessary Isotope specific variables for the tests
-     * This seems a bit strange to me, as it's all already declared in Isotope or this extension.
+     * Do needed Isotope initializations.
      */
-    private static function setIsotopeSpecificThings(): void
+    private static function DoSomeIsotopeInitializations(): void
     {
         // These assignments link the tables with the model classes. Now you can use the model classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_producttype'] = ProductType::class;
@@ -188,7 +188,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Get a database adpater and reset relevant tables
         self::$databaseAdapter = self::$framework->getAdapter(Database::class);
         $this->resetRelevantDatabaseTables();
-        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a test has run to check the database tables.
+        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
         // Instantiate a Cart object with given id
         $this->objCart = Cart::findByPk('265', ['return' => 'Model']);
@@ -206,7 +206,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     }
 
     /**
-     * This test is just to check if the tests are working.
+     * This test I began with to check if tests can be run.
      */
     // public function testTrueIsTrue(): void
     // {
@@ -255,18 +255,17 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Test if arrSet is returned unchanged
         $this->assertSame($this->return, ['quantity' => 1]);
 
-        // Fetch the object from database (if the 2. parameter is missing, the object might be taken from the registry, which is not neccesarily up to date);
-        // this by unknown reason does not give back an up to date object, nethertheless.
+        // Fetch the object from database (if the 2. parameter is missing, the object might be taken from the registry, which is not neccesarily up to date). This by unknown reason does not give back an up to date object, nethertheless.
         // $this->objProduct = Standard::findByPk('100',  array('return' => 'Model'));
         // $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
 
-        // Alternatively therefore we use the DatabaseAdapter to get the current state of the database.
+        // Alternatively therefore we use the DatabaseAdapter to get the current state from the database.
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(100);
         // Test if inventory_status of the product is AVAILABLE
         $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
     }
 
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsAvailableWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
     {
         // Cart 265
         // Item 3116
@@ -315,7 +314,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->assertSame($objResult->inventory_status, $this->RESERVED);
     }
 
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantity(): void
     {
         // Cart 265
         // Item 3115
@@ -538,12 +537,12 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
             $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
         }
 
-        // Test if inventory_status of the parent is AVAILABLE
+        // Test if inventory_status of the parent is unchanged
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(32);
         $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
     }
 
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
     {
         // Cart 265
 
@@ -680,14 +679,14 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(44);
         $this->assertSame($objResult->inventory_status, $this->RESERVED);
 
-        // Test if inventory_status of all siblings (excluding the product in charge) is AVAILABLE
+        // Test if inventory_status of all siblings (excluding the product in charge) is unchanged
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute(32, 44);
 
         while ($objResult->next()) {
             $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
         }
 
-        // Test if inventory_status of the parent is AVAILABLE
+        // Test if inventory_status of the parent is unchanged
         $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute(32);
         $this->assertSame($objResult->inventory_status, $this->AVAILABLE);
     }
