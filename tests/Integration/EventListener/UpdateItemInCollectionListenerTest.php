@@ -217,6 +217,8 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $GLOBALS['TL_LANG']['ERR']['parentQuantityNotAvailable'] = 'The maximum available quantity for "%s" is %s items';
 
         $GLOBALS['TL_LANG']['ERR']['variantQuantityNotAvailable'] = 'The maximum available quantity for a variant of "%s" is %s items';
+
+        $GLOBALS['TL_LANG']['ERR']['productOutOfStock'] = 'The product "%s" is currently out of stock';
     }
 
     /**
@@ -597,6 +599,247 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+
+    /**
+     * @group variant_products__inherited_quantity
+     */
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    {
+        $itemId = 3130;
+        $quantityInCart = 30;
+        $expectedReturn = ['quantity' => 30];
+        $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1 
+        $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
+        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged        
+
+        // Item 3129
+        // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
+        // quantity in Cart 1
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+
+    /**
+     * @group variant_products__inherited_quantity
+     */
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    {
+        $itemId = 3130;
+        $quantityInCart = 99;
+        $expectedReturn = ['quantity' => 99];
+        $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1 
+        $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
+        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfParentProduct = $this->RESERVED; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->RESERVED; // unchanged        
+
+        // Item 3129
+        // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
+        // quantity in Cart 1
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__inherited_quantity
+     */
+    public function testUpdateItemInCollectionListenerReturnsFalseAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    {
+        $itemId = 3130;
+        $quantityInCart = 100;
+        $expectedReturn = false;
+        $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1 
+        $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
+        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfParentProduct = $this->RESERVED; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->RESERVED; // unchanged        
+
+        // Item 3129
+        // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
+        // quantity in Cart 1
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__parent_quantity_is_unlimited
+     */
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsLessThanProductQuantity(): void
+    {
+        $itemId = 3122;
+        $quantityInCart = 1;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 40; // quantity 2 , AVAILABLE, Variante Original von Skulptur 3
+        $quantityOfProduct = 2;
+        $parentProductId = 33; // unlimited quantity, Skulptur 3
+        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged 
+
+        // Item 3121
+        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
+        // quantity in Cart 1
+
+        // Product initially has a quantity of 1, so we change the quantity of the product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__parent_quantity_is_unlimited
+     */
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    {
+        $itemId = 3122;
+        $quantityInCart = 1;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 40; // quantity 1 , AVAILABLE, Variante Original von Skulptur 3
+        $parentProductId = 33; // unlimited quantity, Skulptur 3
+        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged 
+
+        // Item 3121
+        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
+        // quantity in Cart 1
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__parent_quantity_is_unlimited
+     */
+    public function testUpdateItemInCollectionListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantity(): void
+    {
+        $itemId = 3122;
+        $quantityInCart = 2;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 40; // quantity 1 , AVAILABLE, Variante Original von Skulptur 3
+        $parentProductId = 33; // unlimited quantity, Skulptur 3
+        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged 
+
+        // Item 3121
+        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
+        // quantity in Cart 1
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__parent_quantity_is_unlimited
+     */
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    {
+        $itemId = 3122;
+        $quantityInCart = 1;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 40; // quantity 2 , Reserved, Variante Original von Skulptur 3
+        $quantityOfProduct = 2;
+        $parentProductId = 33; // unlimited quantity, Skulptur 3
+        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged 
+
+        // Item 3121
+        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
+        // quantity in Cart 1
+
+        // Product initially has a quantity of 1, so we change the quantity of the product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__parent_quantity_is_unlimited
+     */
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsEqualToProductQuantity(): void
+    {
+        $itemId = 3122;
+        $quantityInCart = 1;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 40; // quantity 1 , AVAILABLE, Variante Original von Skulptur 3
+        $parentProductId = 33; // unlimited quantity, Skulptur 3
+        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged 
+
+        // Item 3121
+        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
+        // quantity in Cart 1
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__parent_quantity_is_unlimited
+     */
+    public function testUpdateItemInCollectionListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedQuantityInCartIsGreaterThanProductQuantity(): void
+    {
+        $itemId = 3122;
+        $quantityInCart = 2;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 40; // quantity 1 , AVAILABLE, Variante Original von Skulptur 3
+        $parentProductId = 33; // unlimited quantity, Skulptur 3
+        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged 
+
+        // Item 3121
+        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
+        // quantity in Cart 1
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__product_is_soldout
+     */
+    public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductIsAVariantAndProductIsSoldout(): void
+    {
+        $itemId = 3126;
+        $quantityInCart = 1;
+        $expectedReturn = ['quantity' => 0];
+        $productId = 49; // quantity 1 , SOLDOUT, Variante Original von Skulptur 5
+        $parentProductId = 37; // quantity 2, AVAILABLE, Skulptur 5
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged 
+
+        // Item 3125
+        // product 48: quantity 1 , AVAILABLE, Variante Kopie Skulptur 5
+        // quantity in Cart 1
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__parentProduct_is_soldout
+     */
+    public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductIsAVariantAndParentProductIsSoldout(): void
+    {
+        $itemId = 3128;
+        $quantityInCart = 1;
+        $expectedReturn = ['quantity' => 0];
+        $productId = 52; // quantity 1 , AVAILABLE, Variante Original von Skulptur 6
+        $parentProductId = 50; // quantity 2, SOLDOUT, Skulptur 6
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfParentProduct = $this->SOLDOUT; // unchanged
+        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT; // unchanged 
+
+        // Item 3127
+        // product 51: quantity 1 , SOLDOUT, Variante Kopie Skulptur 6
+        // quantity in Cart 1
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
