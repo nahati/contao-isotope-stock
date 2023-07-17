@@ -89,7 +89,7 @@ jobs:
                   path: coverage/unit
 
             - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  -c phpunit.xml.integration --colors=always
+              run: vendor/bin/phpunit  --testsuite=integration --colors=always
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
