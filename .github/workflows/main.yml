@@ -88,10 +88,10 @@ jobs:
                   name: unit-coverage
                   path: coverage/unit
 
-            - name: Run the integration tests with MySQLi
-              run: vendor/bin/phpunit  --colors=always --testsuite=integration  --coverage-html=coverage/integration --testdox-html=coverage/integration/testdox.html
+            - name: Run the functional tests with PDO MySQL
+              run: vendor/bin/phpunit  -c phpunit.xml.integration --colors=always
               env:
-                  DATABASE_URL: mysqli://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+                  DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
             - name: Upload Integration Test Coverage Artifact
               uses: actions/upload-artifact@v2
