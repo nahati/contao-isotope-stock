@@ -128,6 +128,8 @@ class Helper
 
     /**
      * Set parent product and all reserved siblings products AVAILABLE.
+     *
+     * @param int $id of the product to be excluded
      */
     public function setParentAndSiblingsProductsAvailable(Standard $objParentProduct, int $id): void
     {
