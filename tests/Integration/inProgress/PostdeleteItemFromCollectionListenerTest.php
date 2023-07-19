@@ -251,7 +251,6 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     //     $this->assertTrue(true);
     // }
 
-
     /**
      * @group non-variant_products
      */
@@ -285,9 +284,8 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
     }
 
-    /**
+    /*
      * @group variant_products
      */
     // These tests are already in the UpdateItemInCollectionListenerTest, as for non-variant products the PostDeleteItemFromCollectionListener triggers the UpdateItemInCollectionListener.
-
 }

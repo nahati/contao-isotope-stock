@@ -15,8 +15,8 @@ declare(strict_types=1);
 namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
-use Isotope\Model\Product\Standard;
 use Contao\Database;
+use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
 use Isotope\ServiceAnnotation\IsotopeHook;
@@ -82,10 +82,5 @@ class PostDeleteItemFromCollectionListener
         $this->inventory_status = $objProduct->quantity > 0 ? $this->AVAILABLE : $this->SOLDOUT;
 
         $databaseAdapter->getInstance()->prepare('UPDATE ' . Standard::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
-
-        // We will also need to handle stockmanagement for siblings and parent in cart if deleted item have had a variant product 
-        // Best was to trigger the updateItemInCollection event
-        // TODO: implement this
-
     }
 }

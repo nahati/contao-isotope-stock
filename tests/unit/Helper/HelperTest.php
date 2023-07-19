@@ -72,14 +72,19 @@ class HelperTest extends ContaoTestCase
         $GLOBALS['TL_LANG']['ERR']['productHasChanged'] = '%s has changed in the meanwhile, please start again!';
     }
 
-    // Dummy Test
-    public function testTrueIsTrue(): void
-    {
-        $foo = true;
-        $this->assertTrue($foo);
-    }
+    // // Dummy Test
+    // public function testTrueIsTrue(): void
+    // {
+    //     $foo = true;
+    //     $this->assertTrue($foo);
+    // }
 
     // issueErrorMessage(): Did not find a way to test this method
+    public function testIssueErrorMessage(): void
+    {
+        $this->assertTrue(true);
+        // TODO: Implement testIssueErrorMessage() method.
+    }
 
     public function testUpdateInventoryDoesExcuteDBQueriesWhenProductWasNotChangedMeanwhile(): void
     {
@@ -117,13 +122,11 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         $this->helper->updateInventory($product, $this->RESERVED);
-
-        // Here we would like to check if the product object has been updated correctly. Mocking the database adapter does not allow us to do so as far as we could see.
     }
 
     public function testUpdateInventoryDoesNotExecuteDBQueriesWhenInventoryStatusWasChangedMeanwhile(): void
     {
-        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
+        // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() and the prepare() method to be called 0 times each
 
         // Mock a product with inventory_status AVAILABLE
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
@@ -166,8 +169,6 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         $this->helper->updateInventory($product, $this->RESERVED);
-
-        // Here we would like to check if the product object has NOT been updated. Mocking the database adapter does not allow us to do so as far as we could see.
     }
 
     public function testUpdateInventoryDoesNotExecuteDBQueriesWhenQuantityWasChangedMeanwhile(): void
@@ -521,7 +522,7 @@ class HelperTest extends ContaoTestCase
     {
         //We have 1 parent product and 3 variants with inventory-status RESERVED; also 1 variant with inventory-status AVAILABLE and 1 variant with inventory-status SOLDOUT; lastnotleast 1 product with inventory-status RESERVED but not child of the parent product
 
-        // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method to be called 8 times, once for the parent product and once for each AVAILABLE variant - not including variant1 which is the product in charge - and once for the parent product.
+        // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method to be each called 6 times, once for the parent product and once for each RESERVED variant - not including variant1 which is the product in charge.
 
         // Create a mock parent product
         $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => $this->RESERVED, 'quantity' => '1', 'name' => 'parentProduct']);
@@ -583,6 +584,74 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
         $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objVariant2a->id);
+    }
+
+    public function testSetParentAndChildProductsSoldout(): void
+    {
+        //We have 1 parent product and 3 variants with inventory-status RESERVED; also 1 variant with inventory-status AVAILABLE and 1 variant with inventory-status SOLDOUT; lastnotleast 1 product with inventory-status AVAILABLE but not child of the parent product
+
+        // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method each to be called 12 times, once for the parent product and once for each variant.
+
+        // Create a mock parent product
+        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => $this->RESERVED, 'quantity' => '1', 'name' => 'parentProduct']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => $this->SOLDOUT, 'quantity' => '0']);
+
+        // Create a mock product that is not a child of the parent product
+        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 2, 'pid' => 0, 'inventory_status' => $this->AVAILABLE, 'quantity' => '1', 'name' => 'product5']);
+
+        // Mock the adapters for the framework
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(12))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(12))
+            ->method('execute')
+        ;
+
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter([
+                'findPublishedBy' => [$objVariant2a, $objVariant2b, $objVariant2c, $objVariant3, $objVariant4],
+                'findPublishedByPk' => $this->returnValueMap([
+                    [1, $objParentProduct],
+                    [1021, $objVariant2a],
+                    [1022, $objVariant2b],
+                    [1023, $objVariant2c],
+                    [103, $objVariant3],
+                    [104, $objVariant4],
+                    [105, $objProduct5],
+                ]),
+            ]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+        ];
+
+        $this->helper = new Helper($this->mockContaoFramework($adapters));
+
+        $this->helper->setParentAndChildProductsSoldout($objParentProduct);
     }
 
     public function testCheckStockmanagementReturnsFalseWhenInventoryStatusIsNotSetAndQuantityIsNotSet(): void

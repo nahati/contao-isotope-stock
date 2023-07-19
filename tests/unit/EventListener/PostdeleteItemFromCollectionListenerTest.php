@@ -31,7 +31,6 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     private Standard $objProduct;
 
     // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
     private string $RESERVED = '3'; /* product in cart, no quantity left */
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
@@ -82,18 +81,22 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     {
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn(null);
+            ->willReturn(null)
+        ;
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objCart
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         // Mock the adapters for the framework, we don't need them here
         $adapters = [];
@@ -112,18 +115,22 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn($this->objProduct);
+            ->willReturn($this->objProduct)
+        ;
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objCart
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         // Mock the adpaters for the framework, we don't need them here
         $adapters = [];
@@ -141,7 +148,8 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo');
+            ->willReturn('foo')
+        ;
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
         $this->assertSame($this->objProduct->id, 1);
         $this->assertSame($this->objProduct->name, 'foo');
@@ -150,17 +158,21 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objItem
             ->method('getProduct')
-            ->willReturn($this->objProduct);
+            ->willReturn($this->objProduct)
+        ;
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objCart
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         // Test if an InvalidArgumentException is thrown
         $this->expectException(\InvalidArgumentException::class);
@@ -174,13 +186,14 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         $listener($this->objItem, $this->objCart);
     }
 
-    public function testPostDeleteItemFromCollectionListenerSetsInventoryStatusWhenEnding(): void
+    public function testPostDeleteItemFromCollectionListenerSetsInventoryStatus(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->RESERVED]);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo');
+            ->willReturn('foo')
+        ;
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
         $this->assertSame($this->objProduct->id, 1);
         $this->assertSame($this->objProduct->name, 'foo');
@@ -189,32 +202,40 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objItem
             ->method('getProduct')
-            ->willReturn($this->objProduct);
+            ->willReturn($this->objProduct)
+        ;
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objCart
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $databaseAdapterMock
             ->method('getInstance')
-            ->willReturnSelf();
+            ->willReturnSelf()
+        ;
         $databaseAdapterMock
             ->expects($this->exactly(1))
             ->method('prepare')
-            ->willReturnSelf();
+            ->willReturnSelf()
+        ;
         $databaseAdapterMock
             ->expects($this->exactly(1))
             ->method('execute')
-            ->willReturn(true);
+            ->willReturn(true)
+        ;
 
         // Mock the adapters for the framework
         $adapters = [
@@ -226,7 +247,5 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         $listener($this->objItem, $this->objCart);
     }
 
-
     // Further tests can be found in the integration testcases
-
 }

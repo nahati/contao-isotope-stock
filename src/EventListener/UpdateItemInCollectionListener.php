@@ -37,6 +37,7 @@ class UpdateItemInCollectionListener
     // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
     private string $RESERVED = '3'; /* product in cart, no quantity left */
+    private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     /**
      * @var Helper // make use of methods from the Helper class
@@ -52,7 +53,7 @@ class UpdateItemInCollectionListener
      * Invoked when Cart is refreshed
      * Handles changes of quantity in cart and also handles concurring changes.
      *
-     * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
+     * Restriction: As the given cart is updated item by item, checks will be done item by item also (i.e. the lower part of the cart appears as it was before user changes).
      *
      * @param ProductCollectionItem $objItem // Item in Cart
      * @param array<mixed>          $arrSet  // Properties of item in cart, esp. quantity in Cart
@@ -83,13 +84,6 @@ class UpdateItemInCollectionListener
         // none or invalid quantity in Cart
         if (!(\array_key_exists('quantity', $arrSet) && $arrSet['quantity'])) {
             return false;
-        }
-
-        // Product SOLDOUT
-        if ($this->helper->isSoldout($objProduct)) {
-            $arrSet['quantity'] = 0;
-
-            return $arrSet; // return quantity = 0
         }
 
         // Single product (not having any variants)
@@ -132,37 +126,25 @@ class UpdateItemInCollectionListener
                 $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
             } elseif ($setInventoryStatusTo === $this->RESERVED) {
                 $this->helper->setParentAndChildProductsReserved($objParentProduct);
+            } elseif ($setInventoryStatusTo === $this->SOLDOUT) {
+                $this->helper->setParentAndChildProductsSoldout($objParentProduct);
             }
             // do nothing if $setInventoryStatusTo = \null
 
             // More in cart than the variant can afford
             if ($surplusVariant > 0) {
-                $arrSet['quantity'] -= $surplusVariant; // decrease by surplus quantity
-
                 $this->helper->issueErrorMessage('variantQuantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
             }
 
             // More in cart than the parent can afford
             if ($surplusParent > 0) {
                 $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
-
-                // No sibling in cart
-                if (0 === $anzSiblingsInCart) {
-                    $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by surplus quantity
-
-                    return $arrSet;
-                }
-
-                // Siblings in cart
-                else {
-                    return false; //  user is asked to check his cart
-                }
             }
 
-            // $surplusParent = 0
-            else {
-                return $arrSet;
-            }
+            $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by surplus quantity
+            $arrSet['quantity'] = $arrSet['quantity'] < 0 ? 0 : $arrSet['quantity']; // limit to zero
+
+            return $arrSet;
         }
     }
 }

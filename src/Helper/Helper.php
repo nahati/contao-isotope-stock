@@ -50,12 +50,12 @@ class Helper
 
         if (0 === $quantity) {
             $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR'][$message],
+                $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message for product %s',
                 $name
             ));
         } else {
             $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR'][$message],
+                $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message for product %s with quantity %s',
                 $name,
                 $quantity
             ));
@@ -123,6 +123,26 @@ class Helper
             if ($variant->inventory_status === $this->AVAILABLE) {
                 $this->updateInventory($variant, $this->RESERVED);
             }
+        }
+    }
+
+    /**
+     * Set parent product and all available child products SOLDOUT.
+     */
+    public function setParentAndChildProductsSoldout(Standard $objParentProduct): void
+    {
+        // Get an adapter for the Standard class
+        $standardAdapter = $this->framework->getAdapter(Standard::class);
+
+        // Get all children of the parent product (variants)
+        $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
+
+        // Set parent product SOLDOUT
+        $this->updateInventory($objParentProduct, $this->SOLDOUT);
+
+        // Set all variants SOLDOUT
+        foreach ($objVariants as $variant) {
+            $this->updateInventory($variant, $this->SOLDOUT);
         }
     }
 
@@ -263,6 +283,13 @@ class Helper
         // Unlimited quantity: no stockmanagement, no surplus quantity
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
             return 0; // no surplus quantity
+        }
+
+        // Product SOLDOUT
+        if ($this->isSoldout($objProduct)) {
+            $setInventoryStatusTo = $this->SOLDOUT;
+
+            return $qtyInCart; // return surplus quantity
         }
 
         // Quantity in Cart < Product quantity

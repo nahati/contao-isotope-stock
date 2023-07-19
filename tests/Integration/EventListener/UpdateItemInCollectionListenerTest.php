@@ -69,6 +69,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         // Instantiate a Listener and call it
         $listener = new UpdateItemInCollectionListener(self::$framework);
+
         $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
         // Test if expected return is returned
@@ -419,11 +420,11 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsFalseAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     {
         $itemId = 3119;
         $quantityInCart = 1;
-        $expectedReturn = false;
+        $expectedReturn = ['quantity' => 0];
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
         $quantityOfParentProduct = 1;
@@ -484,7 +485,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // product 45: quantity 1 , RESERVED, Variante Original Skulptur 2
         // quantity in Cart 1
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
@@ -499,11 +500,11 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsFalseAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
-        $expectedReturn = false;
+        $expectedReturn = ['quantity' => 1];
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
         $quantityOfParentProduct = 2;
@@ -583,7 +584,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     {
         $itemId = 3119;
         $quantityInCart = 3;
-        $expectedReturn = false;
+        $expectedReturn = ['quantity' => 2];
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
         $parentProductId = 32; // quantity 5, AVAILABLE, Skulptur 2
         $quantityOfParentProduct = 3;
@@ -646,11 +647,11 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsFalseAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     {
         $itemId = 3130;
         $quantityInCart = 100;
-        $expectedReturn = false;
+        $expectedReturn = ['quantity' => 99];
         $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
         $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
         $expectedInventory_statusOfProduct = $this->RESERVED;
