@@ -33,7 +33,6 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
 
     // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product in cart, no quantity left */
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests

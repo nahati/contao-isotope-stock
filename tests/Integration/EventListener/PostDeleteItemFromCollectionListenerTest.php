@@ -41,8 +41,6 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
 
     private ProductCollectionItem $objItem;
     private Cart $objCart;
-    private mixed $arrSet;
-    private mixed $return;
 
     // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */

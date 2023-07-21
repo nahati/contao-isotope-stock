@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
+use Contao\CoreBundle\Framework\Adapter;
 use Contao\Database;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
