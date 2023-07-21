@@ -78,8 +78,20 @@ class PostDeleteItemFromCollectionListener
         // Get an adapter for the Database class
         $databaseAdapter = $this->framework->getAdapter(Database::class);
 
-        // Set inventory_status according to quantity
+        // Get an adapter for the Standard class
+        /** @var Adapter<Standard> $standardAdapter */
+        $standardAdapter = $this->framework->getAdapter(Standard::class);
+
+        // Set inventory_status according to quantity 
         $this->inventory_status = $objProduct->quantity > 0 ? $this->AVAILABLE : $this->SOLDOUT;
+
+        // Set inventory_status SOLDOUT if parent product is SOLDOUT
+        if ($objProduct->pid > 0) {
+            $objParentProduct = $standardAdapter->findByPk($objProduct->pid);
+            if ($objParentProduct->inventory_status == $this->SOLDOUT) {
+                $this->inventory_status = $this->SOLDOUT;
+            }
+        }
 
         $databaseAdapter->getInstance()->prepare('UPDATE ' . Standard::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
     }

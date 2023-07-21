@@ -236,6 +236,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         // Get a database adpater and reset relevant tables
         self::$databaseAdapter = self::$framework->getAdapter(Database::class);
+
         $this->resetRelevantDatabaseTables();
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 

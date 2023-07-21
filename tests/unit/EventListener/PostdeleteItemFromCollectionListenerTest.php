@@ -29,9 +29,12 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     private ProductCollectionItem $objItem;
     private Cart $objCart;
     private Standard $objProduct;
+    private Standard $objParentProduct;
 
     // private string $inventory_status;
+    private string $AVAILABLE = '2'; /* product available for sale */
     private string $RESERVED = '3'; /* product in cart, no quantity left */
+    private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
@@ -81,22 +84,18 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     {
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn(null)
-        ;
+            ->willReturn(null);
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objCart
             ->method('getItems')
-            ->willReturn([$this->objItem])
-        ;
+            ->willReturn([$this->objItem]);
 
         // Mock the adapters for the framework, we don't need them here
         $adapters = [];
@@ -115,22 +114,18 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn($this->objProduct)
-        ;
+            ->willReturn($this->objProduct);
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objCart
             ->method('getItems')
-            ->willReturn([$this->objItem])
-        ;
+            ->willReturn([$this->objItem]);
 
         // Mock the adpaters for the framework, we don't need them here
         $adapters = [];
@@ -148,8 +143,7 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo')
-        ;
+            ->willReturn('foo');
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
         $this->assertSame($this->objProduct->id, 1);
         $this->assertSame($this->objProduct->name, 'foo');
@@ -158,21 +152,17 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objItem
             ->method('getProduct')
-            ->willReturn($this->objProduct)
-        ;
+            ->willReturn($this->objProduct);
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objCart
             ->method('getItems')
-            ->willReturn([$this->objItem])
-        ;
+            ->willReturn([$this->objItem]);
 
         // Test if an InvalidArgumentException is thrown
         $this->expectException(\InvalidArgumentException::class);
@@ -186,59 +176,119 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         $listener($this->objItem, $this->objCart);
     }
 
-    public function testPostDeleteItemFromCollectionListenerSetsInventoryStatus(): void
+    public function testPostDeleteItemFromCollectionListenerSetsInventoryStatusWhenProductIsNotAVariant(): void
     {
-        // Mock a product, inventory_status is not set, quantity is set
-        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->RESERVED]);
+        // Mock a product, inventory_status is AVAILABLE, quantity is set
+        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo')
-        ;
+            ->willReturn('foo');
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
         $this->assertSame($this->objProduct->id, 1);
+        $this->assertSame($this->objProduct->pid, 0);
         $this->assertSame($this->objProduct->name, 'foo');
         $this->assertSame($this->objProduct->quantity, '1');
         $this->assertSame($this->objProduct->getName(), 'foo');
 
+        // Create mock Item objects
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objItem
+            ->expects($this->once())
             ->method('getProduct')
-            ->willReturn($this->objProduct)
-        ;
+            ->willReturn($this->objProduct);
 
+        // Create a mock Cart object
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
-        $this->objCart
-            ->method('getItems')
-            ->willReturn([$this->objItem])
-        ;
+            ->getMock();
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $databaseAdapterMock
             ->method('getInstance')
-            ->willReturnSelf()
-        ;
+            ->willReturnSelf();
         $databaseAdapterMock
             ->expects($this->exactly(1))
             ->method('prepare')
-            ->willReturnSelf()
-        ;
+            ->willReturnSelf();
         $databaseAdapterMock
             ->expects($this->exactly(1))
             ->method('execute')
-            ->willReturn(true)
-        ;
+            ->willReturn(true);
 
         // Mock the adapters for the framework
         $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findByPk' => $this->objProduct]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+        ];
+
+        $listener = new PostDeleteItemFromCollectionListener($this->mockContaoFramework($adapters));
+
+        $listener($this->objItem, $this->objCart);
+    }
+
+    public function testPostDeleteItemFromCollectionListenerSetsInventoryStatusWhenProductIsAVariant(): void
+    {
+        // Mock a product, inventory_status is AVAILABLE, quantity is set
+        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 100, 'pid' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->objProduct
+            ->method('getName')
+            ->willReturn('foo');
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
+        $this->assertSame($this->objProduct->id, 100);
+        $this->assertSame($this->objProduct->pid, 1);
+        $this->assertSame($this->objProduct->name, 'foo');
+        $this->assertSame($this->objProduct->quantity, '1');
+        $this->assertSame($this->objProduct->getName(), 'foo');
+
+        // Mock a parent product, inventory_status is SOLDOUT, quantity is set
+        $this->objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'parent', 'quantity' => '1', 'inventory_status' => $this->SOLDOUT]);
+        $this->objParentProduct
+            ->method('getName')
+            ->willReturn('parent');
+        $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objParentProduct);
+        $this->assertSame($this->objParentProduct->id, 1);
+        $this->assertSame($this->objParentProduct->pid, 0);
+        $this->assertSame($this->objParentProduct->name, 'parent');
+        $this->assertSame($this->objParentProduct->quantity, '1');
+        $this->assertSame($this->objParentProduct->getName(), 'parent');
+
+
+        // Create mock Item objects
+        $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->objItem
+            ->expects($this->once())
+            ->method('getProduct')
+            ->willReturn($this->objProduct);
+
+        // Create a mock Cart object
+        $this->objCart = $this->getMockBuilder(Cart::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf();
+        $databaseAdapterMock
+            ->expects($this->exactly(1))
+            ->method('prepare')
+            ->willReturnSelf();
+        $databaseAdapterMock
+            ->expects($this->exactly(1))
+            ->method('execute')
+            ->willReturn(true);
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findByPk' => $this->objParentProduct]),
             Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 

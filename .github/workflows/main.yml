@@ -79,8 +79,8 @@ jobs:
             - name: Install the dependencies
               run: composer install --no-interaction --no-progress
 
-            - name: Run PHPUnit Unit Tests with HTML Coverage
-              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html=coverage/unit
+            - name: Run PHPUnit Unit Tests
+              run: vendor/bin/phpunit --colors=always --testsuite=unit
 
             - name: Upload Unit Test Coverage Artifact
               uses: actions/upload-artifact@v2
