@@ -14,179 +14,150 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
-use Contao\Database;
-use Isotope\Interfaces\IsotopeProductCollection;
-use Isotope\Message;
-use Isotope\Model\Product;
+use Contao\CoreBundle\Framework\Adapter;
+use Contao\CoreBundle\Framework\ContaoFramework;
+use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
+use Isotope\Model\ProductCollection\Cart;
 use Isotope\ServiceAnnotation\IsotopeHook;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
+ * Inspired by contao/calendar-bundle (injection of ContaoFramework to enable testing).
+ *
+ * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
+ *
  * @IsotopeHook("copiedCollectionItems")
  */
 class CopiedCollectionItemsListener
 {
+    private ContaoFramework $framework;
+
     // private string $inventory_status;
+    private string $AVAILABLE = '2'; /* product available for sale */
     private string $RESERVED = '3'; /* product in cart, no quantity left */
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     /**
-     * Set RESERVED with all variants.
-     *
-     * @param Product $objParentProduct
+     * @var Helper // make use of methods from the Helper class
      */
-    private function setVariantsReserved($objParentProduct): void
-    {
-        /** @var IsotopeProductCollection|null $objVariants */
-        $objVariants = Database::getInstance()->prepare('SELECT * FROM ' . Product::getTable() . ' WHERE pid = ?')->execute($objParentProduct->getId());
+    private $helper;
 
-        /** @var Product|null $objVariant */
-        foreach ($objVariants->getItems(true) as $objVariant) {
-            Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET  inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objVariant->id);
-        }
+    public function __construct(ContaoFramework $framework)
+    {
+        $this->framework = $framework;
     }
 
     /**
-     * Manage Stock for a given product and a given quantity in cart.
+     * Invoked when product collection items from another collection have been copied to this one (e.g. cart to order or cart to cart).
      *
-     * @param Product $objProduct
-     * @param int     $qtyInCart  // quantity of product in cart
-     * @param bool    $reserved   // returns true if product reserved
+     * We let this listener return without any processing unless the source collection is a cart and the target collection is a cart.
      *
-     * @return int // returns quantity to be held in cart (unchanged or decreased)
-     */
-    private function manageStockAndCheckReserved($objProduct, $qtyInCart, &$reserved = false)
-    {
-        switch ($objProduct->quantity ?? null) {
-            case null:
-            case '':
-                return $qtyInCart; // return unchanged quantity
-
-            default: // case 0,1,2,..
-
-                // if product quantity <= quantity in cart: set RESERVED
-                if ($objProduct->quantity <= $qtyInCart) {
-                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->RESERVED, $objProduct->id);
-
-                    // if reduced quantity, give back true, warning message
-                    if ($objProduct->quantity < $qtyInCart) {
-                        $reserved = true;
-
-                        Message::addError(sprintf(
-                            $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'],
-                            $objProduct->getName(),
-                            $objProduct->quantity
-                        ));
-                    } else {
-                        $reserved = false;
-                    }
-
-                    return $objProduct->quantity; // return product quantity
-                } else {
-                    return $qtyInCart;
-                } // return unchanged quantity
-        }
-    }
-
-    /**
-     * Handles the quantity in cart. Also sets inventory_status.
+     * Handles changes of quantity in collection and also handles concurring changes.
      *
-     * @param IsotopeProductCollection $objSource old cart
-     * @param ProductCollection        $objTarget new cart
-     * @param array<int>               $arrIds    oldItem->id / newItem->id
+     * @param ProductCollection $objSource // source collection, not used here
+     * @param ProductCollection $objTarget // target collection, after copying
+     * @param array<int>        $arrIds    // oldItem->id => newItem->id, not used here
      */
     public function __invoke($objSource, $objTarget, $arrIds): void
     {
-        // Loop over all newItem ids
-        foreach ($arrIds as $key => $itemId) {
-            if ($key); // To prevent ECS from this "error": Unused variable $key
+        // We want this listener to be processed only if the source collection is a cart and the target collection is a cart.
+        if (!($objSource instanceof Cart && $objTarget instanceof Cart)) {
+            return;
+        }
 
-            $objItem = $objTarget->getItemById($itemId) ?? null; // Item in cart
+        // Instantiate a Helper object
+        $this->helper = new Helper($this->framework);
 
-            /** @var Product|null $objProduct */
-            $objProduct = $objItem?->getProduct() ?? null; // Corresp. product
+        // Check that target collection is a non empty collection
+        if (!$objTarget->getItems()) {
+            return;
+        }
 
+        // Loop over all Items in the target collection
+        foreach ($objTarget->getItems() as $objItem) {
+            // From here on analogue processing as in updateItemInCollectionListener
+
+            /** @var Standard|null $objProduct */
+            $objProduct = $objItem->getProduct() ?? null;
+
+            // No product
             if (!$objProduct) {
                 continue;
             }
 
-            // inventory_status is not in use (in theory: FALSE, not defined, NULL, '0' or '')
-            if (!$objProduct->inventory_status) {
-                // quantity activated
-                if (null !== $objProduct->quantity) {
-                    throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName())); // todo: fix the configuration of producttype
+            // Stockmanagement not or not correctly configured
+            if (!$this->helper->checkStockmanagement($objProduct)) {
+                // if not correctly configured, throw exception
+
+                continue; // no stock-management
+            }
+
+            // Single product (not having any variants)
+            if (!$objProduct->isVariant()) {
+                /** @var int $surplus */
+                $surplus = $this->helper->manageStockAndReturnSurplus($objProduct, $objItem->quantity);
+
+                $objItem->quantity -= $surplus; // decrease by surplus quantity
+
+                if ($surplus > 0) {
+                    $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
                 }
 
-                continue; // no stock-management
-            }
-
-            // Return without stock-management if not limited edition
-            if (!($objProduct->quantity >= '0')) {
-                continue; // no stock-management
-            }
-
-            // If quantity is zero: set SOLDOUT, message, set quantity in cart zero
-            if ('0' === $objProduct->quantity) {
-                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->SOLDOUT, $objProduct->id);
-
-                Message::addError(sprintf(
-                    $GLOBALS['TL_LANG']['MSC']['productOutOfStock'],
-                    $objProduct->getName()
-                ));
-
-                $objItem->quantity = 0;
                 $objItem->save();
 
                 continue;
             }
 
-            // (else) quantity > 0
+            // Variant product
+            else {
+                //
+                // Manage stock for variant product with quantity of this variant
+                $surplusVariant = $this->helper->manageStockAndReturnSurplus($objProduct, $objItem->quantity);
 
-            // single product (not having any variants)
-            if (!$objProduct->isVariant()) {
-                $$objItem->quantity = $this->manageStockAndCheckReserved($objProduct, $objItem->quantity);
+                // Get an adapter for the Standard class
+                /** @var Adapter<Standard> $adapter */
+                $adapter = $this->framework->getAdapter(Standard::class);
+
+                // Get the parent product
+                $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+
+                $setInventoryStatusTo = null;
+                $anzSiblingsInCollection = 0;
+
+                // Get the sum of the quantity of all siblings in collection (i.e. not including the current product) and add the quantity in collection of the current product.
+                /** @var int qtyFamily // overall quantity in collection for all the parent's childs */
+                $qtyFamily = $this->helper->sumSiblings($objProduct, $objTarget, $objProduct->pid, $anzSiblingsInCollection) + $objItem->quantity;
+
+                // Manage stock for parent product with overall quantity in collection for all it's childs
+                $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
+
+                if ($setInventoryStatusTo === $this->AVAILABLE) {
+                    $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
+                } elseif ($setInventoryStatusTo === $this->RESERVED) {
+                    $this->helper->setParentAndChildProductsReserved($objParentProduct);
+                } elseif ($setInventoryStatusTo === $this->SOLDOUT) {
+                    $this->helper->setParentAndChildProductsSoldout($objParentProduct);
+                }
+                // do nothing if $setInventoryStatusTo = \null
+
+                // More in collection than the variant can afford
+                if ($surplusVariant > 0) {
+                    $this->helper->issueErrorMessage('variantQuantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
+                }
+
+                // More in collection than the parent can afford
+                if ($surplusParent > 0) {
+                    $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
+                }
+
+                $objItem->quantity -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
+                $objItem->quantity = $objItem->quantity < 0 ? 0 : $objItem->quantity; // limit to zero
+
                 $objItem->save();
 
                 continue;
             }
-
-            // (else) product is a variant
-            switch ($objProduct->quantity ?? null) {
-                case null:
-                case '':
-
-                    $objParentProduct = Product::findByPk($objProduct->pid);
-                    $reserved = false;
-                    /** @var int $qtyForCartParent */ // new quantity in cart after checking the parents quantity
-                    $qtyForCartParent = $this->manageStockAndCheckReserved($objParentProduct, $objItem->quantity, $reserved);
-
-                    if ($reserved) {
-                        $this->setVariantsReserved($objParentProduct);
-                    }
-
-                    //Set new quantity in cart
-                    $objItem->quantity = $qtyForCartParent;
-                    $objItem->save();
-
-                    // no break
-                default: // case 0,1,2,..
-
-                    /** @var int $qtyForCartVariant */ // new quantity in cart after checking the variants quantity
-                    $qtyForCartVariant = $this->manageStockAndCheckReserved($objProduct, $objItem->quantity);
-
-                    $objParentProduct = Product::findByPk($objProduct->pid);
-                    $reserved = false;
-                    /** @var int $qtyForCartParent */ // allowed quantity in cart corresponding to the parents quantity
-                    $qtyForCartParent = $this->manageStockAndCheckReserved($objParentProduct, $objItem->quantity, $reserved);
-
-                    if ($reserved) {
-                        $this->setVariantsReserved($objParentProduct);
-                    }
-
-                    //Set new quantity for cart
-                    $objItem->quantity = min($qtyForCartVariant, $qtyForCartVariant);
-                    $objItem->save();
-            }
-        } // foreach
+        }
     }
 }

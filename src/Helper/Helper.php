@@ -18,7 +18,7 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
-use Isotope\Model\ProductCollection\Cart;
+use Isotope\Model\ProductCollection;
 
 /**
  * Reuseable small services for stockmanagement.
@@ -30,7 +30,7 @@ class Helper
 
     // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product in cart, no quantity left */
+    private string $RESERVED = '3'; /* product in collection, no quantity left */
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     public function __construct(ContaoFramework $framework)
@@ -229,21 +229,21 @@ class Helper
     }
 
     /**
-     * Sum up quantity of all siblings of the product in cart and give back their number.
+     * Sum up quantity of all siblings of the product in product collection and give back their number.
      *
-     * @param Standard $objProductToCheck // product to check
-     * @param Cart     $objCart           // unchanged (old) cart (before Update!)
-     * @param int      $pid               // parent id
-     * @param int      $anzSiblingsInCart // number of siblings in Cart // passed by reference
+     * @param Standard          $objProductToCheck       // product to check
+     * @param ProductCollection $objCollection           // unchanged (old) product collection (before Update!)
+     * @param int               $pid                     // parent id
+     * @param int               $anzSiblingsInCollection // number of siblings in collection // passed by reference
      *
-     * @return int // returns sum of quantitis in Cart for all siblings (not including the productToCheck itself)
+     * @return int // returns sum of quantitis in collection for all siblings (not including the productToCheck itself)
      */
-    public function sumSiblings($objProductToCheck, $objCart, $pid, &$anzSiblingsInCart)
+    public function sumSiblings($objProductToCheck, $objCollection, $pid, &$anzSiblingsInCollection)
     {
         $sum = 0;
-        $anzSiblingsInCart = 0;
+        $anzSiblingsInCollection = 0;
 
-        foreach ($objCart->getItems() as $objItem) {
+        foreach ($objCollection->getItems() as $objItem) {
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
 
@@ -263,22 +263,22 @@ class Helper
             }
 
             $sum += $objItem->quantity;
-            ++$anzSiblingsInCart;
+            ++$anzSiblingsInCollection;
         }
 
         return $sum;
     }
 
     /**
-     * Manage Stock for a given product and a given quantity in cart and return the surplus.
+     * Manage Stock for a given product and a given quantity in Collection and return the surplus.
      *
      * @param Standard $objProduct
-     * @param int      $qtyInCart            // quantity in cart (product retr. all siblings)
+     * @param int      $qtyInCollection      // quantity in Collection (product retr. all siblings)
      * @param mixed    $setInventoryStatusTo // returns the Value, to which the inventory-status has been set
      *
      * @return int // returns surplus quantity
      */
-    public function manageStockAndReturnSurplus($objProduct, $qtyInCart, &$setInventoryStatusTo = null)
+    public function manageStockAndReturnSurplus($objProduct, $qtyInCollection, &$setInventoryStatusTo = null)
     {
         // Unlimited quantity: no stockmanagement, no surplus quantity
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
@@ -289,11 +289,11 @@ class Helper
         if ($this->isSoldout($objProduct)) {
             $setInventoryStatusTo = $this->SOLDOUT;
 
-            return $qtyInCart; // return surplus quantity
+            return $qtyInCollection; // return surplus quantity
         }
 
-        // Quantity in Cart < Product quantity
-        if ((int) $qtyInCart < (int) $objProduct->quantity) {
+        // Quantity in Collection < Product quantity
+        if ((int) $qtyInCollection < (int) $objProduct->quantity) {
             $this->updateInventory($objProduct, $this->AVAILABLE);
 
             $setInventoryStatusTo = $this->AVAILABLE;
@@ -301,8 +301,8 @@ class Helper
             return 0; // no surplus quantity
         }
 
-        // Quantity in Cart == Product quantity
-        if ((int) $qtyInCart === (int) $objProduct->quantity) {
+        // Quantity in Collection == Product quantity
+        if ((int) $qtyInCollection === (int) $objProduct->quantity) {
             $this->updateInventory($objProduct, $this->RESERVED);
 
             $setInventoryStatusTo = $this->RESERVED;
@@ -310,12 +310,12 @@ class Helper
             return 0; // no surplus quantity
         }
 
-        // (else) Quantity in Cart > Product quantity
+        // (else) Quantity in Collection > Product quantity
 
         $this->updateInventory($objProduct, $this->RESERVED);
 
         $setInventoryStatusTo = $this->RESERVED;
 
-        return (int) $qtyInCart - (int) $objProduct->quantity; // return surplus quantity
+        return (int) $qtyInCollection - (int) $objProduct->quantity; // return surplus quantity
     }
 }

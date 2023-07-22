@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
-use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Framework\Adapter;
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
@@ -83,13 +83,14 @@ class PostDeleteItemFromCollectionListener
         /** @var Adapter<Standard> $standardAdapter */
         $standardAdapter = $this->framework->getAdapter(Standard::class);
 
-        // Set inventory_status according to quantity 
+        // Set inventory_status according to quantity
         $this->inventory_status = $objProduct->quantity > 0 ? $this->AVAILABLE : $this->SOLDOUT;
 
         // Set inventory_status SOLDOUT if parent product is SOLDOUT
         if ($objProduct->pid > 0) {
             $objParentProduct = $standardAdapter->findByPk($objProduct->pid);
-            if ($objParentProduct->inventory_status == $this->SOLDOUT) {
+
+            if ($objParentProduct->inventory_status === $this->SOLDOUT) {
                 $this->inventory_status = $this->SOLDOUT;
             }
         }

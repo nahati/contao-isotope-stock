@@ -115,7 +115,7 @@ class UpdateItemInCollectionListener
             $setInventoryStatusTo = null;
             $anzSiblingsInCart = 0;
 
-            // Get the sum of the quantity of all siblings in cart (i.e. not including the current product) and add the quantity of the current product.
+            // Get the sum of the quantity of all siblings in cart (i.e. not including the current product) and add the quantity in cart of the current product.
             /** @var int qtyFamily // overall quantity in cart for all the parent's childs */
             $qtyFamily = $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'];
 
@@ -141,7 +141,7 @@ class UpdateItemInCollectionListener
                 $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
             }
 
-            $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by surplus quantity
+            $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
             $arrSet['quantity'] = $arrSet['quantity'] < 0 ? 0 : $arrSet['quantity']; // limit to zero
 
             return $arrSet;

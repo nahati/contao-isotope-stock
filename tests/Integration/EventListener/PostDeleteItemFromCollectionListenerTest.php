@@ -55,7 +55,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
      * @param string $expectedInventory_statusOfParentProduct   // optional
      * @param string $expectedInventory_statusOfSiblingProducts // optional
      */
-    private function doTest($itemId,  $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = ''): void
+    private function doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = ''): void
     {
         // Instantiate the Item with given id of this Cart
         $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
@@ -123,7 +123,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         // Reset ProductCollection-table to initial state
         $sql = 'DROP TABLE ' . 'tl_iso_product_collection';
         self::$databaseAdapter->getInstance()->execute($sql);
-        self::loadFixture('tl_iso_product_collection-initial-265.sql');
+        self::loadFixture('tl_iso_product_collection-initial.sql');
     }
 
     /**
@@ -216,6 +216,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
         // Instantiate a Cart object with given id
+        // This cart is of logged-in member test@test.de
         $this->objCart = Cart::findByPk('265', ['return' => 'Model']);
 
         // Check if Cart object exists
@@ -237,8 +238,6 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     // {
     //     $this->assertTrue(true);
     // }
-
-
 
     /**
      * @group non-variant_products
