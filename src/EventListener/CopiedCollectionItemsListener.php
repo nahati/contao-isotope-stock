@@ -56,8 +56,9 @@ class CopiedCollectionItemsListener
      * Handles changes of quantity in collection and also handles concurring changes.
      *
      * @param ProductCollection $objSource // source collection, not used here
-     * @param ProductCollection $objTarget // target collection, after copying
+     * @param ProductCollection $objTarget // target collection, after copying   
      * @param array<int>        $arrIds    // oldItem->id => newItem->id, not used here
+
      */
     public function __invoke($objSource, $objTarget, $arrIds): void
     {
