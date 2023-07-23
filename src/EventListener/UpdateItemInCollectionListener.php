@@ -141,8 +141,18 @@ class UpdateItemInCollectionListener
                 $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
             }
 
-            $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
-            $arrSet['quantity'] = $arrSet['quantity'] < 0 ? 0 : $arrSet['quantity']; // limit to zero
+            // Not Soldout
+            if ($objProduct->inventory_status !== $this->SOLDOUT && $objParentProduct->inventory_status !== $this->SOLDOUT) {
+                // Evaluate possible new quantity in cart as given quantity in cart minus max surplus quantity
+                $test = $arrSet['quantity'] - max($surplusVariant, $surplusParent);
+
+                // Only reduce quantity in cart if the result keeps positive; this will ensure that the item is kept in cart so that user can decide what to do
+                $arrSet['quantity'] = $test > 0 ? $test : $arrSet['quantity'];
+            }
+            // Product or parent soldout
+            else {
+                $arrSet['quantity'] = 0;
+            }
 
             return $arrSet;
         }

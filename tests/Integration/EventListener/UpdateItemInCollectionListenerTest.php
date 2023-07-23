@@ -425,8 +425,33 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     {
         $itemId = 3119;
+        $quantityInCart = 2;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        $parentProductId = 32; //  AVAILABLE, Skulptur 2
+        $quantityOfParentProduct = 2;
+        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfParentProduct = $this->RESERVED;
+        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+
+        // Item 3120
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // quantity in Cart 1
+
+        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
+     */
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndCalculatedQuantityInCartOfProductIsZero(): void
+    {
+        $itemId = 3119;
         $quantityInCart = 1;
-        $expectedReturn = ['quantity' => 0];
+        $expectedReturn = ['quantity' => 1];
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
         $quantityOfParentProduct = 1;
@@ -670,12 +695,12 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
     {
         $itemId = 3122;
         $quantityInCart = 1;
         $expectedReturn = ['quantity' => 1];
-        $productId = 40; // quantity 2 , AVAILABLE, Variante Original von Skulptur 3
+        $productId = 40; // quantity 2 , Reserved, Variante Original von Skulptur 3
         $quantityOfProduct = 2;
         $parentProductId = 33; // unlimited quantity, Skulptur 3
         $expectedInventory_statusOfProduct = $this->AVAILABLE;
@@ -717,73 +742,6 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
      * @group variant_products__parent_quantity_is_unlimited
      */
     public function testUpdateItemInCollectionListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantity(): void
-    {
-        $itemId = 3122;
-        $quantityInCart = 2;
-        $expectedReturn = ['quantity' => 1];
-        $productId = 40; // quantity 1 , AVAILABLE, Variante Original von Skulptur 3
-        $parentProductId = 33; // unlimited quantity, Skulptur 3
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
-
-        // Item 3121
-        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
-        // quantity in Cart 1
-
-        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    }
-
-    /**
-     * @group variant_products__parent_quantity_is_unlimited
-     */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
-    {
-        $itemId = 3122;
-        $quantityInCart = 1;
-        $expectedReturn = ['quantity' => 1];
-        $productId = 40; // quantity 2 , Reserved, Variante Original von Skulptur 3
-        $quantityOfProduct = 2;
-        $parentProductId = 33; // unlimited quantity, Skulptur 3
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
-
-        // Item 3121
-        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
-        // quantity in Cart 1
-
-        // Product initially has a quantity of 1, so we change the quantity of the product to match the testcase
-        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
-
-        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    }
-
-    /**
-     * @group variant_products__parent_quantity_is_unlimited
-     */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsEqualToProductQuantity(): void
-    {
-        $itemId = 3122;
-        $quantityInCart = 1;
-        $expectedReturn = ['quantity' => 1];
-        $productId = 40; // quantity 1 , AVAILABLE, Variante Original von Skulptur 3
-        $parentProductId = 33; // unlimited quantity, Skulptur 3
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
-
-        // Item 3121
-        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
-        // quantity in Cart 1
-
-        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    }
-
-    /**
-     * @group variant_products__parent_quantity_is_unlimited
-     */
-    public function testUpdateItemInCollectionListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedQuantityInCartIsGreaterThanProductQuantity(): void
     {
         $itemId = 3122;
         $quantityInCart = 2;

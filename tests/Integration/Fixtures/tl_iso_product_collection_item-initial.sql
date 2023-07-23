@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jul 22, 2023 at 05:16 PM
+-- Generation Time: Jul 23, 2023 at 02:12 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -64,8 +64,7 @@ INSERT INTO `tl_iso_product_collection_item` (`id`, `pid`, `tstamp`, `product_id
 (3127, 265, 1688932431, 51, 'standard', 'S0006', 'Variante Kopie von Skulptur 6 &#40;quantity 2, SOLDOUT&#41;', 0x613a313a7b733a363a22737461747573223b693a323b7d, 1, '0.00', '0.00', '', 33),
 (3128, 265, 1688932440, 52, 'standard', 'S0006', 'Variante Original von Skulptur 6 &#40;quantity 1&#41;', 0x613a313a7b733a363a22737461747573223b693a313b7d, 1, '0.00', '0.00', '', 33),
 (3129, 265, 1688932521, 96, 'standard', 'K0001', 'Eintrittskarte online', 0x613a313a7b733a363a22737461747573223b693a323b7d, 1, '100.00', '100.00', '', 58),
-(3130, 265, 1688932530, 97, 'standard', 'K0001', 'Eintrittskarte Schalter', 0x613a313a7b733a363a22737461747573223b693a313b7d, 1, '100.00', '100.00', '', 58),
-(3148, 267, 1690046010, 97, 'standard', 'K0001', 'Eintrittskarte Schalter', 0x613a313a7b733a363a22737461747573223b693a313b7d, 99, '100.00', '100.00', '', 58);
+(3130, 265, 1688932530, 97, 'standard', 'K0001', 'Eintrittskarte Schalter', 0x613a313a7b733a363a22737461747573223b693a313b7d, 100, '100.00', '100.00', '', 58);
 
 --
 -- Indexes for dumped tables

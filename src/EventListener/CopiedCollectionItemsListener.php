@@ -76,8 +76,6 @@ class CopiedCollectionItemsListener
 
         // Loop over all Items in the target collection
         foreach ($objTarget->getItems() as $objItem) {
-            // From here on analogue processing as in updateItemInCollectionListener
-
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
 
@@ -151,8 +149,18 @@ class CopiedCollectionItemsListener
                     $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
                 }
 
-                $objItem->quantity -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
-                $objItem->quantity = $objItem->quantity < 0 ? 0 : $objItem->quantity; // limit to zero
+                // Not Soldout
+                if ($objProduct->inventory_status !== $this->SOLDOUT && $objParentProduct->inventory_status !== $this->SOLDOUT) {
+                    // Evaluate possible new quantity in cart as given quantity in cart minus max surplus quantity
+                    $test = $objItem->quantity - max($surplusVariant, $surplusParent);
+
+                    // Keep quantity in cart if otherwise it would be negative or zero; this will ensure that the item is kept in cart so that user can decide
+                    $objItem->quantity = $test > 0 ? $test : $objItem->quantity;
+                }
+                // Product or parent soldout
+                else {
+                    $objItem->quantity = 0;
+                }
 
                 $objItem->save();
 
