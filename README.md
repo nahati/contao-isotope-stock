@@ -83,7 +83,7 @@ Folgende Coverage-Berichte sind verfügbar:
 - [Unittests - Testmethoden](https://github.com/nahati/contao-isotope-stock/suites/14531180212/artifacts/822039780)
 - [Integrationstests Abdeckung](https://github.com/nahati/contao-isotope-stock/suites/14531180212/artifacts/822039773)
 - [Integrationstests - Testmethoden](https://github.com/nahati/contao-isotope-stock/suites/14531180212/artifacts/822039774)
-- [Integrationstests - Testmethoden als html?](https://github.com/<username>/<repository>/raw/<branch>/coverage/integration/testdox.html)
+- [Integrationstests - Testmethoden als html?](https://github.com/nahati/contao-isotope-stock/raw/$(git branch --show-current)/coverage/integration/testdox.html)
 
 ## Minimum requirements
 
