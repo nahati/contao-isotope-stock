@@ -4,6 +4,7 @@
 
 # PhpUnit
 /.phpunit.result.cache
+/coverage/
 
 # Tools
 /tools/*/vendor
