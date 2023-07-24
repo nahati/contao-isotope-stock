@@ -56,9 +56,8 @@ class CopiedCollectionItemsListener
      * Handles changes of quantity in collection and also handles concurring changes.
      *
      * @param ProductCollection $objSource // source collection, not used here
-     * @param ProductCollection $objTarget // target collection, after copying   
+     * @param ProductCollection $objTarget // target collection, after copying
      * @param array<int>        $arrIds    // oldItem->id => newItem->id, not used here
-
      */
     public function __invoke($objSource, $objTarget, $arrIds): void
     {
@@ -142,12 +141,12 @@ class CopiedCollectionItemsListener
 
                 // More in collection than the variant can afford
                 if ($surplusVariant > 0) {
-                    $this->helper->issueErrorMessage('variantQuantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
+                    $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
                 }
 
                 // More in collection than the parent can afford
                 if ($surplusParent > 0) {
-                    $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
+                    $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
                 }
 
                 // Not Soldout

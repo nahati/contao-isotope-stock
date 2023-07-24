@@ -89,7 +89,7 @@ Folgende Coverage-Berichte sind verfügbar:
 - Contao 4.13.16
 - Isotope 2.8.10
 
-\*\*\*\*## Installation with Contao Manager
+## Installation with Contao Manager
 
 Search for `nahati/contao-isotope-stock` in Contao Manager and add it to your installation.
 Apply changes to update the packages. Update Database.

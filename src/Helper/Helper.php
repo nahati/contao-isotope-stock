@@ -138,11 +138,11 @@ class Helper
         $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
 
         // Set parent product SOLDOUT
-        $this->updateInventory($objParentProduct, $this->SOLDOUT);
+        $this->updateInventory($objParentProduct, $this->SOLDOUT, '0');
 
         // Set all variants SOLDOUT
         foreach ($objVariants as $variant) {
-            $this->updateInventory($variant, $this->SOLDOUT);
+            $this->updateInventory($variant, $this->SOLDOUT, '0');
         }
     }
 

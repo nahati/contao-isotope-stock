@@ -63,9 +63,6 @@
     <testsuite name="integration">
       <directory>./tests/Integration</directory>
     </testsuite>
-    <testsuite name="inProgress">
-      <directory>./tests/Integration/inProgress</directory>
-    </testsuite>
     <testsuite name="reset">
       <directory>./tests/reset</directory>
     </testsuite>

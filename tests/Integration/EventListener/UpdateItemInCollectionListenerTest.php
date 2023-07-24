@@ -96,6 +96,16 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         }
     }
 
+    /**
+     * Check if quantity of product is zero.
+     */
+    private function isQuantityOfProductZero(int $productId): bool
+    {
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
+
+        return '0' === $objResult->quantity;
+    }
+
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
     {
@@ -451,7 +461,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     {
         $itemId = 3119;
         $quantityInCart = 1;
-        $expectedReturn = ['quantity' => 1];
+        $expectedReturn = ['quantity' => 0];
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
         $quantityOfParentProduct = 1;
@@ -778,6 +788,9 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+
+        // We check if the product's quantity is really set to zero in the database
+        $this->assertTrue($this->isQuantityOfProductZero($productId));
     }
 
     /**
@@ -799,5 +812,8 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+
+        // We check if the product's quantity is really set to zero in the database
+        $this->assertTrue($this->isQuantityOfProductZero($productId));
     }
 }

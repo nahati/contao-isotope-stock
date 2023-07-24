@@ -50,10 +50,13 @@ class UpdateItemInCollectionListener
     }
 
     /**
-     * Invoked when Cart is refreshed
+     * Invoked when cart is refreshed and when cart is checked out.
+     *
      * Handles changes of quantity in cart and also handles concurring changes.
      *
      * Restriction: As the given cart is updated item by item, checks will be done item by item also (i.e. the lower part of the cart appears as it was before user changes).
+     *
+     * //TODO: Implement a confirmation process (f.i. redirect back to the cart if cart has been modified by this stock managenemt and these changes are not yet confirmed).
      *
      * @param ProductCollectionItem $objItem // Item in Cart
      * @param array<mixed>          $arrSet  // Properties of item in cart, esp. quantity in Cart
@@ -93,7 +96,7 @@ class UpdateItemInCollectionListener
 
             $arrSet['quantity'] -= $surplus; // decrease by surplus quantity
 
-            if ($surplus > 0) {
+            if ($surplus > 0 && $objProduct->inventory_status !== $this->SOLDOUT) {
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
             }
 
@@ -132,27 +135,17 @@ class UpdateItemInCollectionListener
             // do nothing if $setInventoryStatusTo = \null
 
             // More in cart than the variant can afford
-            if ($surplusVariant > 0) {
-                $this->helper->issueErrorMessage('variantQuantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
+            if ($surplusVariant > 0 && $objProduct->inventory_status !== $this->SOLDOUT) {
+                $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
             }
 
             // More in cart than the parent can afford
-            if ($surplusParent > 0) {
-                $this->helper->issueErrorMessage('parentQuantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
+            if ($surplusParent > 0 && $objParentProduct->inventory_status !== $this->SOLDOUT) {
+                $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
             }
 
-            // Not Soldout
-            if ($objProduct->inventory_status !== $this->SOLDOUT && $objParentProduct->inventory_status !== $this->SOLDOUT) {
-                // Evaluate possible new quantity in cart as given quantity in cart minus max surplus quantity
-                $test = $arrSet['quantity'] - max($surplusVariant, $surplusParent);
-
-                // Only reduce quantity in cart if the result keeps positive; this will ensure that the item is kept in cart so that user can decide what to do
-                $arrSet['quantity'] = $test > 0 ? $test : $arrSet['quantity'];
-            }
-            // Product or parent soldout
-            else {
-                $arrSet['quantity'] = 0;
-            }
+            $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
+            $arrSet['quantity'] = $arrSet['quantity'] < 0 ? 0 : $arrSet['quantity']; // limit to zero
 
             return $arrSet;
         }

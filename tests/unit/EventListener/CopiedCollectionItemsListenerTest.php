@@ -60,7 +60,8 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo');
+            ->willReturn('foo')
+        ;
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
         $this->assertSame($this->objProduct->id, 1);
         $this->assertSame($this->objProduct->name, 'foo');
@@ -70,12 +71,12 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objItem
             ->method('getProduct')
-            ->willReturn($this->objProduct);
-
-
+            ->willReturn($this->objProduct)
+        ;
 
         $this->arrIds = [];
     }
@@ -108,15 +109,18 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
     {
         $this->objSource = $this->getMockBuilder(ProductCollection::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->objTarget = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objTarget
             ->expects($this->exactly(0))
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         // Mock the adapters for the framework, we don't need them here
         $adapters = [];
@@ -130,15 +134,18 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
     {
         $this->objSource = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->objTarget = $this->getMockBuilder(ProductCollection::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objTarget
             ->expects($this->exactly(0))
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         // Mock the adapters for the framework, we don't need them here
         $adapters = [];
@@ -152,15 +159,18 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
     {
         $this->objSource = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->objTarget = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objTarget
             ->expects($this->exactly(1))
             ->method('getItems')
-            ->willReturn(null);
+            ->willReturn(null)
+        ;
 
         // Mock the adapters for the framework, we don't need them here
         $adapters = [];
@@ -174,23 +184,28 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
     {
         $this->objSource = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn(null);
+            ->willReturn(null)
+        ;
 
         $this->objTarget = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objTarget
             ->expects($this->exactly(2))
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         // Mock the adapters for the framework, we don't need them here
         $adapters = [];
@@ -206,27 +221,33 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
         $this->objProduct
             ->expects($this->exactly(0))
-            ->method('isVariant');
+            ->method('isVariant')
+        ;
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn($this->objProduct);
+            ->willReturn($this->objProduct)
+        ;
 
         $this->objSource = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->objTarget = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objTarget
             ->expects($this->exactly(2))
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         // Mock the adpaters for the framework, we don't need them here
         $adapters = [];
@@ -242,30 +263,37 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo');
+            ->willReturn('foo')
+        ;
         $this->objProduct
             ->expects($this->exactly(0))
-            ->method('isVariant');
+            ->method('isVariant')
+        ;
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn($this->objProduct);
+            ->willReturn($this->objProduct)
+        ;
 
         $this->objSource = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->objTarget = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $this->objTarget
             ->expects($this->exactly(2))
             ->method('getItems')
-            ->willReturn([$this->objItem]);
+            ->willReturn([$this->objItem])
+        ;
 
         // Test if an InvalidArgumentException is thrown
         $this->expectException(\InvalidArgumentException::class);

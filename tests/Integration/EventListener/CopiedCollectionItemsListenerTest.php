@@ -54,6 +54,16 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     private string $SOLDOUT = '4'; /* product in cart though soldout */
 
     /**
+     * Check if quantity of product is zero.
+     */
+    private function isQuantityOfProductZero(int $productId): bool
+    {
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
+
+        return '0' === $objResult->quantity;
+    }
+
+    /**
      * @param int    $itemId
      * @param int    $expectedQuantityInCart
      * @param int    $productId
@@ -801,6 +811,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // Note that Item 3125 is also processed individually by the listener!
 
         $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+
+        // We check if the product's quantity is really set to zero in the database
+        $this->assertTrue($this->isQuantityOfProductZero($productId));
     }
 
     /**
@@ -822,5 +835,8 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // Note that Item 3127 is also processed individually by the listener!
 
         $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+
+        // We check if the product's quantity is really set to zero in the database
+        $this->assertTrue($this->isQuantityOfProductZero($productId));
     }
 }
