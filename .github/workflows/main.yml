@@ -86,10 +86,6 @@ jobs:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
                   XDEBUG_MODE: "coverage"
 
-            - name: Move code coverage report to docs directory
-              run: mv docs/unit/coverage-html/* docs/unit
-              working-directory: docs/unit
-
             - name: List files in docs/unit directory
               run: ls -lR docs/unit
 
@@ -110,10 +106,6 @@ jobs:
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
                   XDEBUG_MODE: "coverage"
-
-            - name: Move integration test coverage report to docs directory
-              run: mv docs/unit/coverage-html/* docs/integration
-              working-directory: docs/integration
 
             - name: List files in docs/integration directory
               run: ls -lR docs/integration
