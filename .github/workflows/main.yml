@@ -87,7 +87,7 @@ jobs:
                   XDEBUG_MODE: "coverage"
 
             - name: Move code coverage report to docs directory
-              run: mv coverage-html/* docs/unit
+              run: mv docs/unit/coverage-html/* docs/unit
               working-directory: docs/unit
 
             - name: List files in docs/unit directory
@@ -112,7 +112,7 @@ jobs:
                   XDEBUG_MODE: "coverage"
 
             - name: Move integration test coverage report to docs directory
-              run: mv coverage-html/* docs/integration
+              run: mv docs/unit/coverage-html/* docs/integration
               working-directory: docs/integration
 
             - name: List files in docs/integration directory
