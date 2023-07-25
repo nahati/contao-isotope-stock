@@ -15,7 +15,7 @@
 
     <report>
       <html
-          outputDirectory="html-coverage"
+          outputDirectory="docs"
           lowUpperBound="50"
           highLowerBound="90" />
 
