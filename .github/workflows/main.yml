@@ -80,7 +80,7 @@ jobs:
               run: composer install --no-interaction --no-progress
 
             - name: Run PHPUnit with code coverage
-              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html coverage/unit --testdox-html coverage/unit/testdox.html
+              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/unit --testdox-html docs/unit/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
@@ -88,23 +88,16 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                   name: unit-coverage
-                  path: coverage/unit
-
-                  - name: Upload the coverage report
-                  uses: codecov/codecov-action@v3
-                  with:
-                      files: ./clover.xml
-                      fail_ci_if_error: true
-                      token: 6ec51b7a-f2e6-4310-a60c-d2ee69ecd8ba
+                  path: docs/unit
 
             - name: Upload TestDox Report Artifact
               uses: actions/upload-artifact@v2
               with:
                   name: unit-testdox-report
-                  path: coverage/unit/testdox.html
+                  path: docs/unit/testdox.html
 
             - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html coverage/integration --testdox-html coverage/integration/testdox.html
+              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html docs/integration --testdox-html docs/integration/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
@@ -112,10 +105,10 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                   name: integration-coverage
-                  path: coverage/integration
+                  path: docs/integration
 
             - name: Upload TestDox Report Artifact
               uses: actions/upload-artifact@v2
               with:
                   name: integration-testdox-report
-                  path: coverage/integration/testdox.html
+                  path: docs/integration/testdox.html
