@@ -84,6 +84,9 @@ jobs:
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
+            - name: List files in docs/unit directory
+              run: ls -lR docs/unit
+
             - name: Upload Unit Test Coverage Artifact
               uses: actions/upload-artifact@v3
               with:
