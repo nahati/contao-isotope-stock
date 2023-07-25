@@ -85,6 +85,6 @@ jobs:
               id: deployment
               uses: JamesIves/github-pages-deploy-action@4.1.1
               with:
-                  branch: ${{ github.ref }}
+                  branch: 2.0.1-dev
                   folder: docs/
                   token: ${{ secrets.GITHUB_TOKEN }}
