@@ -51,67 +51,81 @@ jobs:
             - name: Run PHPStan
               run: tools/phpstan/vendor/bin/phpstan analyse --no-progress
 
-    tests:
-        name: PHP ${{ matrix.php }}
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                php: [8.1]
-        steps:
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
-                  extensions: dom, fileinfo, filter, gd, hash, intl, json, mbstring, mysqli, pcre, pdo_mysql, zlib
-                  coverage: xdebug
-              env:
-                  COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              tests:
+                  name: PHP ${{ matrix.php }}
+                  runs-on: ubuntu-latest
+                  strategy:
+                      fail-fast: false
+                      matrix:
+                          php: [8.1]
+                  steps:
+                      - name: Setup PHP
+                        uses: shivammathur/setup-php@v2
+                        with:
+                            php-version: ${{ matrix.php }}
+                            extensions: dom, fileinfo, filter, gd, hash, intl, json, mbstring, mysqli, pcre, pdo_mysql, zlib
+                            coverage: pcov
+                        env:
+                            COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                            XDEBUG_MODE: "coverage"
 
-            - name: Initialize the database
-              run: |
-                  sudo /etc/init.d/mysql start
-                  mysql -uroot -proot -e "CREATE database ContaoIsotopeStockBundleTest"
+                      - name: Initialize the database
+                        run: |
+                            sudo /etc/init.d/mysql start
+                            mysql -uroot -proot -e "CREATE database ContaoIsotopeStockBundleTest"
 
-            - name: Checkout
-              uses: actions/checkout@v3
+                      - name: Checkout
+                        uses: actions/checkout@v3
 
-            - name: Install the dependencies
-              run: composer install --no-interaction --no-progress
+                      - name: Install the dependencies
+                        run: composer install --no-interaction --no-progress
 
-            - name: Run PHPUnit with code coverage
-              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/unit --testdox-html docs/unit/testdox.html
-              env:
-                  DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+                      - name: Run PHPUnit with code coverage
+                        run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/unit --testdox-html docs/unit/testdox.html
+                        env:
+                            DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+                            XDEBUG_MODE: "coverage"
 
-            - name: List files in docs/unit directory
-              run: ls -lR docs/unit
+                      - name: Move code coverage report to docs directory
+                        run: mv coverage-html/* docs/unit
+                        working-directory: docs/unit
 
-            - name: Upload Unit Test Coverage Artifact
-              uses: actions/upload-artifact@v3
-              with:
-                  name: unit-coverage
-                  path: docs/unit
+                      - name: List files in docs/unit directory
+                        run: ls -lR docs/unit
 
-            - name: Upload TestDox Report Artifact
-              uses: actions/upload-artifact@v3
-              with:
-                  name: unit-testdox-report
-                  path: docs/unit/testdox.html
+                      - name: Upload Unit Test Coverage Artifact
+                        uses: actions/upload-artifact@v3
+                        with:
+                            name: unit-coverage
+                            path: docs/unit
 
-            - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html docs/integration --testdox-html docs/integration/testdox.html
-              env:
-                  DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+                      - name: Upload TestDox Report Artifact
+                        uses: actions/upload-artifact@v3
+                        with:
+                            name: unit-testdox-report
+                            path: docs/unit/testdox.html
 
-            - name: Upload Integration Test Coverage Artifact
-              uses: actions/upload-artifact@v3
-              with:
-                  name: integration-coverage
-                  path: docs/integration
+                      - name: Run the functional tests with PDO MySQL
+                        run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html docs/integration --testdox-html docs/integration/testdox.html
+                        env:
+                            DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+                            XDEBUG_MODE: "coverage"
 
-            - name: Upload TestDox Report Artifact
-              uses: actions/upload-artifact@v3
-              with:
-                  name: integration-testdox-report
-                  path: docs/integration/testdox.html
+                      - name: Move integration test coverage report to docs directory
+                        run: mv coverage-html/* docs/integration
+                        working-directory: docs/integration
+
+                      - name: List files in docs/integration directory
+                        run: ls -lR docs/integration
+
+                      - name: Upload Integration Test Coverage Artifact
+                        uses: actions/upload-artifact@v3
+                        with:
+                            name: integration-coverage
+                            path: docs/integration
+
+                      - name: Upload TestDox Report Artifact
+                        uses: actions/upload-artifact@v3
+                        with:
+                            name: integration-testdox-report
+                            path: docs/integration/testdox.html
