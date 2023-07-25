@@ -13,18 +13,6 @@
       <directory>./src</directory>
     </include>
 
-    <report>
-      <html
-          outputDirectory="docs"
-          lowUpperBound="50"
-          highLowerBound="90" />
-
-      <text
-          outputFile="coverage.txt"
-          showUncoveredFiles="false"
-          showOnlySummary="false" />
-
-    </report>
 
   </coverage>
 
