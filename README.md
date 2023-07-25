@@ -79,9 +79,9 @@ For products with no limit keep the quantity field empty. Then there will be no 
 
 Folgende Coverage-Berichte sind verfügbar:
 
-- [Unit-Tests Abdeckung](https://nahati.github.io/contao-isotope-stock/coverage/unit/dashboard.html)
+- [Unit-Tests Abdeckung](https://nahati.github.io/contao-isotope-stock/coverage/unit/index.html)
 - [Unittests - Testmethoden](https://nahati.github.io/contao-isotope-stock/coverage/unit/testdox.html)
-- [Integrationstests Abdeckung](https://nahati.github.io/contao-isotope-stock/coverage/integration/dashboard.html)
+- [Integrationstests Abdeckung](https://nahati.github.io/contao-isotope-stock/coverage/integration/index.html)
 - [Integrationstests - Testmethoden](https://nahati.github.io/contao-isotope-stock/coverage/integration/testdox.html)
 
 ## Minimum requirements
@@ -90,7 +90,7 @@ Folgende Coverage-Berichte sind verfügbar:
 - Contao 4.13.16
 - Isotope 2.8.10
 
----
+---\*\*\*\*
 
 ## Installation with Contao Manager
 
