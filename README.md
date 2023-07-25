@@ -79,11 +79,10 @@ For products with no limit keep the quantity field empty. Then there will be no 
 
 Folgende Coverage-Berichte sind verfügbar:
 
-- [Unit-Tests Abdeckung](https://github.com/nahati/contao-isotope-stock/suites/14531180212/artifacts/822039776)
-- [Unittests - Testmethoden](https://github.com/nahati/contao-isotope-stock/suites/14531180212/artifacts/822039780)
-- [Integrationstests Abdeckung](https://github.com/nahati/contao-isotope-stock/suites/14531180212/artifacts/822039773)
-- [Integrationstests - Testmethoden](https://github.com/nahati/contao-isotope-stock/suites/14531180212/artifacts/822039774)
-- [Integrationstests - Testmethoden als html?](https://github.com/nahati/contao-isotope-stock/raw/$(git symbolic-ref --short HEAD)/coverage/integration/testdox.html)
+- [Unit-Tests Abdeckung](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/coverage/unit/index.html)
+- [Unittests - Testmethoden](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/coverage/unit/testdox.html)
+- [Integrationstests Abdeckung](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/coverage/integration/index.html)
+- [Integrationstests - Testmethoden](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/coverage/integration/testdox.html)
 
 ## Minimum requirements
 

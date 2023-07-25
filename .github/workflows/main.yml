@@ -90,6 +90,13 @@ jobs:
                   name: unit-coverage
                   path: coverage/unit
 
+                  - name: Upload the coverage report
+                  uses: codecov/codecov-action@v3
+                  with:
+                      files: ./clover.xml
+                      fail_ci_if_error: true
+                      token: 6ec51b7a-f2e6-4310-a60c-d2ee69ecd8ba
+
             - name: Upload TestDox Report Artifact
               uses: actions/upload-artifact@v2
               with:
