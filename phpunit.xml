@@ -12,8 +12,6 @@
     <include>
       <directory>./src</directory>
     </include>
-
-
   </coverage>
 
   <php>

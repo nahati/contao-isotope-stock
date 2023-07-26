@@ -64,10 +64,9 @@ jobs:
               with:
                   php-version: ${{ matrix.php }}
                   extensions: dom, fileinfo, filter, gd, hash, intl, json, mbstring, mysqli, pcre, pdo_mysql, zlib
-                  coverage: pcov
+                  coverage: xdebug
               env:
                   COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  XDEBUG_MODE: "coverage"
 
             - name: Initialize the database
               run: |
@@ -84,19 +83,15 @@ jobs:
               run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/unit --testdox-html docs/unit/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
-                  XDEBUG_MODE: "coverage"
-
-            - name: List files in docs/unit directory
-              run: ls -lR docs/unit
 
             - name: Upload Unit Test Coverage Artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v2
               with:
                   name: unit-coverage
                   path: docs/unit
 
             - name: Upload TestDox Report Artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v2
               with:
                   name: unit-testdox-report
                   path: docs/unit/testdox.html
@@ -105,19 +100,15 @@ jobs:
               run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html docs/integration --testdox-html docs/integration/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
-                  XDEBUG_MODE: "coverage"
-
-            - name: List files in docs/integration directory
-              run: ls -lR docs/integration
 
             - name: Upload Integration Test Coverage Artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v2
               with:
                   name: integration-coverage
                   path: docs/integration
 
             - name: Upload TestDox Report Artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v2
               with:
                   name: integration-testdox-report
                   path: docs/integration/testdox.html
