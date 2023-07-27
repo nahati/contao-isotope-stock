@@ -11,10 +11,10 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Configure Git
-              run: |
-                  git config --global user.name "Ernestopheles"
-                  git config --global user.email "ernstjendritzki@web.de"
+            - name: Checkout code
+              uses: actions/checkout@v3
+              with:
+                  ssh-key: ${{ secrets.DEPLOY_TO_CONTAO_ISOTOPE_STOCK }}
 
             - name: Deploy unit test reports to GitHub Pages
               uses: peaceiris/actions-gh-pages@v3
