@@ -92,8 +92,10 @@ jobs:
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
-            - name: Upload test reports as artifacts
-              uses: actions/upload-artifact@v2
-              with:
-                  name: test-reports
-                  path: test-reports
+            - name: Commit and push test reports
+              run: |
+                  git config --global user.name "GitHub Actions"
+                  git config --global user.email "actions@github.com"
+                  git add docs/unit docs/integration
+                  git commit -m "Add test reports [skip ci]"
+                  git push origin HEAD:$GITHUB_REF
