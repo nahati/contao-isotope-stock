@@ -270,6 +270,38 @@ class Helper
     }
 
     /**
+     * Fetch the quantity already in cart for the given product.
+     *
+     * @param Standard          $objProduct // product
+     * @param ProductCollection $objCart    // cart
+     *
+     * @return int // quantity already in cart
+     */
+    public function fetchQuantityInCart($objProduct, $objCart)
+    {
+        $sum = 0;
+
+        foreach ($objCart->getItems() as $objItem) {
+            /** @var Standard|null $objProductInCart */
+            $objProductInCart = $objItem->getProduct() ?? null;
+
+            // No product
+            if (!$objProductInCart) {
+                continue;
+            }
+
+            // not the same product
+            if ($objProductInCart->id !== $objProduct->id) {
+                continue;
+            }
+
+            $sum += $objItem->quantity;
+        }
+
+        return $sum;
+    }
+
+    /**
      * Manage Stock for a given product and a given quantity in Collection and return the surplus.
      *
      * @param Standard $objProduct

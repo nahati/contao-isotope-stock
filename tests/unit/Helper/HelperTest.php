@@ -923,6 +923,81 @@ class HelperTest extends ContaoTestCase
         $this->assertSame(2, $anzSiblingsInCart);
     }
 
+    public function testFetchQuantityInCartWhenProductIsInCartAndAlsoOtherProductsAndAlsoItemsWithoutProduct(): void
+    {
+        $objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 101, 'name' => 'given product']);
+
+        // Create a mock Cart object
+        $objCart = $this->getMockBuilder(Cart::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Create a mock Item object for $objProduct
+        $objItem = $this->getMockBuilder(ProductCollectionItem::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $objItem
+            ->expects($this->once())
+            ->method('getProduct')
+            ->willReturn($objProduct)
+        ;
+        // Access to property quantity of item does not work via a direct set but needs magic method __set
+        $objItem
+            ->method('__get')
+            ->with('quantity')
+            ->willReturn(1)
+        ;
+
+        // Another item, not belonging to $objProduct
+        $objItem1 = $this->getMockBuilder(ProductCollectionItem::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $objItem1
+            ->expects($this->once())
+            ->method('getProduct')
+            ->willReturn($this->mockClassWithProperties(Standard::class, ['id' => 102, 'name' => 'product2']))
+        ;
+        $objItem1
+            ->method('__get')
+            ->with('quantity')
+            ->willReturn(2)
+        ;
+
+        // An item without product
+        $objItem5 = $this->getMockBuilder(ProductCollectionItem::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $objItem5
+            ->expects($this->once())
+            ->method('getProduct')
+            ->willReturn(null)
+        ;
+        $objItem5
+            ->method('__get')
+            ->with('quantity')
+            ->willReturn(5)
+        ;
+
+        // Set the items in the mock Cart object
+        $objCart
+            ->expects($this->once())
+            ->method('getItems')
+            ->willReturn([$objItem, $objItem1, $objItem5])
+        ;
+
+        // Call the fetchQuantityInCart method
+        $this->helper = new Helper($this->mockContaoFramework());
+
+        $sum = $this->helper->fetchQuantityInCart($objProduct, $objCart);
+
+        // Assert the result
+        $this->assertSame(1, $sum);
+    }
+
     public function testManageStockAndReturnSurplusZeroWhenQuantityIsNull(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status

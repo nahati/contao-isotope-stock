@@ -462,13 +462,19 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndQuantityInCartOfProductIsCalculatedToZero(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartButDoesNotReduceToZeroAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndQuantityInCartOfProductIsCalculatedToZero(): void
     {
-        $itemId = 3119; // $quantityInCart = 1;
-        $expectedQuantityInCart = 1;
-        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        $itemId = 3119;
+        // $quantityInCart = 1;
+
+        $productId = 44; // AVAILABLE, Variante Kopie Skulptur 2
+        // $quantityOfProduct = 2;
+
         $parentProductId = 32; //  AVAILABLE, Skulptur 2
         $quantityOfParentProduct = 1;
+
+        $expectedQuantityInCart = 1; // calculated to 0; but not reduced to 0. See: See: https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/src/EventListener/CopiedCollectionItemsListener.php#L157
+
         $expectedInventory_statusOfProduct = $this->RESERVED;
         $expectedInventory_statusOfParentProduct = $this->RESERVED;
         $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
@@ -686,10 +692,10 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
         $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
         $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED; // unchanged
+        $expectedInventory_statusOfParentProduct = $this->RESERVED;
+        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
 
-        // Item 3130 initially has a quantity in cart of 100, so we change the this to match the testcase
+        // Item 3130 initially has a quantity in cart of 100, so we change this to match the testcase
         self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
 
         // Item 3129
