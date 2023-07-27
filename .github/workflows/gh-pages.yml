@@ -14,7 +14,7 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
               with:
-                  ssh-key: ${{ secrets.DEPLOY_TO_CONTAO_ISOTOPE_STOCK }}
+                  ssh-key: ${{ secrets.DeployToContaoIsotopeStock }}
 
             - name: Deploy unit test reports to GitHub Pages
               uses: peaceiris/actions-gh-pages@v3
