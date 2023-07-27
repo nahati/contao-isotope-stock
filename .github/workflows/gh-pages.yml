@@ -9,16 +9,11 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout code with SSH key
+            - name: Checkout code
               uses: actions/checkout@v3
-              with:
-                  ssh-key: ${{ secrets.PKDEPLOYSECRET }}
-                  persist-credentials: false
 
             - name: Deploy unit test reports to GitHub Pages
               uses: peaceiris/actions-gh-pages@v3
-              env:
-                  ACTIONS_STEP_DEBUG: true
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: docs/unit
@@ -26,8 +21,6 @@ jobs:
 
             - name: Deploy integration test reports to GitHub Pages
               uses: peaceiris/actions-gh-pages@v3
-              env:
-                  ACTIONS_STEP_DEBUG: true
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: docs/integration
