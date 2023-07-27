@@ -96,4 +96,6 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                   name: test-reports
-                  path: docs/unit docs/integration
+                  path: |
+                      docs/unit
+                      docs/integration
