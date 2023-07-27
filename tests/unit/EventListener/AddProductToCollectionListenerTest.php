@@ -15,7 +15,6 @@ namespace Nahati\ContaoIsotopeStockBundle\Tests;
 use Contao\TestCase\ContaoTestCase;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
-use Isotope\Model\ProductCollectionItem;
 use Nahati\ContaoIsotopeStockBundle\EventListener\AddProductToCollectionListener;
 
 /**
@@ -28,9 +27,6 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
     private Standard $objProduct;
     private int $quantityRequestedForCart;
     private Cart $objCart;
-
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
@@ -74,24 +70,6 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
         $this->assertTrue($foo);
     }
 
-    public function testAddProductToCollectionListenerReturnsZeroWhenNoProductGiven(): void
-    {
-        // Mock the adapters for the framework, we don't need them here
-        $adapters = [];
-
-        $listener = new AddProductToCollectionListener($this->mockContaoFramework($adapters));
-
-        $this->objCart = $this->getMockBuilder(Cart::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->quantityRequestedForCart = 1;
-
-        $return = $listener(null, $this->quantityRequestedForCart, $this->objCart);
-
-        $this->assertSame($return, 0);
-    }
-
     public function testAddProductToCollectionListenerReturnsUnchangedQuantityRequestedForCartWhenStockmanagementIsNotConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is not set
@@ -99,7 +77,8 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->quantityRequestedForCart = 1;
 
@@ -110,7 +89,7 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
 
         $return = $listener($this->objProduct, $this->quantityRequestedForCart, $this->objCart);
 
-        $this->assertSame($return,  $this->quantityRequestedForCart);
+        $this->assertSame($return, $this->quantityRequestedForCart);
     }
 
     public function testAddProductToCollectionListenerThrowsInvalidArgumentExceptionWhenStockmanagementIsBadlyConfigured(): void
@@ -119,7 +98,8 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo');
+            ->willReturn('foo')
+        ;
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
         $this->assertSame($this->objProduct->id, 1);
         $this->assertSame($this->objProduct->name, 'foo');
@@ -128,7 +108,8 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->quantityRequestedForCart = 1;
 
@@ -144,7 +125,7 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
         $return = $listener($this->objProduct, $this->quantityRequestedForCart, $this->objCart);
 
         // Test that result is unchanged
-        $this->assertSame($return,  $this->quantityRequestedForCart);
+        $this->assertSame($return, $this->quantityRequestedForCart);
     }
 
     // Further tests can be found in the integration testcases

@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
-use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Framework\Adapter;
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\ServiceAnnotation\IsotopeHook;
@@ -63,13 +63,6 @@ class AddProductToCollectionListener
     {
         // Instantiate a Helper object
         $this->helper = new Helper($this->framework);
-
-        /** @var Standard|null $objProduct */
-
-        // No product
-        if (!$objProduct) {
-            return 0;
-        }
 
         // Stockmanagement not or not correctly configured
         if (!$this->helper->checkStockmanagement($objProduct)) {
