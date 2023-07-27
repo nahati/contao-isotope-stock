@@ -1,8 +1,8 @@
 name: CI
 
 on:
-    pull_request: ~
-    push: ~
+    pull_request:
+    push:
 
 jobs:
     ecs:
@@ -80,21 +80,11 @@ jobs:
               run: composer install --no-interaction --no-progress
 
             - name: Run PHPUnit with code coverage
-              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/unit --testdox-html docs/unit/testdox.html
+              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html test-reports/unit --testdox-html test-reports/unit/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
             - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html docs/integration --testdox-html docs/integration/testdox.html
+              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html test-reports/integration --testdox-html test-reports/integration/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
-
-            - name: Publish Artifacts to Pages
-              uses: actions/upload-artifact@v2
-              with:
-                  name: Artifacts
-                  path: |
-                      docs/unit
-                      docs/integration
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
