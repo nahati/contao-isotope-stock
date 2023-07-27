@@ -91,3 +91,9 @@ jobs:
               run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html test-reports/integration --testdox-html test-reports/integration/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+
+            - name: Upload test reports as artifacts
+              uses: actions/upload-artifact@v2
+              with:
+                  name: test-reports
+                  path: test-reports
