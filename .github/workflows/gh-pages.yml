@@ -1,4 +1,5 @@
 name: Deploy to GitHub Pages
+
 on:
     push:
     pull_request:
@@ -8,22 +9,26 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout code
+            - name: Checkout code with SSH key
               uses: actions/checkout@v3
 
-            - name: Checkout code
-              uses: actions/checkout@v3
-              with:
-                  ssh-key: ${{ secrets.DeployToContaoIsotopeStock }}
+            - name: Configure SSH key
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.PKDEPLOYSECRET }}" > ~/.ssh/id_rsa
+                  chmod 600 ~/.ssh/id_rsa
+                  ssh-keyscan github.com >> ~/.ssh/known_hosts
 
             - name: Deploy unit test reports to GitHub Pages
               uses: peaceiris/actions-gh-pages@v3
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: docs/unit
+                  publish_branch: gh-pages
 
             - name: Deploy integration test reports to GitHub Pages
               uses: peaceiris/actions-gh-pages@v3
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: docs/integration
+                  publish_branch: gh-pages
