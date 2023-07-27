@@ -92,9 +92,6 @@ jobs:
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
-            - name: Move test reports to "docs/"
-              run: mv test-reports docs/
-
             - name: Upload test reports as artifacts
               uses: actions/upload-artifact@v2
               with:
