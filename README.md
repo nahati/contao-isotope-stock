@@ -77,8 +77,8 @@ For products with no limit keep the quantity field empty. Then there will be no 
 
 ## Testmethoden
 
-- [Unit-Tests Testmethoden](https://github.com/nahati/contao-isotope-stock/tests/unit/reports/testdox.html)
-- [Integrationstests - Testmethoden](https://github.com/nahati/contao-isotope-stock/tests/Integration/reports/testdox.html)
+- [Unit-Tests Testmethoden](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/unit/reports/testdox.html)
+- [Integrationstests - Testmethoden](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/Integration/reports/testdox.html)
 
 ## Minimum requirements
 
