@@ -79,6 +79,9 @@ jobs:
             - name: Install the dependencies
               run: composer install --no-interaction --no-progress
 
+            - name: Create directories for test reports
+              run: mkdir -p test-reports/unit test-reports/integration
+
             - name: Run PHPUnit with code coverage
               run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html test-reports/unit --testdox-html test-reports/unit/testdox.html
               env:
