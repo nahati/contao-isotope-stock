@@ -80,20 +80,23 @@ jobs:
               run: composer install --no-interaction --no-progress
 
             - name: Create directories for test reports
-              run: mkdir -p test-reports/unit test-reports/integration
+              run: mkdir -p docs/test-reports/unit docs/test-reports/integration
 
             - name: Run PHPUnit with code coverage
-              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html test-reports/unit --testdox-html test-reports/unit/testdox.html
+              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/test-reports/unit --testdox-html docs/test-reports/unit/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
             - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html test-reports/integration --testdox-html test-reports/integration/testdox.html
+              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html docs/test-reports/integration --testdox-html docs/test-reports/integration/testdox.html
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+
+            - name: Move test reports to "docs/"
+              run: mv test-reports docs/
 
             - name: Upload test reports as artifacts
               uses: actions/upload-artifact@v2
               with:
                   name: test-reports
-                  path: test-reports
+                  path: docs/test-reports
