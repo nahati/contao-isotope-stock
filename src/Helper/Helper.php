@@ -19,7 +19,6 @@ use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
-use Isotope\Model\ProductCollection\Order;
 
 /**
  * Reuseable small services for stockmanagement.
@@ -370,6 +369,7 @@ class Helper
         }
 
         // Quantity bought < Product quantity
+
         if ((int) $qtyBought < (int) $objProduct->quantity) {
             // decrease product quantity in strict mode
             $this->updateInventory($objProduct, '', (string) ((int) $objProduct->quantity - (int) $qtyBought), true);
@@ -394,38 +394,28 @@ class Helper
     }
 
     /**
-     * Set all child products to SOLDOUT, if the parent product of a product in the order is soldout.
+     *  Walk through the list of soldout parent product ids and set all child products to SOLDOUT.
      *
-     * @param Order      $objOrder
      * @param array<int> $soldoutParentProductIds // array of parent product ids, which are soldout
      */
-    public function setChildProductsSoldout($objOrder, $soldoutParentProductIds): void
+    public function setChildProductsSoldout($soldoutParentProductIds): void
     {
         // Get an adapter for the Standard class
         $standardAdapter = $this->framework->getAdapter(Standard::class);
 
-        // Fetch all parent products for the products in the order
+        // Fetch all products given by the list of soldout parent ids into an array
+        /** @var array<Standard> $objSoldoutParentProducts */
         $objSoldoutParentProducts = $standardAdapter->findMultipleByIds($soldoutParentProductIds);
 
-        // Keep track of processed parent products
-        $processedSoldoutParentProducts = [];
+        // Loop over all soldout parent products
+        foreach ($objSoldoutParentProducts as $objSoldoutParentProduct) {
+            // Fetch all child products
+            $objChildProducts = $standardAdapter->findBy('pid', $objSoldoutParentProduct->id);
 
-        // Loop again over all items in the order and mark child products as sold out if the parent product is sold out
-        foreach ($objOrder->getItems() as $objItem) {
-            /** @var Standard|null $objProduct */
-            $objProduct = $objItem->getProduct() ?? null;
-
-            if (!$objProduct->isVariant()) {
-                continue;
-            }
-
-            // Get the parent product if soldout (otherwise null)
-            $objSoldoutParentProduct = $objSoldoutParentProducts[$objProduct->pid] ?? null;
-
-            // If parent product is sold out and has not been processed yet, mark all its children as sold out
-            if ($objSoldoutParentProduct && !\in_array($objSoldoutParentProduct->id, $processedSoldoutParentProducts, true)) {
-                $this->setParentAndChildProductsSoldout($objSoldoutParentProduct);
-                $processedSoldoutParentProducts[] = $objSoldoutParentProduct->id;
+            // Loop over all child products
+            foreach ($objChildProducts as $objChildProduct) {
+                // Set SOLDOUT
+                $this->updateInventory($objChildProduct, $this->SOLDOUT, '0');
             }
         }
     }

@@ -84,7 +84,7 @@ class PostDeleteItemFromCollectionListener
         $standardAdapter = $this->framework->getAdapter(Standard::class);
 
         // Set inventory_status according to quantity
-        $this->inventory_status = $objProduct->quantity > 0 ? $this->AVAILABLE : $this->SOLDOUT;
+        $this->inventory_status = '0' === $objProduct->quantity ? $this->SOLDOUT : $this->AVAILABLE;
 
         // Set inventory_status SOLDOUT if parent product is SOLDOUT
         if ($objProduct->pid > 0) {

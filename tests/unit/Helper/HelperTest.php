@@ -1296,4 +1296,75 @@ class HelperTest extends ContaoTestCase
         // Test if the prepare and execute methods are called twice and an exception is thrown
         $this->helper->manageStockAfterCheckout($product, 2);
     }
+
+    public function testSetChildProductsSoldout(): void
+    {
+        //We have 1 soldout parent product and 3 childs with inventory-status RESERVED; also 1 child with inventory-status AVAILABLE and 1 child with inventory-status SOLDOUT; lastnotleast 1 product with inventory-status AVAILABLE but not child of the parent product
+
+        // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method each to be called 10 times, once for each child.
+
+        // Create a mock parent product
+        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => $this->SOLDOUT, 'quantity' => '1', 'name' => 'parentProduct']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+
+        // Create a mock variant product, child of the parent product
+        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => $this->SOLDOUT, 'quantity' => '0']);
+
+        // Create a mock product that is not a child of the parent product
+        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 2, 'pid' => 0, 'inventory_status' => $this->AVAILABLE, 'quantity' => '1', 'name' => 'product5']);
+
+        // Mock the adapters for the framework
+
+        $databaseAdapterMock = $this->getMockBuilder(Database::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $databaseAdapterMock
+            ->method('getInstance')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(10))
+            ->method('prepare')
+            ->willReturnSelf()
+        ;
+        $databaseAdapterMock
+            ->expects($this->exactly(10))
+            ->method('execute')
+        ;
+
+        $soldoutParentProductIds = [1];
+
+        $adapters = [
+            Standard::class => $this->mockConfiguredAdapter([
+                'findMultipleByIds' => [$objParentProduct],
+                'findBy' => [$objVariant2a, $objVariant2b, $objVariant2c, $objVariant3, $objVariant4],
+                'findPublishedByPk' => $this->returnValueMap([
+                    [1, $objParentProduct],
+                    [1021, $objVariant2a],
+                    [1022, $objVariant2b],
+                    [1023, $objVariant2c],
+                    [103, $objVariant3],
+                    [104, $objVariant4],
+                    [2, $objProduct5],
+                ]),
+            ]),
+            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
+        ];
+
+        $this->helper = new Helper($this->mockContaoFramework($adapters));
+
+        $this->helper->setChildProductsSoldout($soldoutParentProductIds);
+    }
 }

@@ -76,9 +76,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->assertSame($objResult->quantity, $expectedQuantityOfProduct);
 
-        // Test if the product has the expected inventory_status
-        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
-
         $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
 
         // Asserts only for variant products

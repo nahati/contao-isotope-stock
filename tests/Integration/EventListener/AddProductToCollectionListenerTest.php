@@ -874,7 +874,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $productId = 49; // SOLDOUT, Variante Original von Skulptur 5
         // $quantityOfProduct = 1;
 
-        $parentProductId = 37; // quantity 2, AVAILABLE, Skulptur 5
+        $parentProductId = 37; // quantity unlimited, AVAILABLE, Skulptur 5
 
         // Item 3125
         // product 48: quantity 1 , AVAILABLE, Variante Kopie Skulptur 5

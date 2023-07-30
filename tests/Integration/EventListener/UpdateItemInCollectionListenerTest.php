@@ -778,7 +778,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $quantityInCart = 1;
         $expectedReturn = ['quantity' => 0];
         $productId = 49; // quantity 1 , SOLDOUT, Variante Original von Skulptur 5
-        $parentProductId = 37; // quantity 2, AVAILABLE, Skulptur 5
+        $parentProductId = 37; // quantity unlimited, AVAILABLE, Skulptur 5
         $expectedInventory_statusOfProduct = $this->SOLDOUT;
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
         $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged

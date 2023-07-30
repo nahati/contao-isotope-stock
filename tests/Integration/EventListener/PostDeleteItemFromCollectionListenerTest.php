@@ -261,13 +261,32 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerSetsProductSoldoutWhenProductIsNotAVariantProductQuantityIsZero(): void
+    public function testPostDeleteItemFromCollectionListenerSetsProductSoldoutWhenProductIsNotAVariantAndProductQuantityIsZero(): void
     {
         $itemId = 3116;
         $productId = 89; // quantity 0, AVAILABLE, Bild 3
-        $quantityOfProduct = 0;
+        $quantityOfProduct = '0';
         $parentProductId = 0; // no parent product
         $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        // expectedInventory_statusOfParentProduct not used here
+        // expectedInventory_statusOfSiblingProducts not used here
+
+        // Product initially has a quantity of 2, so we change the quantity of the product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+
+        $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
+    }
+
+    /**
+     * @group non-variant_products
+     */
+    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsNotAVariantAndProductQuantityIsEmpty(): void
+    {
+        $itemId = 3116;
+        $productId = 89; // quantity 0, AVAILABLE, Bild 3
+        $quantityOfProduct = '';
+        $parentProductId = 0; // no parent product
+        $expectedInventory_statusOfProduct = $this->AVAILABLE;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 

@@ -47,7 +47,7 @@ class PostCheckoutListener
      *
      *  Updates the quantity. Marks as SOLDOUT in all bought products/variants with no remaining quantity.
      *
-     * @param Order $objOrder // ProductCollection in order
+     * @param Order $objOrder // ProductCollection in order, not empty
      */
     public function __invoke($objOrder): void
     {
@@ -91,12 +91,8 @@ class PostCheckoutListener
                 // Get the parent product
                 $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
 
-                // Get the sum of the quantity of all siblings in the order (i.e. not including the current product) and add the quantity  of the current product in the order.
-                /** @var int qtyFamily // overall quantity for all the parent's childs in the order */
-                $qtyFamily = $this->helper->sumSiblings($objProduct, $objOrder, $objProduct->pid) + $objItem->quantity;
-
-                // Manage stock for parent product with overall quantity in collection for all it's childs
-                $soldout = $this->helper->manageStockAfterCheckout($objParentProduct, $qtyFamily);
+                // Manage stock for parent product with quantity of this variant
+                $soldout = $this->helper->manageStockAfterCheckout($objParentProduct, $objItem->quantity);
 
                 // If parent product is soldout, add it's ID to the array of soldout parent products, avoid duplicates
                 if ($soldout && !\in_array($objParentProduct->id, $soldoutParentProductIds, true)) {
@@ -105,7 +101,9 @@ class PostCheckoutListener
             }
         } // foreach
 
-        // Set all child products to SOLDOUT, if the parent product of a product in the order is soldout.
-        $this->helper->setChildProductsSoldout($objOrder, $soldoutParentProductIds);
+        // Walk through the list of soldout parent product ids and set all child products to SOLDOUT.
+        if ($soldoutParentProductIds) {
+            $this->helper->setChildProductsSoldout($soldoutParentProductIds);
+        }
     }
 }
