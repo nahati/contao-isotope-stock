@@ -75,10 +75,10 @@ Use this, if you just want to want to combine shop and gallery.
 If you have limited editions, activate `quantity` to enable stock-management for this product-type. Then you also MUST activate `inventory_status`.
 For products with no limit keep the quantity field empty. Then there will be no stock-management for this product.
 
-## Testmethoden (technische und fachliche Sicht)
+## Testmethods
 
-- [Unit-Test - Testfälle](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/unit/reports/testdox.html)
-- [Integrationstest - Testfälle](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/Integration/reports/testdox.html)
+- [Unit-Test - Testcases](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/unit/reports/testdox.html)
+- [Integration-Test - Testcases](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/Integration/reports/testdox.html)
 
 ## Minimum requirements
 

@@ -17,7 +17,7 @@ $GLOBALS['TL_DCA']['tl_iso_product']['fields']['quantity'] = [
     'inputType' => 'text',
     'eval' => ['mandatory' => false, 'doNotShow' => false, 'tl_class' => 'w50'],
     'attributes' => ['legend' => 'general_legend', 'multilingual' => false, 'fe_sorting' => true],
-    'sql' => "varchar(255) NOT NULL default ''",
+    'sql' => "varchar(255) default ''",
 ];
 
 $GLOBALS['TL_DCA']['tl_iso_product']['fields']['inventory_status'] = [
@@ -29,5 +29,5 @@ $GLOBALS['TL_DCA']['tl_iso_product']['fields']['inventory_status'] = [
     'options' => ['1', '2', '3', '4'],
     'eval' => ['feEditable' => true, 'feViewable' => true, 'tl_class' => 'w50'],
     'attributes' => ['legend' => 'general_legend', 'fe_filter' => true, 'fe_search' => true, 'fe_sorting' => true],
-    'sql' => "char(1) NOT NULL default '2'",
+    'sql' => "char(1) default '2'",
 ];

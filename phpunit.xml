@@ -49,8 +49,14 @@
     <testsuite name="integration">
       <directory>./tests/Integration</directory>
     </testsuite>
-    <testsuite name="reset">
-      <directory>./tests/reset</directory>
+    <testsuite name="resetDBToInitialState">
+      <directory>./tests/reset/resetDBToInitialState.php</directory>
+    </testsuite>
+    <testsuite name="resetDBToInitialState">
+      <directory>./tests/reset/resetDBToInitialState.php</directory>
+    </testsuite>
+    <testsuite name="resetDBToAfterCheckoutState">
+      <directory>./tests/reset/resetDBToAfterCheckoutState.php</directory>
     </testsuite>
   </testsuites>
 

@@ -19,6 +19,7 @@ use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
+use Isotope\Model\ProductCollection\Order;
 
 /**
  * Reuseable small services for stockmanagement.
@@ -63,13 +64,14 @@ class Helper
     }
 
     /**
-     * @param string   $inventory_status, set empty if not to be updated
-     * @param string   $quantity,         leave away if not to be updated
      * @param Standard $objProduct
+     * @param string   $inventory_status, set empty if not to be updated
+     * @param string   $quantity,         leave away or set empty if not to be updated
+     * @param bool     $strict            update even if product has changed in the meantime
      *
      * @return Boolean // update done
      */
-    public function updateInventory($objProduct, $inventory_status = '', $quantity = '')
+    public function updateInventory($objProduct, $inventory_status = '', $quantity = '', $strict = false)
     {
         // Get an adapter for the Standard class
         $standardAdapter = $this->framework->getAdapter(Standard::class);
@@ -80,8 +82,8 @@ class Helper
         $databaseAdapter = $this->framework->getAdapter(Database::class);
 
         // We check if relevant properties of the product have been changed in the meantime
-        if ($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) {
-            // no changes -> update inventory_status
+        if (($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) || $strict) {
+            // no changes or strict -> update inventory_status
             $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
 
             if ('' !== $quantity && '' !== $inventory_status) {
@@ -97,7 +99,7 @@ class Helper
 
             return true;
         } else {
-            // changes -> notify the user
+            // changes and not strict -> notify the user
             $this->issueErrorMessage('productHasChanged', $objProduct->getName() ?: $standardAdapter->findPublishedByPk($objProduct->pid)->getName());
 
             return false;
@@ -216,7 +218,6 @@ class Helper
 
         // InventoryStatus SOLDOUT
         if ($this->SOLDOUT === $objProduct->inventory_status) {
-            // update quantity to zero
             $this->updateInventory($objProduct, '', '0');
 
             $this->issueErrorMessage('productOutOfStock', $objProduct->getName());
@@ -238,7 +239,7 @@ class Helper
      *
      * @return int // returns sum of quantitis in collection for all siblings (not including the productToCheck itself)
      */
-    public function sumSiblings($objProductToCheck, $objCollection, $pid, &$anzSiblingsInCollection)
+    public function sumSiblings($objProductToCheck, $objCollection, $pid, &$anzSiblingsInCollection = 0)
     {
         $sum = 0;
         $anzSiblingsInCollection = 0;
@@ -349,5 +350,83 @@ class Helper
         $setInventoryStatusTo = $this->RESERVED;
 
         return (int) $qtyInCollection - (int) $objProduct->quantity; // return surplus quantity
+    }
+
+    /**
+     * Manage Stock for a given product and a given quantity bought.
+     *
+     * @param Standard $objProduct
+     * @param int      $qtyBought  // quantity bought
+     *
+     * @throws \Exception // if more bought than available
+     *
+     * @return bool // true if soldout
+     */
+    public function manageStockAfterCheckout($objProduct, $qtyBought)
+    {
+        // Unlimited quantity: no stockmanagement
+        if (null === $objProduct->quantity || '' === $objProduct->quantity) {
+            return false; // not soldout
+        }
+
+        // Quantity bought < Product quantity
+        if ((int) $qtyBought < (int) $objProduct->quantity) {
+            // decrease product quantity in strict mode
+            $this->updateInventory($objProduct, '', (string) ((int) $objProduct->quantity - (int) $qtyBought), true);
+
+            return false; // not soldout
+        }
+
+        // Quantity in Collection == Product quantity
+        if ((int) $qtyBought === (int) $objProduct->quantity) {
+            // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
+            $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
+
+            return true; // soldout
+        }
+
+        // (else) Quantity in Collection > Product quantity
+
+        // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
+        $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
+
+        throw new \Exception('Error: More items bought than available in stock.');
+    }
+
+    /**
+     * Set all child products to SOLDOUT, if the parent product of a product in the order is soldout.
+     *
+     * @param Order      $objOrder
+     * @param array<int> $soldoutParentProductIds // array of parent product ids, which are soldout
+     */
+    public function setChildProductsSoldout($objOrder, $soldoutParentProductIds): void
+    {
+        // Get an adapter for the Standard class
+        $standardAdapter = $this->framework->getAdapter(Standard::class);
+
+        // Fetch all parent products for the products in the order
+        $objSoldoutParentProducts = $standardAdapter->findMultipleByIds($soldoutParentProductIds);
+
+        // Keep track of processed parent products
+        $processedSoldoutParentProducts = [];
+
+        // Loop again over all items in the order and mark child products as sold out if the parent product is sold out
+        foreach ($objOrder->getItems() as $objItem) {
+            /** @var Standard|null $objProduct */
+            $objProduct = $objItem->getProduct() ?? null;
+
+            if (!$objProduct->isVariant()) {
+                continue;
+            }
+
+            // Get the parent product if soldout (otherwise null)
+            $objSoldoutParentProduct = $objSoldoutParentProducts[$objProduct->pid] ?? null;
+
+            // If parent product is sold out and has not been processed yet, mark all its children as sold out
+            if ($objSoldoutParentProduct && !\in_array($objSoldoutParentProduct->id, $processedSoldoutParentProducts, true)) {
+                $this->setParentAndChildProductsSoldout($objSoldoutParentProduct);
+                $processedSoldoutParentProducts[] = $objSoldoutParentProduct->id;
+            }
+        }
     }
 }

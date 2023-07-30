@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jul 23, 2023 at 02:13 PM
+-- Generation Time: Jul 29, 2023 at 07:37 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -63,8 +63,8 @@ CREATE TABLE `tl_iso_product` (
   `length` varchar(255) NOT NULL DEFAULT '',
   `width` varchar(255) NOT NULL DEFAULT '',
   `height` varchar(255) NOT NULL DEFAULT '',
-  `inventory_status` char(1) NOT NULL DEFAULT '2',
-  `quantity` varchar(255) NOT NULL DEFAULT '',
+  `inventory_status` char(1) DEFAULT '2',
+  `quantity` varchar(255) DEFAULT '',
   `status` int(10) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 

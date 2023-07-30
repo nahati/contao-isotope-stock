@@ -14,127 +14,98 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
-use Contao\Database;
-use Isotope\Interfaces\IsotopeProductCollection;
-use Isotope\Model\Product;
+use Contao\CoreBundle\Framework\Adapter;
+use Contao\CoreBundle\Framework\ContaoFramework;
+use Isotope\Model\Product\Standard;
+use Isotope\Model\ProductCollection\Order;
 use Isotope\ServiceAnnotation\IsotopeHook;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
+ * Inspired by contao/calendar-bundle (injection of ContaoFramework to enable testing).
+ *
+ * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
+ *
  * @IsotopeHook("postCheckout")
  */
 class PostCheckoutListener
 {
-    // private string $inventory_status;
-    private string $SOLDOUT = '4'; /* product bought, no remaining quantity */
+    private ContaoFramework $framework;
 
     /**
-     * Set SOLDOUT and set quantity zero (if applicable) with all variants.
-     *
-     * @param Product $objParentProduct
+     * @var Helper // make use of methods from the Helper class
      */
-    private function setVariantsSoldout($objParentProduct): void
-    {
-        /** @var IsotopeProductCollection|null $objVariants */
-        $objVariants = Database::getInstance()->prepare('SELECT * FROM ' . Product::getTable() . ' WHERE pid = ?')->execute($objParentProduct->getId());
+    private $helper;
 
-        /** @var Product|null $objVariant */
-        foreach ($objVariants->getItems(true) as $objVariant) {
-            if ($objVariant->quantity) {
-                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ?,  inventory_status = ?  WHERE id = ?')->execute('0', $this->SOLDOUT, $objVariant->id);
-            }
-            // Quantity IS NULL OR empty OR already ZERO
-            else {
-                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET  inventory_status = ?  WHERE id = ?')->execute($this->SOLDOUT, $objVariant->id);
-            }
-        }
+    public function __construct(ContaoFramework $framework)
+    {
+        $this->framework = $framework;
     }
 
     /**
-     * Manage Stock for a given product and a given quantity bought
-     * Return true, if Soldout.
+     * Invoked after the checkout process has been completed.
      *
-     * @param Product $objProduct
-     * @param int     $quantityBought
-     *
-     * @return bool // returns true if product soldout
-     */
-    private function manageStockAndCheckSoldout($objProduct, $quantityBought)
-    {
-        switch ($objProduct->quantity ?? null) {
-            case null:
-            case '':
-                return false; // no stock-management
-
-            default: // case 0,1,2,..
-                // decrease available quantity by bought quantity
-                $objProduct->quantity -= $quantityBought;
-
-                // Quantity left
-                if ($objProduct->quantity > 0) {
-                    Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ? WHERE id = ?')->execute($objProduct->quantity, $objProduct->getId());
-
-                    return false;
-                }
-                // Soldout
-                $objProduct->quantity = 0;
-                Database::getInstance()->prepare('UPDATE ' . Product::getTable() . ' SET quantity = ?, inventory_status = ? WHERE id = ?')->execute('0', $this->SOLDOUT, $objProduct->getId());
-
-                return true;
-        }
-    }
-
-    /**
      *  Updates the quantity. Marks as SOLDOUT in all bought products/variants with no remaining quantity.
      *
-     * @param IsotopeProductCollection $objOrder // ProductCollection in order
+     * @param Order $objOrder // ProductCollection in order
      */
     public function __invoke($objOrder): void
     {
-        foreach ($objOrder->getItems() as $objItem) {
-            /** @var Product|null $objProduct */
-            $objProduct = $objItem->getProduct(true) ?? null;
+        // Instantiate a Helper object
+        $this->helper = new Helper($this->framework);
 
+        // Array of all soldout parent product's IDs in the order
+        $soldoutParentProductIds = [];
+
+        // Loop over all Items in the order
+        foreach ($objOrder->getItems() as $objItem) {
+            /** @var Standard|null $objProduct */
+            $objProduct = $objItem->getProduct() ?? null;
+
+            // No product
             if (!$objProduct) {
                 continue;
             }
 
-            // inventory_status is not in use (in theory: FALSE, not defined, NULL, '0' or '')
-            if (!$objProduct->inventory_status) {
-                // quantity activated
-                if (null !== $objProduct->quantity) {
-                    throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'], $objProduct->getName())); // todo: fix the configuration of producttype
-                }
+            // Stockmanagement not or not correctly configured
+            if (!$this->helper->checkStockmanagement($objProduct)) {
+                // if not correctly configured, throw exception
 
                 continue; // no stock-management
             }
 
-            // single product (not having any variants)
+            // Single product (not having any variants)
             if (!$objProduct->isVariant()) {
-                $this->manageStockAndCheckSoldout($objProduct, $objItem->quantity);
+                $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity);
             }
 
             // product is a variant
             else {
-                switch ($objProduct->quantity ?? null) {
-                    case null:
-                    case '':
-                        $objParentProduct = Product::findByPk($objProduct->pid);
+                // Manage stock for variant product with quantity of this variant
+                $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity);
 
-                        if ($this->manageStockAndCheckSoldout($objParentProduct, $objItem->quantity)) {
-                            $this->setVariantsSoldout($objParentProduct); // if soldout
-                        }
-                        break;
+                // Get an adapter for the Standard class
+                /** @var Adapter<Standard> $adapter */
+                $adapter = $this->framework->getAdapter(Standard::class);
 
-                    default: // case 0,1,2,..
-                        $this->manageStockAndCheckSoldout($objProduct, $objItem->quantity);
+                // Get the parent product
+                $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
 
-                        $objParentProduct = Product::findByPk($objProduct->pid);
+                // Get the sum of the quantity of all siblings in the order (i.e. not including the current product) and add the quantity  of the current product in the order.
+                /** @var int qtyFamily // overall quantity for all the parent's childs in the order */
+                $qtyFamily = $this->helper->sumSiblings($objProduct, $objOrder, $objProduct->pid) + $objItem->quantity;
 
-                        if ($this->manageStockAndCheckSoldout($objParentProduct, $objItem->quantity)) {
-                            $this->setVariantsSoldout($objParentProduct); // if soldout
-                        }
+                // Manage stock for parent product with overall quantity in collection for all it's childs
+                $soldout = $this->helper->manageStockAfterCheckout($objParentProduct, $qtyFamily);
+
+                // If parent product is soldout, add it's ID to the array of soldout parent products, avoid duplicates
+                if ($soldout && !\in_array($objParentProduct->id, $soldoutParentProductIds, true)) {
+                    $soldoutParentProductIds[] = $objParentProduct->id;
                 }
             }
         } // foreach
+
+        // Set all child products to SOLDOUT, if the parent product of a product in the order is soldout.
+        $this->helper->setChildProductsSoldout($objOrder, $soldoutParentProductIds);
     }
 }
