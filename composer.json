@@ -71,7 +71,7 @@
         ],
         "ecs": "@php tools/ecs/vendor/bin/ecs check src tests --config ecs.php --fix --ansi",
         "phpstan": "@php tools/phpstan/vendor/bin/phpstan analyze --ansi",
-        "unit-tests": "@php vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html=coverage/unit",
-        "integration-tests": "@php vendor/bin/phpunit  --colors=always --testsuite=integration  --coverage-html=coverage/integration --testdox-html=coverage/integration/testdox.html"
+        "unit-tests": "@php vendor/bin/phpunit --colors=always --testsuite=unit --coverage-text=coverage/unit --testdox-text=coverage/unit/testdox.txt",
+        "integration-tests": "@php vendor/bin/phpunit  --colors=always --testsuite=integration  --coverage-text=coverage/integration --testdox-text=coverage/integration/testdox.txt"
     }
 }

@@ -43,8 +43,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
     // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
-    // private string $RESERVED = '3'; /* product reserved, not available for more sales */
-    // private string $SOLDOUT = '4'; /* product in cart though soldout */
+    private string $SOLDOUT = '4'; /* product in cart though soldout */
 
     /**
      * Check if quantity of product is zero.
@@ -264,9 +263,9 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPostCheckoutListenerKeepsProductsQuantityAndInventoryStatusUnchangedWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
+    public function testPostCheckoutListenerReducesProductsQuantityAndInventoryStatusWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
     {
-        // ItemId = 3112, quantityBought = 1
+        // ItemId = 3331, quantityBought = 1
         $productId = 88; // unlimited quantity, AVAILABLE, Bild 1
         $expectedQuantityOfProduct = '';
         $expectedInventory_statusOfProduct = $this->AVAILABLE;
@@ -277,307 +276,314 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = '');
     }
 
-    // /**
-    //  * @group non-variant_products
-    //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantity(): void
-    // {
-    //     $itemId = 3115; // $quantityInCart = 1;
-    //     $expectedQuantityOfProduct = 1;
-    //     $productId = 100; // quantity 2 , AVAILABLE, Bild 2
-    //     $parentProductId = 0; // no parent product
-    //     $expectedInventory_statusOfProduct = $this->AVAILABLE;
-    //     // expectedInventory_statusOfParentProduct not used here
-    //     // expectedInventory_statusOfSiblingProducts not used here
+    /**
+     * @group non-variant_products
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductWhenProductIsNotAVariantAndQuantityBoughtIsLessThanProductQuantity(): void
+    {
+        // $itemId = 3332,  quantityBought = 1
+        $productId = 100; // quantity 2 , AVAILABLE, Bild 2
+        $expectedQuantityOfProduct = '1';
+        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $parentProductId = 0; // no parent product
+        // expectedInventory_statusOfParentProduct not used here
+        // expectedInventory_statusOfSiblingProducts not used here
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = '');
-    // }
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = '');
+    }
 
-    // /**
-    //  * @group non-variant_products
-    //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
-    // {
-    //     $itemId = 3115; // $quantityInCart = 1;
-    //     $expectedQuantityOfProduct = 1;
-    //     $productId = 89; // quantity 2, RESERVED, Bild 3
-    //     $expectedInventory_statusOfProduct = $this->AVAILABLE;
-    //     $parentProductId = 0; // no parent product
-    //     // expectedInventory_statusOfParentProduct not used here
-    //     // expectedInventory_statusOfSiblingProducts not used here
+    /**
+     * @group non-variant_products
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenProductIsNotAVariantAndQuantityBoughtIsEqualToProductQuantity(): void
+    {
+        // $itemId = 3332,  quantityBought = 1
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = '');
-    // }
+        $productId = 100; // AVAILABLE, Bild 2
 
-    // /**
-    //  * @group non-variant_products
-    //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantity(): void
-    // {
-    //     $itemId = 3115; // $quantityInCart = 2;
-    //     $quantityInCart = 2;
-    //     $expectedQuantityOfProduct = 2;
-    //     $productId = 100; // quantity 2 Bild 2
-    //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $parentProductId = 0; // no parent product
-    //     // expectedInventory_statusOfParentProduct not used here
-    //     // expectedInventory_statusOfSiblingProducts not used here
+        $quantityOfProduct = 1;
+        // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
-    //     // Item initially has a quantity in cart of 1, so we change the quantity in cart of the item to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+        $expectedQuantityOfProduct = '0';
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $parentProductId = 0; // no parent product
+        // expectedInventory_statusOfParentProduct not used here
+        // expectedInventory_statusOfSiblingProducts not used here
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = '');
-    // }
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = '');
+    }
 
-    // /**
-    //  * @group non-variant_products
-    //  */
-    // public function testPostCheckoutListenerReducesQuantityInCartAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantity(): void
-    // {
-    //     $itemId = 3115; // $quantityInCart = 3;
-    //     $quantityInCart = 3;
-    //     $expectedQuantityOfProduct = 2;
-    //     $productId = 100; // quantity 2 Bild 2
-    //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $parentProductId = 0; // no parent product
-    //     // expectedInventory_statusOfParentProduct not used here
-    //     // expectedInventory_statusOfSiblingProducts not used here
+    /**
+     * @group non-variant_products
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutAndThrowsAnExceptionWhenProductIsNotAVariantAndQuantityOfProductExceedsProductQuantity(): void
+    {
+        $itemId = 3332;
+        $quantityBought = 3;
+        // Item initially has a quantity in cart of 1, so we change the quantity in cart of the item to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
 
-    //     // Item initially has a quantity in cart of 1, so we change the quantity in cart of the item to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+        $productId = 100; // AVAILABLE, Bild 2
+        // $quantityOfProduct = 2;
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = '');
-    // }
+        $expectedQuantityOfProduct = '0';
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $parentProductId = 0; // no parent product
+        // expectedInventory_statusOfParentProduct not used here
+        // expectedInventory_statusOfSiblingProducts not used here
 
-    // /**
-    //  * @group variant_products__unlimited
-    //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantity(): void
-    // {
-    //     $itemId = 3117; // $quantityInCart = 1;
-    //     $expectedQuantityOfProduct = 1;
-    //     $productId = 47; // unlimited quantity, AVAILABLE, Variante Original von Skulptur 1
-    //     $parentProductId = 31; //  unlimited quantity, AVAILABLE, Skulptur 1
-    //     $expectedInventory_statusOfProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        // Test if an Exception is thrown
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error: More items bought than available in stock.');
 
-    //     // item 3118
-    //     // product 46, unlimited, AVAILABLE, Variante Original von Skulptur 1
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = '');
+    }
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    // }
+    /**
+     * @group variant_products__unlimited
+     */
+    public function testPostCheckoutListenerKeepsQuantityOfProductAndInventoryStatusWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantity(): void
+    {
+        // $itemId = 3334,  quantityBought = 1
 
-    // /**
-    //  * @group variant_products__quantity_in_cart_is_less_than_product_quantity
-    //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
-    // {
-    //     $itemId = 3119; // $quantityInCart = 1;
-    //     $expectedQuantityOfProduct = 1;
-    //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-    //     $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
-    //     $expectedInventory_statusOfProduct = $this->AVAILABLE;
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $productId = 47; // unlimited quantity, AVAILABLE, Variante Original von Skulptur 1
 
-    //     // Item 3120
-    //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-    //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+        $parentProductId = 31; // unlimited quantity, AVAILABLE, Skulptur 1
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    // }
+        // item 3335, quantityBought 1
+        // product 46, unlimited, AVAILABLE, Variante Original von Skulptur 1
 
-    // /**
-    //  * @group variant_products__quantity_in_cart_is_less_than_product_quantity
-    //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
-    // {
-    //     $itemId = 3119; // $quantityInCart = 1;
-    //     $expectedQuantityOfProduct = 1;
-    //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-    //     $parentProductId = 32; //  AVAILABLE, Skulptur 2
-    //     $quantityOfParentProduct = 2;
-    //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedQuantityOfProduct = '';
+        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE;
 
-    //     // Item 3120
-    //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-    //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
 
-    //     // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+    /**
+     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
+    {
+        // $itemId = 3336,  quantityBought = 1
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    // }
+        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
-    // /**
-    //  * @group variant_products__quantity_in_cart_is_less_than_product_quantity
-    //  */
-    // public function testPostCheckoutListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
-    // {
-    //     $itemId = 3119; // $quantityInCart = 2;
-    //     $expectedQuantityOfProduct = 1;
-    //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-    //     $parentProductId = 32; //  AVAILABLE, Skulptur 2
-    //     $quantityOfParentProduct = 2;
-    //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        // $quantityOfProduct = 1;
+        // // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
+        // self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
-    //     // Item 3120
-    //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-    //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+        $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
 
-    //     // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        // Item 3337, quantityBought 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // This item is processed in the same checkout as item 3336, so we need to set the appropiate expected InventoryStatus for this sibling
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    // }
+        $expectedQuantityOfProduct = '1';
+        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT;
 
-    // /**
-    //  * @group variant_products__quantity_in_cart_is_less_than_product_quantity
-    //  */
-    // public function testPostCheckoutListenerReducesQuantityInCartButDoesNotReduceToZeroAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndQuantityInCartOfProductIsCalculatedToZero(): void
-    // {
-    //     $itemId = 3119;
-    //     // $quantityInCart = 1;
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
 
-    //     $productId = 44; // AVAILABLE, Variante Kopie Skulptur 2
-    //     // $quantityOfProduct = 2;
+    /**
+     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
+    {
+        // $itemId = 3336,  quantityBought = 1
 
-    //     $parentProductId = 32; //  AVAILABLE, Skulptur 2
-    //     $quantityOfParentProduct = 1;
+        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
-    //     $expectedQuantityOfProduct = 1; // calculated to 0; but not reduced to 0. See: See: https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/src/EventListener/PostCheckoutListener.php#L157
+        // $quantityOfProduct = 1;
+        // // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
+        // self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
-    //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $parentProductId = 32; // AVAILABLE, Skulptur 2
+        $quantityOfParentProduct = 2;
+        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-    //     // Item 3120
-    //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-    //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
 
-    //     // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        // Item 3337, quantityBought 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // This item is processed in the same checkout as item 3336, so we need to set the appropiate expected InventoryStatus for this sibling
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    // }
+        $expectedQuantityOfProduct = '0';
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT;
 
-    // /**
-    //  * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
-    //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
-    // {
-    //     $itemId = 3119;
-    //     $quantityInCart = 2;
-    //     $expectedQuantityOfProduct = 2;
-    //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-    //     $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
-    //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
 
-    //     // Item 3110 initially has a quantity in cart of 1, so we change the this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+    /**
+     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutAndThrowsAnExceptionWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    {
+        // $itemId = 3336,  quantityBought = 1
 
-    //     // Item 3120
-    //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-    //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    // }
+        // $quantityOfProduct = 1;
+        // // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
+        // self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
-    // /**
-    //  * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
-    //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
-    // {
-    //     $itemId = 3119;
-    //     $quantityInCart = 2;
-    //     $expectedQuantityOfProduct = 2;
-    //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-    //     $parentProductId = 32; //  AVAILABLE, Skulptur 2
-    //     $quantityOfParentProduct = 3;
-    //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $parentProductId = 32; // AVAILABLE, Skulptur 2
+        $quantityOfParentProduct = 1;
+        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-    //     // Item 3110 initially has a quantity in cart of 1, so we change the this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
 
-    //     // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        // Item 3337, quantityBought 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // This item is processed in the same checkout as item 3336, so we need to set the appropiate expected InventoryStatus for this sibling
 
-    //     // Item 3120
-    //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-    //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+        $expectedQuantityOfProduct = '0';
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT;
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    // }
+        // Test if an Exception is thrown
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error: More items bought than available in stock.');
 
-    // /**
-    //  * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
-    //  */
-    // public function testPostCheckoutListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
-    // {
-    //     $itemId = 3119;
-    //     $quantityInCart = 2;
-    //     $expectedQuantityOfProduct = 1;
-    //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-    //     $parentProductId = 32; //  AVAILABLE, Skulptur 2
-    //     $quantityOfParentProduct = 2;
-    //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
 
-    //     // Item 3110 initially has a quantity in cart of 1, so we change the this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
 
-    //     // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+    /**
+     * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
+    {
+        // $itemId = 3336,  quantityBought = 1
 
-    //     // Item 3120
-    //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-    //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+        $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
 
-    //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
-    // }
+        $quantityOfProduct = 1;
+        // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+
+        $parentProductId = 32; // AVAILABLE, Skulptur 2
+        // $quantityOfParentProduct = 4;
+
+        // // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
+        // self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+
+        // Item 3337, quantityBought 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // This item is processed in the same checkout as item 3336, so we need to set the appropiate expected InventoryStatus for this sibling
+
+        $expectedQuantityOfProduct = '0';
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT;
+
+        // // Test if an Exception is thrown
+        // $this->expectException(\Exception::class);
+        // $this->expectExceptionMessage('Error: More items bought than available in stock.');
+
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
+    {
+        // $itemId = 3336,  quantityBought = 1
+
+        $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
+
+        $quantityOfProduct = 1;
+        // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+
+        $parentProductId = 32; // AVAILABLE, Skulptur 2
+        $quantityOfParentProduct = 2;
+        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+
+        // Item 3337, quantityBought 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // This item is processed in the same checkout as item 3336, so we need to set the appropiate expected InventoryStatus for this sibling
+
+        $expectedQuantityOfProduct = '0';
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT;
+
+        // // Test if an Exception is thrown
+        // $this->expectException(\Exception::class);
+        // $this->expectExceptionMessage('Error: More items bought than available in stock.');
+
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
+
+    /**
+     * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
+     */
+    public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutAndThrowsAnExceptionWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    {
+        // $itemId = 3336,  quantityBought = 1
+
+        $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
+
+        $quantityOfProduct = 1;
+        // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+
+        $parentProductId = 32; // AVAILABLE, Skulptur 2
+        $quantityOfParentProduct = 1;
+        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
+        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+
+        // Item 3337, quantityBought 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // This item is processed in the same checkout as item 3336, so we need to set the appropiate expected InventoryStatus for this sibling
+
+        $expectedQuantityOfProduct = '0';
+        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT;
+
+        // Test if an Exception is thrown
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error: More items bought than available in stock.');
+
+        $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
+    }
 
     // /**
     //  * @group variant_products__quantity_in_cart_is_greater_than_product_quantity
     //  */
-    // public function testPostCheckoutListenerReducesQuantityInCartAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    // public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
     // {
-    //     $itemId = 3119;
-    //     $quantityInCart = 3;
+    //     $itemId = 3336;
+    //     $QuantityOfProduct = 3;
     //     $expectedQuantityOfProduct = 2;
     //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
     //     $parentProductId = 32; //  AVAILABLE, Skulptur 2
     //     $quantityOfParentProduct = 5;
     //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
+    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // 
     //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
 
-    //     // Item 3119 initially has a quantity in cart of 1, so we change the this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+    //     // Item 3336 initially has a quantity in cart of 1, so we change the this to match the testcase
+    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($QuantityOfProduct, $itemId);
 
     //     // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
     //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-    //     // Item 3120
+    //     // Item 3337
     //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
     //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+    //     // Note that Item 3337 is also processed individually by the listener!
 
     //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     // }
@@ -585,10 +591,10 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     // /**
     //  * @group variant_products__quantity_in_cart_is_greater_than_product_quantity
     //  */
-    // public function testPostCheckoutListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    // public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
     // {
-    //     $itemId = 3119;
-    //     $quantityInCart = 3;
+    //     $itemId = 3336;
+    //     $QuantityOfProduct = 3;
     //     $expectedQuantityOfProduct = 2;
     //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
     //     $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
@@ -596,13 +602,13 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
     //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
 
-    //     // Item 3119 initially has a quantity in cart of 1, so we change the this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+    //     // Item 3336 initially has a quantity in cart of 1, so we change the this to match the testcase
+    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($QuantityOfProduct, $itemId);
 
-    //     // Item 3120
+    //     // Item 3337
     //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
     //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+    //     // Note that Item 3337 is also processed individually by the listener!
 
     //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     // }
@@ -610,10 +616,10 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     // /**
     //  * @group variant_products__quantity_in_cart_is_greater_than_product_quantity
     //  */
-    // public function testPostCheckoutListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    // public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     // {
-    //     $itemId = 3119;
-    //     $quantityInCart = 3;
+    //     $itemId = 3336;
+    //     $QuantityOfProduct = 3;
     //     $expectedQuantityOfProduct = 2;
     //     $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
     //     $parentProductId = 32; //  AVAILABLE, Skulptur 2
@@ -622,16 +628,16 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     //     $expectedInventory_statusOfParentProduct = $this->RESERVED;
     //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
 
-    //     // Item 3119 initially has a quantity in cart of 1, so we change the this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+    //     // Item 3336 initially has a quantity in cart of 1, so we change the this to match the testcase
+    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($QuantityOfProduct, $itemId);
 
     //     // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
     //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-    //     // Item 3120
+    //     // Item 3337
     //     // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
     //     // quantity in Cart 1
-    //     // Note that Item 3120 is also processed individually by the listener!
+    //     // Note that Item 3337 is also processed individually by the listener!
 
     //     $this->doTest($itemId, $expectedQuantityOfProduct, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     // }
@@ -639,19 +645,19 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     // /**
     //  * @group variant_products__inherited_quantity
     //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    // public function testPostCheckoutListenerReducesQuantityOfProductWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
     // {
     //     $itemId = 3130;
-    //     $quantityInCart = 30;
+    //     $QuantityOfProduct = 30;
     //     $expectedQuantityOfProduct = 30;
     //     $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
     //     $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
     //     $expectedInventory_statusOfProduct = $this->AVAILABLE;
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // 
+    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // 
 
     //     // Item 3130 initially has a quantity in cart of 100, so we change the this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($QuantityOfProduct, $itemId);
 
     //     // Item 3129
     //     // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
@@ -664,10 +670,10 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     // /**
     //  * @group variant_products__inherited_quantity
     //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    // public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
     // {
     //     $itemId = 3130;
-    //     $quantityInCart = 99;
+    //     $QuantityOfProduct = 99;
     //     $expectedQuantityOfProduct = 99;
     //     $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
     //     $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
@@ -676,7 +682,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
 
     //     // Item 3130 initially has a quantity in cart of 100, so we change this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($QuantityOfProduct, $itemId);
 
     //     // Item 3129
     //     // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
@@ -689,15 +695,15 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     // /**
     //  * @group variant_products__inherited_quantity
     //  */
-    // public function testPostCheckoutListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    // public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     // {
-    //     $itemId = 3130; // $quantityInCart = 100;
+    //     $itemId = 3130; // $QuantityOfProduct = 100;
     //     $expectedQuantityOfProduct = 99;
     //     $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
     //     $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
     //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->RESERVED; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED; // unchanged
+    //     $expectedInventory_statusOfParentProduct = $this->RESERVED; // 
+    //     $expectedInventory_statusOfSiblingProducts = $this->RESERVED; // 
 
     //     // Item 3129
     //     // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
@@ -710,16 +716,16 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     // /**
     //  * @group variant_products__parent_quantity_is_unlimited
     //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    // public function testPostCheckoutListenerReducesQuantityOfProductWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityBoughtIsLessThanProductQuantity(): void
     // {
-    //     $itemId = 3124; // $quantityInCart = 1;
+    //     $itemId = 3124; // $QuantityOfProduct = 1;
     //     $expectedQuantityOfProduct = 1;
     //     $productId = 38; // Reserved, Variante Original von Skulptur 4
     //     $quantityOfProduct = 2;
     //     $parentProductId = 34; // unlimited quantity, Skulptur 4
     //     $expectedInventory_statusOfProduct = $this->AVAILABLE;
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // 
+    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // 
 
     //     // Product initially has a quantity of 1, so we change the quantity of the product to match the testcase
     //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
@@ -735,15 +741,15 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     // /**
     //  * @group variant_products__parent_quantity_is_unlimited
     //  */
-    // public function testPostCheckoutListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    // public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsEqualToProductQuantity(): void
     // {
     //     $itemId = 3122;
     //     $expectedQuantityOfProduct = 1;
     //     $productId = 40; // quantity 1 , AVAILABLE, Variante Original von Skulptur 3
     //     $parentProductId = 33; // unlimited quantity, Skulptur 3
-    //     $expectedInventory_statusOfProduct = $this->RESERVED; // unchanged
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+    //     $expectedInventory_statusOfProduct = $this->RESERVED; // 
+    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // 
+    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // 
 
     //     // Item 3121
     //     // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
@@ -756,19 +762,19 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     // /**
     //  * @group variant_products__parent_quantity_is_unlimited
     //  */
-    // public function testPostCheckoutListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantity(): void
+    // public function testPostCheckoutListenerReturnsRecducedQuantityAndSetsProductSoldoutWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantity(): void
     // {
     //     $itemId = 3122;
-    //     $quantityInCart = 2;
+    //     $QuantityOfProduct = 2;
     //     $expectedQuantityOfProduct = 1;
     //     $productId = 40; // quantity 1 , AVAILABLE, Variante Original von Skulptur 3
     //     $parentProductId = 33; // unlimited quantity, Skulptur 3
     //     $expectedInventory_statusOfProduct = $this->RESERVED;
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // 
+    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // 
 
     //     // Item 3122 initially has a quantity in cart of 1, so we change the this to match the testcase
-    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
+    //     self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($QuantityOfProduct, $itemId);
 
     //     // Item 3121
     //     // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
@@ -783,13 +789,13 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     //  */
     // public function testPostCheckoutListenerReturnsQuantityZeroWhenProductIsAVariantAndProductIsSoldout(): void
     // {
-    //     $itemId = 3126; // $quantityInCart = 1;
+    //     $itemId = 3126; // $QuantityOfProduct = 1;
     //     $expectedQuantityOfProduct = 0;
     //     $productId = 49; // quantity 1 , SOLDOUT, Variante Original von Skulptur 5
     //     $parentProductId = 37; // quantity 2, AVAILABLE, Skulptur 5
     //     $expectedInventory_statusOfProduct = $this->SOLDOUT;
-    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+    //     $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // 
+    //     $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // 
 
     //     // Item 3125
     //     // product 48: quantity 1 , AVAILABLE, Variante Kopie Skulptur 5
@@ -807,13 +813,13 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     //  */
     // public function testPostCheckoutListenerReturnsQuantityZeroWhenProductIsAVariantAndParentProductIsSoldout(): void
     // {
-    //     $itemId = 3128; // $quantityInCart = 1;
+    //     $itemId = 3128; // $QuantityOfProduct = 1;
     //     $expectedQuantityOfProduct = 0;
     //     $productId = 52; // quantity 1 , AVAILABLE, Variante Original von Skulptur 6
     //     $parentProductId = 50; // quantity 2, SOLDOUT, Skulptur 6
     //     $expectedInventory_statusOfProduct = $this->SOLDOUT;
-    //     $expectedInventory_statusOfParentProduct = $this->SOLDOUT; // unchanged
-    //     $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT; // unchanged
+    //     $expectedInventory_statusOfParentProduct = $this->SOLDOUT; // 
+    //     $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT; // 
 
     //     // Item 3127
     //     // product 51: quantity 1 , SOLDOUT, Variante Kopie Skulptur 6

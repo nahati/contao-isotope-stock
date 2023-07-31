@@ -26,9 +26,11 @@ class GetSystemMessagesListener
     private $RESERVED = '3'; /* product in cart, no reamining quantity */
 
     /**
-     * Show messages.
+     * Invoked when System messages are being retrieved.
+     * 
+     * Add message for "RESERVED" products.
      *
-     * @return string
+     * @return string   // Array of new messages
      *
      * @Hook("getSystemMessages")
      */

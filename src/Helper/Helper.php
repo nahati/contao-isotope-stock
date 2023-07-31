@@ -352,16 +352,58 @@ class Helper
     }
 
     /**
+     * Try: Manage Stock for a given product and a given quantity bought. No Updates!
+     *
+     * @param Standard $objProduct
+     * @param int      $qtyBought  // quantity bought
+     * @param bool $overbought // more bought than available ,passed by reference
+     * 
+     * @return bool // true if soldout
+     */
+    public function manageStockBeforeCheckout($objProduct, $qtyBought, &$overbought = false)
+    {
+        // Unlimited quantity: no stockmanagement
+        if (null === $objProduct->quantity || '' === $objProduct->quantity) {
+            return false; // not soldout
+        }
+
+        // Quantity bought < Product quantity
+
+        if ((int) $qtyBought < (int) $objProduct->quantity) {
+            // decrease product quantity in strict mode
+            // $this->updateInventory($objProduct, '', (string) ((int) $objProduct->quantity - (int) $qtyBought), true);
+
+            return false; // not soldout
+        }
+
+        // Quantity in Collection == Product quantity
+        if ((int) $qtyBought === (int) $objProduct->quantity) {
+            // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
+            // $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
+
+            return true; // soldout
+        }
+
+        // (else) Quantity in Collection > Product quantity
+
+        // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
+        // $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
+
+        $overbought = true;
+
+        return true; // soldout
+    }
+
+    /**
      * Manage Stock for a given product and a given quantity bought.
      *
      * @param Standard $objProduct
      * @param int      $qtyBought  // quantity bought
-     *
-     * @throws \Exception // if more bought than available
-     *
+     * @param bool $overbought // more bought than available ,passed by reference
+     * 
      * @return bool // true if soldout
      */
-    public function manageStockAfterCheckout($objProduct, $qtyBought)
+    public function manageStockAfterCheckout($objProduct, $qtyBought, &$overbought = false)
     {
         // Unlimited quantity: no stockmanagement
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
@@ -390,7 +432,9 @@ class Helper
         // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
         $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
 
-        throw new \Exception('Error: More items bought than available in stock.');
+        $overbought = true;
+
+        return true; // soldout
     }
 
     /**
@@ -418,5 +462,47 @@ class Helper
                 $this->updateInventory($objChildProduct, $this->SOLDOUT, '0');
             }
         }
+    }
+
+    /**
+     *  Handle overbought situation
+     *  Issue an error message 
+     *  Send notification mail to admin
+     * 
+     * @param array<int,string> $overboughtProducts // array of product ids, which are overbought
+     * 
+     */
+    public function handleOverbought($overboughtProducts): void
+    {
+        foreach ($overboughtProducts as $overboughtProduct) {
+            $this->issueErrorMessage('overbought', $overboughtProduct['name'], $overboughtProduct['id']);
+
+            $this->sendNotificationMail('overbought', $overboughtProduct['name'], $overboughtProduct['id']);
+        }
+    }
+
+    /**
+     *  sendNotificationMail
+     * 
+     * @param string $subject // subject of the mail
+     * @param string $text // text of the mail
+     * 
+     */
+    public function sendNotificationMail($subject, $name, $id): void
+    {
+        // TODO: implement!
+        dump('sendNotificationMail');
+        dump($subject);
+        dump($name);
+        dump($id);
+        dump('---');
+
+        // $objEmail = new Email();
+
+        // $objEmail->from = $GLOBALS['TL_ADMIN_EMAIL'];
+        // $objEmail->subject = $subject;
+        // $objEmail->text = $text;
+
+        // $objEmail->sendTo($GLOBALS['TL_ADMIN_EMAIL']);
     }
 }

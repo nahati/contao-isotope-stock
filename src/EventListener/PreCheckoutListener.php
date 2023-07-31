@@ -1,6 +1,6 @@
 <?php
 
-// src/EventListener/PostCheckoutListener.php
+// src/EventListener/PreCheckoutListener.php
 
 declare(strict_types=1);
 
@@ -18,6 +18,7 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Order;
+use Isotope\Module\Checkout;
 use Isotope\ServiceAnnotation\IsotopeHook;
 use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
@@ -26,9 +27,9 @@ use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
  *
  * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
  *
- * @IsotopeHook("postCheckout")
+ * @IsotopeHook("PreCheckout")
  */
-class PostCheckoutListener
+class PreCheckoutListener
 {
     private ContaoFramework $framework;
 
@@ -43,13 +44,15 @@ class PostCheckoutListener
     }
 
     /**
-     * Invoked after the checkout process has been completed.
+     * Invoked during the checkout process.
      *
-     *  Updates the quantity. Marks as SOLDOUT in all bought products/variants with no remaining quantity.
+     *  Does the same processing as in PostCheckoutListener, but without any updates. This way we can stop the checkout process if there are overbought products. We do this by returning false.
      *
      * @param Order $objOrder // ProductCollection in order, not empty
+     * @param Checkout $objCheckout // Checkout object
+     * @return bool // false if checkout should be stopped
      */
-    public function __invoke($objOrder): void
+    public function __invoke($objOrder, $objCheckout)
     {
         // Instantiate a Helper object
         $this->helper = new Helper($this->framework);
@@ -81,7 +84,7 @@ class PostCheckoutListener
             if (!$objProduct->isVariant()) {
                 $overbought = false;
 
-                $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
+                $this->helper->manageStockBeforeCheckout($objProduct, $objItem->quantity, $overbought);
 
                 // if overbought add product id and name to array of overbought products
                 if ($overbought) {
@@ -97,7 +100,7 @@ class PostCheckoutListener
                 // Manage stock for variant product with quantity of this variant
                 $overbought = false;
 
-                $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
+                $this->helper->manageStockBeforeCheckout($objProduct, $objItem->quantity, $overbought);
 
                 // if overbought add product id and name to array of overbought products
                 if ($overbought) {
@@ -113,12 +116,12 @@ class PostCheckoutListener
 
                 // Get the parent product
                 $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
-                $objParentProduct->refresh(); // refresh the parent product, otherwise we would not get the changes made in an previous loop
+                // $objParentProduct->refresh(); // refresh the parent product, otherwise we would not get the changes made in an previous loop
 
                 // Manage stock for parent product with quantity of this variant
                 $overbought = false;
 
-                $soldout = $this->helper->manageStockAfterCheckout($objParentProduct, $objItem->quantity, $overbought);
+                $soldout = $this->helper->manageStockBeforeCheckout($objParentProduct, $objItem->quantity, $overbought);
 
                 // if overbought add product id and name to array of overbought products
                 if ($overbought) {
@@ -137,12 +140,12 @@ class PostCheckoutListener
 
         // Walk through the list of soldout parent product ids and set all child products to SOLDOUT.
         if ($soldoutParentProductIds) {
-            $this->helper->setChildProductsSoldout($soldoutParentProductIds);
+            // $this->helper->setChildProductsSoldout($soldoutParentProductIds);
         }
 
         // Handle overbought situation
         if ($overboughtProducts) {
-            $this->helper->handleOverbought($overboughtProducts);
+            return false;
         }
     }
 }

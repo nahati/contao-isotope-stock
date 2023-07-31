@@ -83,12 +83,12 @@ jobs:
               run: mkdir -p docs/unit docs/integration
 
             - name: Run PHPUnit with code coverage
-              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/unit --testdox-html docs/unit/testdox.html
+              run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/unit --testdox-text docs/unit/testdox.txt
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
             - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html docs/integration --testdox-html docs/integration/testdox.html
+              run: vendor/bin/phpunit  --testsuite=integration --colors=always --coverage-html docs/integration --testdox-text docs/integration/testdox.txt
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 

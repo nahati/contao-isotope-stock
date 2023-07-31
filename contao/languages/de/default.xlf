@@ -2,6 +2,10 @@
 <xliff version="1.1">
     <file>
         <body>
+            <trans-unit id="ERR.overbought">
+                <target>Das Produkt "%s" ist überverkauft. Wir melden uns in Kürze bei Ihnen!"
+                    product-type</target>
+            </trans-unit>
             <trans-unit id="ERR.inventoryStatusInactive">
                 <target>Die Verfügbarkeit wurde beim Produkttyp dieses Produkts "%s" nicht aktiviert</target>
             </trans-unit>
