@@ -475,9 +475,9 @@ class Helper
     public function handleOverbought($overboughtProducts): void
     {
         foreach ($overboughtProducts as $overboughtProduct) {
-            $this->issueErrorMessage('overbought', $overboughtProduct['name'], $overboughtProduct['id']);
+            $this->issueErrorMessage('overbought', $overboughtProduct['name']);
 
-            $this->sendNotificationMail('overbought', $overboughtProduct['name'], $overboughtProduct['id']);
+            $this->sendNotificationMail('overbought', $overboughtProduct['name']);
         }
     }
 

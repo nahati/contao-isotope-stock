@@ -40,6 +40,7 @@ class PreCheckoutListener
 
     public function __construct(ContaoFramework $framework)
     {
+
         $this->framework = $framework;
     }
 

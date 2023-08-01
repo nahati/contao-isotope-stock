@@ -3,8 +3,7 @@
     <file>
         <body>
             <trans-unit id="ERR.overbought">
-                <target>The product "%s" has been overbought! We will come back to you soon."
-                    product-type</target>
+                <target>The product "%s" has been overbought! We will come back to you soon."</target>
             </trans-unit>
             <trans-unit id="ERR.inventoryStatusInactive">
                 <target>The inventory_status has not been activated for this products "%s"
