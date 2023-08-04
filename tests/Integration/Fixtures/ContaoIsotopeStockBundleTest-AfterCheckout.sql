@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jul 30, 2023 at 08:58 PM
+-- Generation Time: Aug 04, 2023 at 09:25 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -1135,11 +1135,12 @@ CREATE TABLE `tl_iso_orderstatus` (
 --
 
 INSERT INTO `tl_iso_orderstatus` (`id`, `pid`, `tstamp`, `sorting`, `name`, `color`, `paid`, `welcomescreen`, `notification`, `saferpay_status`) VALUES
-(10, 0, 0, 0, 'Pending', '', '', '1', '', ''),
-(11, 0, 0, 128, 'Processing', '', '', '', '', ''),
-(12, 0, 0, 256, 'Complete', '', '1', '', '', ''),
-(13, 0, 0, 384, 'On Hold', '', '', '', '', ''),
-(14, 0, 0, 512, 'Cancelled', '', '', '', '', '');
+(10, 0, 1691184047, 256, 'Pending', '', '', '1', '', ''),
+(11, 0, 1691184053, 384, 'Processing', '', '', '', '', ''),
+(12, 0, 1691184058, 512, 'Complete', '', '1', '', '', ''),
+(13, 0, 1691184062, 640, 'On Hold', '', '', '', '', ''),
+(14, 0, 1691184066, 768, 'Cancelled', '', '', '', '', ''),
+(15, 0, 1691183016, 128, 'Overbought', 'ff1500', '', '1', '17', '');
 
 -- --------------------------------------------------------
 
@@ -2456,6 +2457,14 @@ CREATE TABLE `tl_nc_language` (
   `file_content` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+--
+-- Dumping data for table `tl_nc_language`
+--
+
+INSERT INTO `tl_nc_language` (`id`, `pid`, `tstamp`, `gateway_type`, `language`, `fallback`, `recipients`, `attachment_tokens`, `attachments`, `attachment_templates`, `email_sender_name`, `email_sender_address`, `email_recipient_cc`, `email_recipient_bcc`, `email_replyTo`, `email_subject`, `email_mode`, `email_text`, `email_html`, `email_external_images`, `file_name`, `file_storage_mode`, `file_content`) VALUES
+(27, 15, 1691182090, 'email', 'de', '', 'test@test.de', '', NULL, NULL, 'test@test.de', 'test@test.de', NULL, NULL, '', 'Bestellung überverkauft', 'textOnly', 'Die Bestellung ##uniqid## ist überverkauft.', NULL, '', '', '', NULL),
+(28, 15, 1691182126, 'email', 'en', '1', 'test@test.de', '', NULL, NULL, 'test@test.de', 'test@test.de', NULL, NULL, '', 'Order overbought', 'textOnly', 'The order ##uniqid## is overbought.', NULL, '', '', '', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -2476,6 +2485,13 @@ CREATE TABLE `tl_nc_message` (
   `published` char(1) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+--
+-- Dumping data for table `tl_nc_message`
+--
+
+INSERT INTO `tl_nc_message` (`id`, `pid`, `tstamp`, `title`, `gateway`, `gateway_type`, `email_priority`, `email_template`, `postmark_tag`, `postmark_trackOpens`, `published`) VALUES
+(15, 17, 1691182032, '', 1, 'email', 3, 'mail_default', '', '', '');
+
 -- --------------------------------------------------------
 
 --
@@ -2494,6 +2510,13 @@ CREATE TABLE `tl_nc_notification` (
   `iso_gallery` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `iso_document` int(10) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `tl_nc_notification`
+--
+
+INSERT INTO `tl_nc_notification` (`id`, `tstamp`, `title`, `type`, `flatten_delimiter`, `templates`, `iso_collectionTpl`, `iso_orderCollectionBy`, `iso_gallery`, `iso_document`) VALUES
+(17, 1691178439, 'Overbought', 'iso_order_status_change', ',', NULL, 'iso_collection_default', 'asc_id', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -4238,7 +4261,7 @@ ALTER TABLE `tl_iso_label`
 -- AUTO_INCREMENT for table `tl_iso_orderstatus`
 --
 ALTER TABLE `tl_iso_orderstatus`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `tl_iso_payment`
@@ -4418,19 +4441,19 @@ ALTER TABLE `tl_nc_gateway`
 -- AUTO_INCREMENT for table `tl_nc_language`
 --
 ALTER TABLE `tl_nc_language`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `tl_nc_message`
 --
 ALTER TABLE `tl_nc_message`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `tl_nc_notification`
 --
 ALTER TABLE `tl_nc_notification`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `tl_nc_queue`

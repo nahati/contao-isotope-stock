@@ -147,14 +147,15 @@ class PostCheckoutListener
             }
         } // foreach
 
-        // Walk through the list of soldout parent product ids and set all child products to SOLDOUT.
+        // Walk through the list of soldout parent product ids and set all child products soldout as well.
         if ($soldoutParentProductIds) {
             $this->helper->setChildProductsSoldout($soldoutParentProductIds);
         }
 
         // Handle overbought situation
-        if ($this->overboughtProducts) {
-            $this->helper->handleOverbought($this->overboughtProducts);
-        }
+        // if ($this->overboughtProducts) {
+        $this->helper->handleOverbought($objOrder->id, $this->overboughtProducts);
+        // }
+        // TODO: remove test comments
     }
 }

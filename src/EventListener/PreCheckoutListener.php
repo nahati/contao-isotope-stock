@@ -167,8 +167,6 @@ class PreCheckoutListener
         } // for each
 
         if ($this->orderIsModified) {
-            $this->helper->handleModifiedOrder($objOrder);
-
             try {
                 // Throw an exception to stop the checkout process
                 throw new \RuntimeException('The order could not be completed', 400);

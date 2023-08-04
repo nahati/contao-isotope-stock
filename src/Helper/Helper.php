@@ -34,6 +34,8 @@ class Helper
     private string $RESERVED = '3'; /* product in collection, no quantity left */
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
+    private string $OVERBOUGHT = 'Overbought'; // status for overbought orders
+
     public function __construct(ContaoFramework $framework)
     {
         $this->framework = $framework;
@@ -469,85 +471,55 @@ class Helper
         }
     }
 
-    /** Handle modifiedOrder.
-     *
-     */
-    public function handleModifiedOrder(Order $objOrder): void
-    {
-        $subject = 'Modified Order';
-        $text = 'The order with the id ' . $objOrder->id . ' has been modified by the stockmanagement during the checkout process. Please check the order and clear things up with the customer.';
+    // /** Handle modifiedOrder.
+    //  *
+    //  */
+    // public function handleModifiedOrder(Order $objOrder): void
+    // {
+    //     $subject = 'Modified Order';
+    //     $text = 'The order with the id ' . $objOrder->id . ' has been modified by the stockmanagement during the checkout process. Please check the order and clear things up with the customer.';
 
-        $this->sendNotificationMail($subject, $text);
-    }
-
-    /**
-     * Modify Order.
-     *
-     * @param Order                                                                           $objOrder           the order object
-     * @param array<array{productId: int, itemId: int, productName: string, overbought: int}> $overboughtProducts array of overbought products
-     */
-    public function modifyOrder($objOrder, $overboughtProducts): void
-    {
-        // Walk through the items in the array of overbought products
-        foreach ($overboughtProducts as $overboughtProduct) {
-            // Fetch the item from the order
-            $objItem = $objOrder->getItemById($overboughtProduct['itemId']);
-
-            // If the item is not found, continue with the next item
-            if (null === $objItem) {
-                continue;
-            }
-
-            // Decrease the quantity of the item by the quantity overbought
-            $objItem->quantity -= $overboughtProduct['overbought'];
-            $objItem->save();
-
-            // // If the remaining quantity of the item is zero, delete the item from the order
-            // if ($objItem->quantity == 0) {
-            //     $objOrder->removeItem($objItem->id);
-            // } first take a look at what happens in his case
-        }
-    }
+    //     $this->sendNotificationMail($subject, $text);
+    // }
 
     /**
      *  Handle overbought situation
      *  Issue an error message
-     *  Send notification mail to admin.
+     *  Update order status to overbought.
      *
+     * @param int                                                                             $orderId            the order id
      * @param array<array{productId: int, itemId: int, productName: string, overbought: int}> $overboughtProducts array of overbought products
      */
-    public function handleOverbought($overboughtProducts): void
+    public function handleOverbought($orderId, $overboughtProducts): void
     {
+        // Issue an error message per overbought product
         foreach ($overboughtProducts as $overboughtProduct) {
             $this->issueErrorMessage('overbought', $overboughtProduct['productName'], $overboughtProduct['overbought']);
-
-            $subject = 'Overbought Product';
-            $text = 'The product with the id ' . $overboughtProduct['productId'] . ' and the name ' . $overboughtProduct['productName'] . ' has been overbought by ' . $overboughtProduct['overbought'] . ' pieces.';
-
-            $this->sendNotificationMail($subject, $text);
         }
+
+        // Update orderstatus to 'overbought'
+        $this->updateOrderStatus($orderId, $this->OVERBOUGHT);
     }
 
     /**
-     *  sendNotificationMail.
+     * Update orderstatus
+     * If the order or the orderstatus is not found, ignore and do nothing.
      *
-     * @param string $subject // subject of the mail
-     * @param string $text    // text of the mail
+     * @param int    $orderId     the order id
+     * @param string $orderStatus the order status
      */
-    public function sendNotificationMail($subject, $text): void
+    public function updateOrderStatus($orderId, $orderStatus): void
     {
-        // TODO: implement!
-        dump('sendNotificationMail');
-        dump($subject);
-        dump($text);
-        dump('---');
+        // Fetch the order
+        $objOrder = Order::findByPk($orderId);
 
-        // $objEmail = new Email();
+        // If the order is not found, return
+        if (null === $objOrder) {
+            return;
+        }
 
-        // $objEmail->from = $GLOBALS['TL_ADMIN_EMAIL'];
-        // $objEmail->subject = $subject;
-        // $objEmail->text = $text;
-
-        // $objEmail->sendTo($GLOBALS['TL_ADMIN_EMAIL']);
+        dump($orderStatus);
+        // Set the orderstatus
+        $objOrder->updateOrderstatus(['order_status' => $orderStatus]);
     }
 }
