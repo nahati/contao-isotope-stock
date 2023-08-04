@@ -44,7 +44,6 @@ class SaveCollectionListener
         $this->framework = $framework;
     }
 
-
     /**
      * Invoked when Cart is saved
      * Handles boundary conditions for stock-management.
@@ -52,7 +51,6 @@ class SaveCollectionListener
      * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
      *
      * @param ProductCollection $objCart // Cart
-     * @return void
      */
     public function __invoke($objCart): void
     {
@@ -60,7 +58,6 @@ class SaveCollectionListener
         $this->helper = new Helper($this->framework);
 
         foreach ($objCart->getItems() as $objItem) {
-
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct(true) ?? null;
 
@@ -78,7 +75,6 @@ class SaveCollectionListener
 
             // Product SOLDOUT: message, set quantity in cart zero
             if ($this->helper->isSoldout($objProduct)) {
-
                 $this->helper->issueErrorMessage('productOutOfStock', $objProduct->getName());
 
                 $objItem->quantity = 0;

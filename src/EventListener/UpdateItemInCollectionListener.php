@@ -39,6 +39,8 @@ class UpdateItemInCollectionListener
     private string $RESERVED = '3'; /* product in cart, no quantity left */
     private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
+    private bool $itemIsModified = false;
+
     /**
      * @var Helper // make use of methods from the Helper class
      */
@@ -55,8 +57,6 @@ class UpdateItemInCollectionListener
      * Handles changes of quantity in cart and also handles concurring changes.
      *
      * Restriction: As the given cart is updated item by item, checks will be done item by item also (i.e. the lower part of the cart appears as it was before user changes).
-     *
-     * //TODO: Implement a confirmation process (f.i. redirect back to the cart if cart has been modified by this stock managenemt and these changes are not yet confirmed).
      *
      * @param ProductCollectionItem $objItem // Item in Cart
      * @param array<mixed>          $arrSet  // Properties of item in cart, esp. quantity in Cart
@@ -98,9 +98,9 @@ class UpdateItemInCollectionListener
 
             if ($surplus > 0 && $objProduct->inventory_status !== $this->SOLDOUT) {
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
-            }
 
-            return $arrSet;
+                $this->itemIsModified = true;
+            }
         }
         // Variant product
         else {
@@ -137,17 +137,45 @@ class UpdateItemInCollectionListener
             // More in cart than the variant can afford
             if ($surplusVariant > 0 && $objProduct->inventory_status !== $this->SOLDOUT) {
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
+
+                $this->itemIsModified = true;
             }
 
             // More in cart than the parent can afford
             if ($surplusParent > 0 && $objParentProduct->inventory_status !== $this->SOLDOUT) {
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
+
+                $this->itemIsModified = true;
             }
+
+            // // Not Soldout
+            // if ($objProduct->inventory_status !== $this->SOLDOUT && $objParentProduct->inventory_status !== $this->SOLDOUT) {
+            //     // Evaluate possible new quantity in cart as given quantity in cart minus max surplus quantity
+            //     $test = $arrSet['quantity'] - max($surplusVariant, $surplusParent); // decrease by max surplus quantity
+
+            //     // Keep quantity in cart if otherwise it would be negative or zero; this will ensure that the item is kept in cart so that user can decide
+            //     $arrSet['quantity'] = $test > 0 ? $test : $arrSet['quantity'];
+            // }
+            // // Product or parent soldout
+            // else {
+            //     $arrSet['quantity'] = 0;
+            // }
 
             $arrSet['quantity'] -= max($surplusVariant, $surplusParent); // decrease by max surplus quantity
             $arrSet['quantity'] = $arrSet['quantity'] < 0 ? 0 : $arrSet['quantity']; // limit to zero
-
-            return $arrSet;
         }
+
+        // After stockmanagement has been done, handle the case that the item has been modified
+        if ($this->itemIsModified) {
+            $message = 'confirmCheckout';
+
+            // issue message here "manually" as the message given to addError() may not be used furthermore
+            $this->helper->issueErrorMessage($message);
+
+            $objCart->addError($message);
+            // leads to cart being issued again
+        }
+
+        return $arrSet;
     }
 }

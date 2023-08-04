@@ -19,6 +19,7 @@ use Contao\Database;
 use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
+use Isotope\Model\ProductCollection\Order;
 
 /**
  * Reuseable small services for stockmanagement.
@@ -40,15 +41,19 @@ class Helper
 
     /**
      * @param string $message
-     * @param string $name     of the product
-     * @param int    $quantity of the product
+     * @param string $name     of the product (optional)
+     * @param int    $quantity of the product or quantity overbought (optional)
      */
-    public function issueErrorMessage($message, $name, $quantity = 0): void
+    public function issueErrorMessage($message, $name = '', $quantity = 0): void
     {
         // Get an adapter for the Message class
         $messageAdapter = $this->framework->getAdapter(Message::class);
 
-        if (0 === $quantity) {
+        if (0 === $quantity && '' === $name) {
+            $messageAdapter->addError(
+                $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message'
+            );
+        } elseif (0 === $quantity) {
             $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message for product %s',
                 $name
@@ -356,8 +361,8 @@ class Helper
      *
      * @param Standard $objProduct
      * @param int      $qtyBought  // quantity bought
-     * @param bool $overbought // more bought than available ,passed by reference
-     * 
+     * @param bool     $overbought // more bought than available ,passed by reference
+     *
      * @return bool // true if soldout
      */
     public function manageStockBeforeCheckout($objProduct, $qtyBought, &$overbought = false)
@@ -399,11 +404,11 @@ class Helper
      *
      * @param Standard $objProduct
      * @param int      $qtyBought  // quantity bought
-     * @param bool $overbought // more bought than available ,passed by reference
-     * 
+     * @param int      $overbought // quantity overbought ,passed by reference
+     *
      * @return bool // true if soldout
      */
-    public function manageStockAfterCheckout($objProduct, $qtyBought, &$overbought = false)
+    public function manageStockAfterCheckout($objProduct, $qtyBought, &$overbought = 0)
     {
         // Unlimited quantity: no stockmanagement
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
@@ -464,37 +469,77 @@ class Helper
         }
     }
 
-    /**
-     *  Handle overbought situation
-     *  Issue an error message 
-     *  Send notification mail to admin
-     * 
-     * @param array<int,string> $overboughtProducts // array of product ids, which are overbought
-     * 
+    /** Handle modifiedOrder.
+     *
      */
-    public function handleOverbought($overboughtProducts): void
+    public function handleModifiedOrder(Order $objOrder): void
     {
-        foreach ($overboughtProducts as $overboughtProduct) {
-            $this->issueErrorMessage('overbought', $overboughtProduct['name']);
+        $subject = 'Modified Order';
+        $text = 'The order with the id ' . $objOrder->id . ' has been modified by the stockmanagement during the checkout process. Please check the order and clear things up with the customer.';
 
-            $this->sendNotificationMail('overbought', $overboughtProduct['name']);
+        $this->sendNotificationMail($subject, $text);
+    }
+
+    /**
+     * Modify Order.
+     *
+     * @param Order                                                                           $objOrder           the order object
+     * @param array<array{productId: int, itemId: int, productName: string, overbought: int}> $overboughtProducts array of overbought products
+     */
+    public function modifyOrder($objOrder, $overboughtProducts): void
+    {
+        // Walk through the items in the array of overbought products
+        foreach ($overboughtProducts as $overboughtProduct) {
+            // Fetch the item from the order
+            $objItem = $objOrder->getItemById($overboughtProduct['itemId']);
+
+            // If the item is not found, continue with the next item
+            if (null === $objItem) {
+                continue;
+            }
+
+            // Decrease the quantity of the item by the quantity overbought
+            $objItem->quantity -= $overboughtProduct['overbought'];
+            $objItem->save();
+
+            // // If the remaining quantity of the item is zero, delete the item from the order
+            // if ($objItem->quantity == 0) {
+            //     $objOrder->removeItem($objItem->id);
+            // } first take a look at what happens in his case
         }
     }
 
     /**
-     *  sendNotificationMail
-     * 
-     * @param string $subject // subject of the mail
-     * @param string $text // text of the mail
-     * 
+     *  Handle overbought situation
+     *  Issue an error message
+     *  Send notification mail to admin.
+     *
+     * @param array<array{productId: int, itemId: int, productName: string, overbought: int}> $overboughtProducts array of overbought products
      */
-    public function sendNotificationMail($subject, $name, $id): void
+    public function handleOverbought($overboughtProducts): void
+    {
+        foreach ($overboughtProducts as $overboughtProduct) {
+            $this->issueErrorMessage('overbought', $overboughtProduct['productName'], $overboughtProduct['overbought']);
+
+            $subject = 'Overbought Product';
+            $text = 'The product with the id ' . $overboughtProduct['productId'] . ' and the name ' . $overboughtProduct['productName'] . ' has been overbought by ' . $overboughtProduct['overbought'] . ' pieces.';
+
+            $this->sendNotificationMail($subject, $text);
+        }
+    }
+
+    /**
+     *  sendNotificationMail.
+     *
+     * @param string $subject // subject of the mail
+     * @param string $text    // text of the mail
+     */
+    public function sendNotificationMail($subject, $text): void
     {
         // TODO: implement!
         dump('sendNotificationMail');
         dump($subject);
-        dump($name);
-        dump($id);
+        dump($text);
         dump('---');
 
         // $objEmail = new Email();

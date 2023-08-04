@@ -2,8 +2,15 @@
 <xliff version="1.1">
     <file>
         <body>
+            <trans-unit id="ERR.confirmCheckout">
+                <target>Your cart has been changed. Please confirm!</target>
+            </trans-unit>
+            <trans-unit id="ERR.orderNotPossible">
+                <target>Your order needs to be changed. Please go to cart and refresh it.</target>
+            </trans-unit>
             <trans-unit id="ERR.overbought">
-                <target>The product "%s" has been overbought! We will come back to you soon."</target>
+                <target>The product "%s" has been overbought by "%s"! We will come back to you
+                    soon.</target>
             </trans-unit>
             <trans-unit id="ERR.inventoryStatusInactive">
                 <target>The inventory_status has not been activated for this products "%s"

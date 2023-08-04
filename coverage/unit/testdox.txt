@@ -1,0 +1,71 @@
+Contao Isotope Stock Bundle (Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotopeStockBundle)
+ [x] Bundle can be instantiated
+
+Add Product To Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\AddProductToCollectionListener)
+ [x] True is true
+ [x] Add product to collection listener returns unchanged quantity requested for cart when stockmanagement is not configured
+ [x] Add product to collection listener throws invalid argument exception when stockmanagement is badly configured
+
+Copied Collection Items Listener (Nahati\ContaoIsotopeStockBundle\Tests\CopiedCollectionItemsListener)
+ [x] Copied collection items listener does nothing when source is not a cart
+ [x] Copied collection items listener does nothing when target is not a cart
+ [x] Copied collection items listener does nothing when target is empty
+ [x] Copied collection items listener does nothing when item without product
+ [x] Copied collection items listener does nothing when stockmanagement is not configured
+ [x] Copied collection items listener throws invalid argument exception when stockmanagement is badly configured
+
+Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\PostCheckoutListener)
+ [ ] Post checkout listener does nothing when no items in order
+ [ ] Post checkout listener does nothing when item without product
+ [ ] Post checkout listener does nothing when stockmanagement is not configured
+ [x] Post checkout listener throws invalid argument exception when stockmanagement is badly configured
+
+Post Delete Item From Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\PostDeleteItemFromCollectionListener)
+ [x] Post delete item from collection listener does nothing when item without product
+ [x] Post delete item from collection listener does nothing when stockmanagement is not configured
+ [x] Post delete item from collection listener throws invalid argument exception when stockmanagement is badly configured
+ [x] Post delete item from collection listener sets inventory status when product is not a variant
+ [x] Post delete item from collection listener sets inventory status when product is a variant
+
+Update Item In Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\UpdateItemInCollectionListener)
+ [x] True is true
+ [x] Update item in collection listener returns false when item without product
+ [x] Update item in collection listener returns unchanged arr set when stockmanagement is not configured
+ [x] Update item in collection listener throws invalid argument exception when stockmanagement is badly configured
+ [x] Update item in collection listener returns false when arr set not contains key quantity
+ [x] Update item in collection listener returns false when arr set key quantity has empty value
+
+Helper (Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper\Helper)
+ [x] Issue error message
+ [x] Update inventory does excute d b queries when product was not changed meanwhile
+ [x] Update inventory does not execute d b queries when inventory status was changed meanwhile
+ [x] Update inventory does not execute d b queries when quantity was changed meanwhile
+ [x] Update inventory does not execute d b queries when inventory status and quantity were changed meanwhile
+ [x] Update inventory status does execute d b queries when inventory status and quantity were changed meanwhile but strict mode
+ [x] Set parent and child products reserved
+ [x] Set parent and siblings products available
+ [x] Set parent and child products soldout
+ [x] Check stockmanagement returns false when inventory status is not set and quantity is not set
+ [x] Check stockmanagement throws invalid argument exception when inventory status is not set but quantity is set
+ [x] Check stockmanagement returns true when inventory status is set
+ [x] Is soldout returns true and sets inventory status soldout when quantity is zero
+ [x] Is soldout returns true and sets quantity zero when inventory status is soldout
+ [x] Is soldout returns false when quantity is not zero and inventory status is not soldout
+ [x] Sum siblings when there are variants in cart and also non variants and also items without product
+ [x] Fetch quantity in cart when product is in cart and also other products and also items without product
+ [x] Manage stock and return surplus zero when quantity is null
+ [x] Manage stock and return surplus zero when quantity is empty
+ [x] Manage stock and return surplus returns zero and sets inventory status available and sets set inventory status to available when quantity in cart is less than product quantity
+ [x] Manage stock and return surplus returns zero and sets inventory status reserved and setsset inventory status to reserved when quantity in cart is equal to product quantity
+ [x] Manage stock and return a non zero surplus and set inventory status reserved and sets set inventory status to reserved when quantity in cart is greater than product quantity
+ [x] Manage stock after checkout does no database updates when quantity is null
+ [x] Manage stock after checkout does no database updates when quantity is empty
+ [x] Manage stock after checkout does database updates when quantity bought is less than product quantity
+ [x] Manage stock after checkout does database updates when quantity bought is equal to product quantity
+ [x] Manage stock after checkout returns false when quantity bought is null
+ [x] Manage stock after checkout returns false when quantity bought is empty
+ [x] Manage stock after checkout returns false when quantity bought is less than product quantity
+ [x] Manage stock after checkout returns false when quantity bought is equal to product quantity
+ [ ] Manage stock after checkout does database updates and throws an exception when quantity bought is greater than product quantity
+ [x] Set child products soldout
+

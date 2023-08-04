@@ -2,8 +2,16 @@
 <xliff version="1.1">
     <file>
         <body>
+            <trans-unit id="ERR.confirmCheckout">
+                <target>Ihr Warenkorb wurde geändert. Bitte bestätigen Sie!</target>
+            </trans-unit>
+            <trans-unit id="ERR.orderNotPossible">
+                <target>Ihre Bestellung muss geändert werden. Bitte gehen Sie zum Warenkorb und
+                    aktualisieren Sie ihn.</target>
+            </trans-unit>
             <trans-unit id="ERR.overbought">
-                <target>Das Produkt "%s" ist überverkauft. Wir melden uns in Kürze bei Ihnen!"</target>
+                <target>Das Produkt "%s" ist um "%s" überverkauft. Wir melden uns in Kürze bei
+                    Ihnen!"</target>
             </trans-unit>
             <trans-unit id="ERR.inventoryStatusInactive">
                 <target>Die Verfügbarkeit wurde beim Produkttyp dieses Produkts "%s" nicht aktiviert</target>

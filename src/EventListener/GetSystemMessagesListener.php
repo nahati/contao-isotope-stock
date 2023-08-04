@@ -27,10 +27,10 @@ class GetSystemMessagesListener
 
     /**
      * Invoked when System messages are being retrieved.
-     * 
+     *
      * Add message for "RESERVED" products.
      *
-     * @return string   // Array of new messages
+     * @return string // Array of new messages
      *
      * @Hook("getSystemMessages")
      */

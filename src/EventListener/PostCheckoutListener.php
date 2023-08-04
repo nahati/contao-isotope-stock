@@ -37,6 +37,18 @@ class PostCheckoutListener
      */
     private $helper;
 
+    /**
+     * @phpstan-ignore-next-line
+     */
+    private array $overboughtProducts = [
+        [
+            'productId' => 0,
+            'itemId' => 0,
+            'productName' => '',
+            'overbought' => 0,
+        ],
+    ];
+
     public function __construct(ContaoFramework $framework)
     {
         $this->framework = $framework;
@@ -56,9 +68,6 @@ class PostCheckoutListener
 
         // Array of all soldout parent product's IDs in the order
         $soldoutParentProductIds = [];
-
-        // Array of all overbought product's (ID / name) in the order
-        $overboughtProducts = [];
 
         // Loop over all Items in the order
         foreach ($objOrder->getItems() as $objItem) {
@@ -83,11 +92,12 @@ class PostCheckoutListener
 
                 $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
 
-                // if overbought add product id and name to array of overbought products
                 if ($overbought) {
-                    $overboughtProducts[] = [
-                        'id' => $objProduct->id,
-                        'name' => $objProduct->name
+                    $this->overboughtProducts[] = [
+                        'productId' => $objProduct->id,
+                        'itemId' => $objItem->id,
+                        'productName' => $objProduct->name,
+                        'overbought' => $overbought,
                     ];
                 }
             }
@@ -99,11 +109,12 @@ class PostCheckoutListener
 
                 $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
 
-                // if overbought add product id and name to array of overbought products
                 if ($overbought) {
-                    $overboughtProducts[] = [
-                        'id' => $objProduct->id,
-                        'name' => $objProduct->name
+                    $this->overboughtProducts[] = [
+                        'productId' => $objProduct->id,
+                        'itemId' => $objItem->id,
+                        'productName' => $objProduct->name,
+                        'overbought' => $overbought,
                     ];
                 }
 
@@ -120,11 +131,12 @@ class PostCheckoutListener
 
                 $soldout = $this->helper->manageStockAfterCheckout($objParentProduct, $objItem->quantity, $overbought);
 
-                // if overbought add product id and name to array of overbought products
                 if ($overbought) {
-                    $overboughtProducts[] = [
-                        'id' => $objProduct->id,
-                        'name' => $objProduct->name
+                    $this->overboughtProducts[] = [
+                        'productId' => $objProduct->id,
+                        'itemId' => $objItem->id,
+                        'productName' => $objProduct->name,
+                        'overbought' => $overbought,
                     ];
                 }
 
@@ -141,8 +153,8 @@ class PostCheckoutListener
         }
 
         // Handle overbought situation
-        if ($overboughtProducts) {
-            $this->helper->handleOverbought($overboughtProducts);
+        if ($this->overboughtProducts) {
+            $this->helper->handleOverbought($this->overboughtProducts);
         }
     }
 }
