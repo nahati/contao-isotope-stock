@@ -15,9 +15,9 @@ Copied Collection Items Listener (Nahati\ContaoIsotopeStockBundle\Tests\CopiedCo
  [x] Copied collection items listener throws invalid argument exception when stockmanagement is badly configured
 
 Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\PostCheckoutListener)
- [ ] Post checkout listener does nothing when no items in order
- [ ] Post checkout listener does nothing when item without product
- [ ] Post checkout listener does nothing when stockmanagement is not configured
+ [x] Post checkout listener does nothing when no items in order
+ [x] Post checkout listener does nothing when item without product
+ [x] Post checkout listener does nothing when stockmanagement is not configured
  [x] Post checkout listener throws invalid argument exception when stockmanagement is badly configured
 
 Post Delete Item From Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\PostDeleteItemFromCollectionListener)
@@ -66,6 +66,6 @@ Helper (Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper\Helper)
  [x] Manage stock after checkout returns false when quantity bought is empty
  [x] Manage stock after checkout returns false when quantity bought is less than product quantity
  [x] Manage stock after checkout returns false when quantity bought is equal to product quantity
- [ ] Manage stock after checkout does database updates and throws an exception when quantity bought is greater than product quantity
+ [x] Manage stock after checkout does database updates and returns true when quantity bought is greater than product quantity
  [x] Set child products soldout
 

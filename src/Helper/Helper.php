@@ -360,49 +360,6 @@ class Helper
     }
 
     /**
-     * Try: Manage Stock for a given product and a given quantity bought. No Updates!
-     *
-     * @param Standard $objProduct
-     * @param int      $qtyBought  // quantity bought
-     * @param bool     $overbought // more bought than available ,passed by reference
-     *
-     * @return bool // true if soldout
-     */
-    public function manageStockBeforeCheckout($objProduct, $qtyBought, &$overbought = false)
-    {
-        // Unlimited quantity: no stockmanagement
-        if (null === $objProduct->quantity || '' === $objProduct->quantity) {
-            return false; // not soldout
-        }
-
-        // Quantity bought < Product quantity
-
-        if ((int) $qtyBought < (int) $objProduct->quantity) {
-            // decrease product quantity in strict mode
-            // $this->updateInventory($objProduct, '', (string) ((int) $objProduct->quantity - (int) $qtyBought), true);
-
-            return false; // not soldout
-        }
-
-        // Quantity in Collection == Product quantity
-        if ((int) $qtyBought === (int) $objProduct->quantity) {
-            // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
-            // $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
-
-            return true; // soldout
-        }
-
-        // (else) Quantity in Collection > Product quantity
-
-        // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
-        // $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
-
-        $overbought = true;
-
-        return true; // soldout
-    }
-
-    /**
      * Manage Stock for a given product and a given quantity bought.
      *
      * @param Standard $objProduct
@@ -472,19 +429,8 @@ class Helper
         }
     }
 
-    // /** Handle modifiedOrder.
-    //  *
-    //  */
-    // public function handleModifiedOrder(Order $objOrder): void
-    // {
-    //     $subject = 'Modified Order';
-    //     $text = 'The order with the id ' . $objOrder->id . ' has been modified by the stockmanagement during the checkout process. Please check the order and clear things up with the customer.';
-
-    //     $this->sendNotificationMail($subject, $text);
-    // }
-
     /**
-     *  Handle overbought situation
+     *  Handle overbought order
      *  Issue an error message
      *  Update order status to overbought.
      *
@@ -498,7 +444,7 @@ class Helper
             $this->issueErrorMessage('overbought', $overboughtProduct['productName'], $overboughtProduct['overbought']);
         }
 
-        // Update orderstatus to 'overbought'
+        // Update orderstatus to 'Overbought'
         $this->updateOrderStatus($orderId, $this->OVERBOUGHT);
     }
 

@@ -1258,7 +1258,7 @@ class HelperTest extends ContaoTestCase
         $this->assertTrue($this->helper->manageStockAfterCheckout($product, 1));
     }
 
-    public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndThrowsAnExceptionWhenQuantityBoughtIsGreaterThanProductQuantity(): void
+    public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndReturnsTrueWhenQuantityBoughtIsGreaterThanProductQuantity(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
@@ -1289,12 +1289,11 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
-        // Test if an Exception is thrown
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('More items bought than available in stock.');
+        // Test if the prepare and execute methods are called twice
+        $return = $this->helper->manageStockAfterCheckout($product, 2);
 
-        // Test if the prepare and execute methods are called twice and an exception is thrown
-        $this->helper->manageStockAfterCheckout($product, 2);
+        // Test that method returns true
+        $this->assertTrue($return);
     }
 
     public function testSetChildProductsSoldout(): void

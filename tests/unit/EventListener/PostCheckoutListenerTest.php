@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Nahati\ContaoIsotopeStockBundle\Tests;
 
 use Contao\TestCase\ContaoTestCase;
+use Isotope\Message;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Order;
 use Isotope\Model\ProductCollectionItem;
@@ -93,8 +94,15 @@ class PostCheckoutListenerTest extends ContaoTestCase
             ->method('getProduct')
         ;
 
-        // Mock the adapters for the framework, we don't need them here
-        $adapters = [];
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+        ];
 
         $listener = new PostCheckoutListener($this->mockContaoFramework($adapters));
 
@@ -124,8 +132,15 @@ class PostCheckoutListenerTest extends ContaoTestCase
             ->willReturn($this->objItem)
         ;
 
-        // Mock the adapters for the framework, we don't need them here
-        $adapters = [];
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        // Mock the adapters for the framework
+        $adapters = [
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+        ];
 
         $listener = new PostCheckoutListener($this->mockContaoFramework($adapters));
 
@@ -166,9 +181,15 @@ class PostCheckoutListenerTest extends ContaoTestCase
             ->willReturn([$this->objItem])
         ;
 
-        // Mock the adpaters for the framework, we don't need them here
-        $adapters = [];
+        $messageAdapterMock = $this->getMockBuilder(Message::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
 
+        // Mock the adapters for the framework
+        $adapters = [
+            Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+        ];
         $listener = new PostCheckoutListener($this->mockContaoFramework($adapters));
 
         $listener($this->objOrder);

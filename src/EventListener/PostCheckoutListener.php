@@ -153,9 +153,8 @@ class PostCheckoutListener
         }
 
         // Handle overbought situation
-        // if ($this->overboughtProducts) {
-        $this->helper->handleOverbought($objOrder->id, $this->overboughtProducts);
-        // }
-        // TODO: remove test comments
+        if ($this->overboughtProducts) {
+            $this->helper->handleOverbought($objOrder->id, $this->overboughtProducts);
+        }
     }
 }

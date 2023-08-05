@@ -1,0 +1,1 @@
+Add Product To Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\AddProductToCollectionListener)
