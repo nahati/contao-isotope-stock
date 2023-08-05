@@ -73,7 +73,7 @@ Additionally you get the opportunity to handle all products in just one product 
 - products with inventory status `reserved` or `soldout` (gallery, shop not available)
 - products with inventory status `not for sale` (gallery, shop not available)
 
-## Usage
+## Configuration
 
 Your settings can be individual per product-type and per product. In backend's shop-configuration you can activate the attributes you want to use for a given product-type:
 
@@ -118,10 +118,12 @@ If you have limited editions, activate `quantity` to enable stock-management for
 
 For products with no limit keep the `quantity` field empty. Then there will be no stock-management for this product.
 
-## Testmethods
+**Recommended additional configuration for stock management:**
 
-- [Unit-Test - Testcases](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/unit/reports/testdox.txt)
-- [Integration-Test - Testcases](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/Integration/reports/testdox.txt)
+You may want to receive a notification when a product is overbought (this can happen if there are concurring updates simultaneously, e.g. another order by another user).
+Then you need to do this as well:
+
+Add a notification of type `change order status`. Under shop configuration add an order status `Overbought` (mind the exact spelling!) and link this notification to it.
 
 ## Minimum requirements
 
@@ -139,9 +141,14 @@ Apply changes to update the packages. Update Database.
       composer require nahati/contao-isotope-**stock**
       vendor/bin/contao-console contao:migrate
 
+## Testmethods
+
+- [Unit-Test - Testcases](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/unit/reports/testdox.txt)
+- [Integration-Test - Testcases](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/Integration/reports/testdox.txt)
+
 ## Special thanks
 
 - to @andreas.schempp for kind advices how to securely handle a product update
 - to @zoglo for kind help to get integration test running
 - to the Contao community for helpful hints
-- to Benny Born and Michael Bösherz, numero2, for their [simple-stock-management extension](https://packagist.org/packages/numero2/contao-isotope-simple-erp), which gave me first ideas how to build my extension.
+- to Benny Born and Michael Bösherz, numero2, for their [simple-stock-management extension](https://packagist.org/packages/numero2/contao-isotope-simple-erp), which gave me first ideas.

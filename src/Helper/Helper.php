@@ -17,6 +17,7 @@ namespace Nahati\ContaoIsotopeStockBundle\Helper;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Isotope\Message;
+use Isotope\Model\OrderStatus;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
 use Isotope\Model\ProductCollection\Order;
@@ -506,7 +507,7 @@ class Helper
      * If the order or the orderstatus is not found, ignore and do nothing.
      *
      * @param int    $orderId     the order id
-     * @param string $orderStatus the order status
+     * @param string $orderStatus the name of the order status
      */
     public function updateOrderStatus($orderId, $orderStatus): void
     {
@@ -518,8 +519,9 @@ class Helper
             return;
         }
 
-        dump($orderStatus);
+        $orderStatus_id = OrderStatus::findOneBy('name', $orderStatus)->id;
+
         // Set the orderstatus
-        $objOrder->updateOrderstatus(['order_status' => $orderStatus]);
+        $objOrder->updateOrderstatus(['order_status' => $orderStatus_id]);
     }
 }
