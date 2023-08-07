@@ -1,5 +1,3 @@
-<!--- Show quantity-field only if product has more than 1 item for sale -->
-
 <?php if ($this->textOnly) : ?>
     <?php ### THIS IS FOR TEXT ONLY EMAILS ###  
     ?>

@@ -38,16 +38,12 @@ class PostCheckoutListener
     private $helper;
 
     /**
-     * @phpstan-ignore-next-line
+     * @var array<array{productId: int, itemId: int, productName: string, overbought: int}>
      */
-    private array $overboughtProducts = [
-        [
-            'productId' => 0,
-            'itemId' => 0,
-            'productName' => '',
-            'overbought' => 0,
-        ],
-    ];
+    private array $overboughtProducts = [];
+
+    // private string $inventory_status;
+    private string $SOLDOUT = '4'; /* product in cart though soldout */
 
     public function __construct(ContaoFramework $framework)
     {
@@ -71,6 +67,7 @@ class PostCheckoutListener
 
         // Loop over all Items in the order
         foreach ($objOrder->getItems() as $objItem) {
+
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
 
@@ -88,7 +85,7 @@ class PostCheckoutListener
 
             // Single product (not having any variants)
             if (!$objProduct->isVariant()) {
-                $overbought = false;
+                $overbought = 0;
 
                 $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
 
@@ -105,9 +102,9 @@ class PostCheckoutListener
             // product is a variant
             else {
                 // Manage stock for variant product with quantity of this variant
-                $overbought = false;
+                $overbought = 0;
 
-                $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
+                $soldoutVariant = $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
 
                 if ($overbought) {
                     $this->overboughtProducts[] = [
@@ -124,12 +121,13 @@ class PostCheckoutListener
 
                 // Get the parent product
                 $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+
                 $objParentProduct->refresh(); // refresh the parent product, otherwise we would not get the changes made in an previous loop
 
                 // Manage stock for parent product with quantity of this variant
-                $overbought = false;
+                $overbought = 0;
 
-                $soldout = $this->helper->manageStockAfterCheckout($objParentProduct, $objItem->quantity, $overbought);
+                $soldoutParent = $this->helper->manageStockAfterCheckout($objParentProduct, $objItem->quantity, $overbought);
 
                 if ($overbought) {
                     $this->overboughtProducts[] = [
@@ -140,9 +138,19 @@ class PostCheckoutListener
                     ];
                 }
 
-                // If parent product is soldout, add it's ID to the array of soldout parent products, avoid duplicates
-                if ($soldout && !\in_array($objParentProduct->id, $soldoutParentProductIds, true)) {
-                    $soldoutParentProductIds[] = $objParentProduct->id;
+                if ($soldoutParent) {
+                    // If parent product is soldout, add it's ID to the array of soldout parent products, avoid duplicates
+                    if (!\in_array($objParentProduct->id, $soldoutParentProductIds, true)) {
+                        $soldoutParentProductIds[] = $objParentProduct->id;
+                    }
+                } else {
+                    // Parent product is not soldout, but variant product is
+                    if ($soldoutVariant) {
+                        if (!$this->helper->existsAnyAvailableChild($objParentProduct->id)) {
+                            // No child product is available, so we set parent product to SOLDOUT
+                            $this->helper->updateInventory($objParentProduct, $this->SOLDOUT, '0', true);
+                        }
+                    }
                 }
             }
         } // foreach

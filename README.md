@@ -18,10 +18,11 @@ THIS VERSION IS **ALMOST** READY FOR PRODUCTION
 
 - Integration Test integrated
 
-## Future features
+## Possibel future features
 
 - Show the available quantity per product in the backend product list.
 - Show the available quantity per product in the frontend (product list, product view, cart).
+- Handle per order limits: min and max quantity of a product per order.
 
 ## Features
 

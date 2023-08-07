@@ -1,0 +1,80 @@
+├───📁 .github/
+│   └───📁 workflows/
+│       └───📄 main.yml
+├───📁 config/
+│   └───📄 services.yaml
+├───📁 contao/
+│   ├───📁 dca/
+│   │   └───📄 tl_iso_product.php
+│   ├───📁 languages/
+│   │   ├───📁 de/
+│   │   │   └───...
+│   │   └───📁 en/
+│   │       └───...
+│   └───📁 templates/
+│       ├───📄 iso_collection_default.html5
+│       ├───📄 iso_list_default.html5
+│       ├───📄 iso_list_variants.html5
+│       └───📄 iso_reader_default.html5
+├───📁 coverage/
+│   ├───📁 integration/
+│   │   └───📄 testdox.txt
+│   └───📁 unit/
+│       └───📄 testdox.txt
+├───📁 src/
+│   ├───📁 ContaoManager/
+│   │   └───📄 Plugin.php
+│   ├───📁 DependencyInjection/
+│   │   └───📄 ContaoIsotopeStockExtension.php
+│   ├───📁 EventListener/
+│   │   ├───📄 AddProductToCollectionListener.php
+│   │   ├───📄 CopiedCollectionItemsListener.php
+│   │   ├───📄 GetSystemMessagesListener.php
+│   │   ├───📄 PostCheckoutListener.php
+│   │   ├───📄 PostDeleteItemFromCollectionListener.php
+│   │   ├───📄 PreCheckoutListener.php
+│   │   ├───📄 SaveCollectionListener.php.unnötig?
+│   │   └───📄 UpdateItemInCollectionListener.php
+│   ├───📁 Helper/
+│   │   └───📄 Helper.php
+│   └───📄 ContaoIsotopeStockBundle.php
+├───📁 tests/
+│   ├───📁 Integration/
+│   │   ├───📁 EventListener/
+│   │   │   └───...
+│   │   ├───📁 Fixtures/
+│   │   │   └───...
+│   │   ├───📁 app/
+│   │   │   └───...
+│   │   └───📁 reports/
+│   │       └───...
+│   ├───📁 reset/
+│   │   ├───📄 resetDBToAfterCheckoutState.php
+│   │   └───📄 resetDBToInitialState.php
+│   └───📁 unit/
+│       ├───📁 EventListener/
+│       │   └───...
+│       ├───📁 Helper/
+│       │   └───...
+│       ├───📁 reports/
+│       │   └───...
+│       └───📄 ContaoIsotopeStockBundleTest.php
+├───📁 tools/
+│   ├───📁 ecs/
+│   │   ├───📄 composer.json
+│   │   └───📄 composer.lock
+│   └───📁 phpstan/
+│       ├───📄 composer.json
+│       └───📄 composer.lock
+├───📁 var/
+├───📄 .editorconfig
+├───📄 .env
+├───📄 .gitignore
+├───📄 .phpcs.xml
+├───📄 LICENSE
+├───📄 README.md
+├───📄 composer.json
+├───📄 coverage.txt
+├───📄 ecs.php
+├───📄 phpstan.neon
+└───📄 phpunit.xml

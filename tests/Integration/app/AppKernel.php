@@ -52,7 +52,7 @@ class AppKernel extends Kernel
 
     public function getProjectDir(): string
     {
-        return \dirname(__DIR__, 3) . '/var';
+        return \dirname(__DIR__, 3);
     }
 
     /**

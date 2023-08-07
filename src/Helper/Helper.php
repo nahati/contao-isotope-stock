@@ -397,7 +397,7 @@ class Helper
         // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
         $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
 
-        $overbought = true;
+        $overbought = (int) $qtyBought - (int) $objProduct->quantity;
 
         return true; // soldout
     }
@@ -427,6 +427,42 @@ class Helper
                 $this->updateInventory($objChildProduct, $this->SOLDOUT, '0');
             }
         }
+    }
+
+    /**
+     * Check if any available child product exists.
+     *
+     * @param Standard $objParentProductId
+     *
+     * @return bool
+     */
+    public function existsAnyAvailableChild($objParentProductId)
+    {
+        // Get an adapter for the Standard class
+        $standardAdapter = $this->framework->getAdapter(Standard::class);
+
+        // Fetch all child products
+        $objChildProducts = $standardAdapter->findBy('pid', $objParentProductId);
+
+        if (null === $objChildProducts) {
+            return false;
+        }
+
+        // Check if there is at least one child available
+        $AtLeastOneChildIsAvailable = false;
+
+        foreach ($objChildProducts as $objChildProduct) {
+            $objChildProduct->refresh();
+
+            // If one sibling is available, we can stop the loop
+            if ($objChildProduct->inventory_status === $this->AVAILABLE) {
+                $AtLeastOneChildIsAvailable = true;
+
+                break;
+            }
+        }
+
+        return $AtLeastOneChildIsAvailable;
     }
 
     /**

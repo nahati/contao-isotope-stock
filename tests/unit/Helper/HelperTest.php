@@ -1026,7 +1026,7 @@ class HelperTest extends ContaoTestCase
         $this->assertSame($this->RESERVED, $this->setInventoryStatusTo);
     }
 
-    public function testManageStockAfterCheckoutDoesNoDatabaseUpdatesWhenQuantityIsNull(): void
+    public function testManageStockAfterCheckoutDoesNoDatabaseUpdatesAndReturnsFalseAndNotOverboughtWhenQuantityIsNull(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => null, 'inventory_status' => $this->AVAILABLE]);
@@ -1056,11 +1056,19 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
+        $overbought = false;
+
         // Test if the prepare and execute methods are not called
-        $this->helper->manageStockAfterCheckout($product, 1);
+        $soldout = $this->helper->manageStockAfterCheckout($product, 1, $overbought);
+
+        // Test if the method manageStockAfterCheckout returns false
+        $this->assertFalse($soldout);
+
+        // Test if the overbought value is false
+        $this->assertFalse($overbought);
     }
 
-    public function testManageStockAfterCheckoutDoesNoDatabaseUpdatesWhenQuantityIsEmpty(): void
+    public function testManageStockAfterCheckoutDoesNoDatabaseUpdatesAndReturnsFalseAndNotOverboughtWhenQuantityIsEmpty(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '', 'inventory_status' => $this->AVAILABLE]);
@@ -1090,11 +1098,19 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
+        $overbought = false;
+
         // Test if the prepare and execute methods are not called
-        $this->helper->manageStockAfterCheckout($product, 1);
+        $soldout = $this->helper->manageStockAfterCheckout($product, 1, $overbought);
+
+        // Test if the method manageStockAfterCheckout returns false
+        $this->assertFalse($soldout);
+
+        // Test if the overbought value is false
+        $this->assertFalse($overbought);
     }
 
-    public function testManageStockAfterCheckoutDoesDatabaseUpdatesWhenQuantityBoughtIsLessThanProductQuantity(): void
+    public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndReturnsFalseAndNotOverboughtWhenQuantityBoughtIsLessThanProductQuantity(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '2', 'inventory_status' => $this->AVAILABLE]);
@@ -1125,11 +1141,19 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
+        $overbought = false;
+
         // Test if the prepare and execute methods are called twice
-        $this->helper->manageStockAfterCheckout($product, 1);
+        $soldout = $this->helper->manageStockAfterCheckout($product, 1, $overbought);
+
+        // Test if the method manageStockAfterCheckout returns false
+        $this->assertFalse($soldout);
+
+        // Test if the overbought value is false
+        $this->assertFalse($overbought);
     }
 
-    public function testManageStockAfterCheckoutDoesDatabaseUpdatesWhenQuantityBoughtIsEqualToProductQuantity(): void
+    public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndReturnsTrueAndNotOverboughtWhenQuantityBoughtIsEqualToProductQuantity(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
@@ -1160,70 +1184,19 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
+        $overbought = false;
+
         // Test if the prepare and execute methods are called twice
-        $this->helper->manageStockAfterCheckout($product, 1);
+        $soldout = $this->helper->manageStockAfterCheckout($product, 1, $overbought);
+
+        // Test if the method manageStockAfterCheckout returns true
+        $this->assertTrue($soldout);
+
+        // Test if the overbought value is false
+        $this->assertFalse($overbought);
     }
 
-    public function testManageStockAfterCheckoutReturnsFalseWhenQuantityBoughtIsNull(): void
-    {
-        // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => null, 'inventory_status' => $this->AVAILABLE]);
-        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
-
-        $this->helper = new Helper($this->mockContaoFramework());
-
-        // Test if the method manageStockAndReturnSurplus returns false
-        $this->assertFalse($this->helper->manageStockAfterCheckout($product, 1));
-    }
-
-    public function testManageStockAfterCheckoutReturnsFalseWhenQuantityBoughtIsEmpty(): void
-    {
-        // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '', 'inventory_status' => $this->AVAILABLE]);
-        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
-
-        $this->helper = new Helper($this->mockContaoFramework());
-
-        // Test if the method manageStockAndReturnSurplus returns false
-        $this->assertFalse($this->helper->manageStockAfterCheckout($product, 1));
-    }
-
-    public function testManageStockAfterCheckoutReturnsFalseWhenQuantityBoughtIsLessThanProductQuantity(): void
-    {
-        // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '2', 'inventory_status' => $this->AVAILABLE]);
-        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
-
-        $databaseAdapterMock = $this->getMockBuilder(Database::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-        $databaseAdapterMock
-            ->method('getInstance')
-            ->willReturnSelf()
-        ;
-        $databaseAdapterMock
-            ->expects($this->exactly(2))
-            ->method('prepare')
-            ->willReturnSelf()
-        ;
-        $databaseAdapterMock
-            ->expects($this->exactly(2))
-            ->method('execute')
-        ;
-
-        $adapters = [
-            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
-            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
-        ];
-
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
-
-        // Test if the method manageStockAndReturnSurplus returns false and that the prepare and execute statements are called twice each
-        $this->assertFalse($this->helper->manageStockAfterCheckout($product, 1));
-    }
-
-    public function testManageStockAfterCheckoutReturnsFalseWhenQuantityBoughtIsEqualToProductQuantity(): void
+    public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndReturnsTrueAndOverboughtWhenQuantityBoughtIsGreaterThanProductQuantity(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
@@ -1254,46 +1227,16 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework($adapters));
 
-        // Test if the method manageStockAndReturnSurplus returns true and that the prepare and execute statements are called twice each
-        $this->assertTrue($this->helper->manageStockAfterCheckout($product, 1));
-    }
-
-    public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndReturnsTrueWhenQuantityBoughtIsGreaterThanProductQuantity(): void
-    {
-        // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
-        $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
-
-        $databaseAdapterMock = $this->getMockBuilder(Database::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-        $databaseAdapterMock
-            ->method('getInstance')
-            ->willReturnSelf()
-        ;
-        $databaseAdapterMock
-            ->expects($this->exactly(2))
-            ->method('prepare')
-            ->willReturnSelf()
-        ;
-        $databaseAdapterMock
-            ->expects($this->exactly(2))
-            ->method('execute')
-        ;
-
-        $adapters = [
-            Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
-            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
-        ];
-
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $overbought = false;
 
         // Test if the prepare and execute methods are called twice
-        $return = $this->helper->manageStockAfterCheckout($product, 2);
+        $soldout = $this->helper->manageStockAfterCheckout($product, 2, $overbought);
 
-        // Test that method returns true
-        $this->assertTrue($return);
+        // Test if the method manageStockAfterCheckout returns true
+        $this->assertTrue($soldout);
+
+        // Test if the overbought value is true
+        $this->assertTrue($overbought);
     }
 
     public function testSetChildProductsSoldout(): void
