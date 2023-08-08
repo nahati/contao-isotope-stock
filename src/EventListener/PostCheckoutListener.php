@@ -67,7 +67,6 @@ class PostCheckoutListener
 
         // Loop over all Items in the order
         foreach ($objOrder->getItems() as $objItem) {
-
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
 

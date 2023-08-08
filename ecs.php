@@ -19,4 +19,8 @@ return static function (ECSConfig $ecsConfig): void {
 
     // Adjust the configuration according to your needs.
 
+    // Disable the NoUnsetFixer rule
+    $ecsConfig->setRules([
+        'no_unset' => false,
+    ]);
 };

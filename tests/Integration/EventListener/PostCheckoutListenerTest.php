@@ -41,22 +41,21 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     /**
      * @var ContaoFramework
      */
-    private  $framework;
+    private $framework;
 
     /**
      * @var Adapter<Database>
      */
-    private  $databaseAdapter;
-    private mixed  $objResult;
+    private $databaseAdapter;
+    private mixed $objResult;
 
-    private  PostCheckoutListener $listener;
-    private  Order $objOrder; // target collection, after copying
-    private  int $oldOrderStatus; // old order status
+    private PostCheckoutListener $listener;
+    private Order $objOrder; // target collection, after copying
+    private int $oldOrderStatus; // old order status
 
     // private string $inventory_status;
     private string $AVAILABLE = '2'; /* product available for sale */
     private string $SOLDOUT = '4'; /* product in cart though soldout */
-
 
     // In setUpBefore::class() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
@@ -153,13 +152,11 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $this->loadFixture('tl_iso_product_collection-AfterCheckout.sql');
     }
 
-
-
     /**
      * Builds an sql query to load the database tables into the database
      * Files are located in the Fixtures folder and have been exported from the AfterCheckout database.
      */
-    private  function loadFixture(string $fileName): void
+    private function loadFixture(string $fileName): void
     {
         $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
 
@@ -334,12 +331,12 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      * @param int    $productId
      * @param string $expectedQuantityOfProduct
      * @param string $expectedInventory_statusOfProduct
-     * @param int    $parentProductId                           // optional
-     * @param string $expectedInventory_statusOfParentProduct   // optional
-     * @param int    $sibling1Id                                // optional
-     * @param string $expectedInventory_statusOfSibling1        // optional
-     * @param int    $sibling2Id                                // optional
-     * @param string $expectedInventory_statusOfSibling2        // optional
+     * @param int    $parentProductId                         // optional
+     * @param string $expectedInventory_statusOfParentProduct // optional
+     * @param int    $sibling1Id                              // optional
+     * @param string $expectedInventory_statusOfSibling1      // optional
+     * @param int    $sibling2Id                              // optional
+     * @param string $expectedInventory_statusOfSibling2      // optional
      */
     private function doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $sibling1Id = 0, $expectedInventory_statusOfSibling1 = '', $sibling2Id = 0, $expectedInventory_statusOfSibling2 = ''): void
     {
@@ -352,7 +349,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         // Asserts only for variant products
         if ($parentProductId > 0) {
-
             if ($sibling1Id) {
                 // Test if the inventory_status of sibling1 is as expected
                 $this->objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($sibling1Id);
@@ -563,7 +559,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
-        // Another child product with id 101 exist, which is Available 
+        // Another child product with id 101 exist, which is Available
         $sibling2Id = 101;
 
         $expectedQuantityOfProduct = '0';
@@ -1000,7 +996,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
-
 
     /**
      * @group check-orderstatus
