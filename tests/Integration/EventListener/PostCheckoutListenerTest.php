@@ -49,7 +49,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     private $databaseAdapter;
     private mixed $objResult;
 
-    private PostCheckoutListener $listener;
+    // private PostCheckoutListener $listener;
     private Order $objOrder; // target collection, after copying
     private int $oldOrderStatus; // old order status
 
@@ -61,6 +61,22 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
+
+        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
+
+        self::bootKernel();
+
+        // // Initialize the Contao framework
+        // self::$framework = static::getContainer()->get('contao.framework');
+        // self::$framework->initialize();
+
+        // self::$databaseAdapter = self::$framework->getAdapter(Database::class);
+
+        // // Reset the entire database to initial state
+        // self::resetDatabase();
+
+        // // Do needed Isotope and Notification Center initializations
+        // self::DoSomeIsotopeAndNcInitializations();
     }
 
     /**
@@ -71,16 +87,13 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
-
-        $this->bootKernel();
-
         // Initialize the Contao framework
         $this->framework = $this->getContainer()->get('contao.framework');
         $this->framework->initialize();
 
-        // Reset the database to initial state
         $this->databaseAdapter = $this->framework->getAdapter(Database::class);
+
+        // Reset the database to initial state
         // $this->resetDatabase();
         // TODO: !!!
 
@@ -98,8 +111,8 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->oldOrderStatus = $this->objOrder->order_status;
 
-        // Instantiate a Listener and call it
-        $this->listener = new PostCheckoutListener($this->framework);
+        // // Instantiate a Listener and call it
+        // $this->listener = new PostCheckoutListener($this->framework);
     }
 
     /**
@@ -109,11 +122,8 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     {
         parent::tearDown();
 
-        unset($this->framework);
-        unset($this->objOrder);
-        unset($this->oldOrderStatus);
-        unset($this->objResult);
-        unset($this->listener);
+        // unset($this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
+        unset($this->objOrder, $this->oldOrderStatus, $this->objResult);
     }
 
     /**
@@ -340,6 +350,11 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     private function doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $sibling1Id = 0, $expectedInventory_statusOfSibling1 = '', $sibling2Id = 0, $expectedInventory_statusOfSibling2 = ''): void
     {
+        // Instantiate a Listener and call it
+        $listener = new PostCheckoutListener($this->framework);
+
+        $listener($this->objOrder);
+
         // Test if the product has the expected quantity
         $this->objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
 
@@ -366,6 +381,8 @@ class PostCheckoutListenerTest extends FunctionalTestCase
             $this->objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($parentProductId);
 
             $this->assertSame($this->objResult->inventory_status, $expectedInventory_statusOfParentProduct);
+
+            unset($listener);
         }
     }
 
@@ -390,8 +407,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
-        $this->listener->__invoke($this->objOrder);
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
     }
 
@@ -407,9 +422,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $parentProductId = 0; // no parent product
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
     }
@@ -432,9 +444,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
     }
 
@@ -454,9 +463,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $parentProductId = 0; // no parent product
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
     }
@@ -480,9 +486,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfProduct = $this->AVAILABLE;
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
@@ -509,9 +512,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->AVAILABLE;
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
@@ -542,9 +542,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->SOLDOUT;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -573,9 +570,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->SOLDOUT;
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
@@ -607,9 +601,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->AVAILABLE;
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
@@ -644,9 +635,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->SOLDOUT;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -680,9 +668,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->SOLDOUT;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -713,9 +698,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->AVAILABLE;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -745,9 +727,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->AVAILABLE;
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
@@ -782,9 +761,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->SOLDOUT;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -818,9 +794,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = $this->SOLDOUT;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -849,9 +822,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfProduct = $this->AVAILABLE;
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
@@ -882,9 +852,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
 
@@ -910,9 +877,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfProduct = $this->SOLDOUT;
         $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
@@ -948,9 +912,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
 
@@ -977,9 +938,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfProduct = $this->SOLDOUT;
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
-
-        $this->listener->__invoke($this->objOrder);
-
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
@@ -1011,9 +969,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
 
-        $this->listener->__invoke($this->objOrder);
-
-
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
 
@@ -1022,8 +977,10 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerKeepsOrderStatusWhenOrderNotContainsAnyOverboughtProducts(): void
     {
-        $this->listener->__invoke($this->objOrder);
+        // Instantiate a Listener and call it
+        $listener = new PostCheckoutListener($this->framework);
 
+        $listener($this->objOrder);
 
         $this->objOrder->refresh();
 
@@ -1045,8 +1002,10 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // $productId = 40; // AVAILABLE, Variante Original von Skulptur 3
         // $quantityOfProduct = 1;
 
-        $this->listener->__invoke($this->objOrder);
+        // Instantiate a Listener and call it
+        $listener = new PostCheckoutListener($this->framework);
 
+        $listener($this->objOrder);
 
         $this->objOrder->refresh();
 

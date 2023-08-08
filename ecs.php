@@ -19,6 +19,5 @@ return static function (ECSConfig $ecsConfig): void {
 
     // Adjust the configuration according to your needs.
 
-    // Disable the NoUnsetFixer rule
-    $ecsConfig->skip([\PhpCsFixer\Fixer\ControlStructure\NoUnsetOnPropertyFixer::class]);
+    $ecsConfig->skip([\PhpCsFixer\Fixer\LanguageConstruct\NoUnsetOnPropertyFixer::class]);
 };
