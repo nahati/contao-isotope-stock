@@ -71,6 +71,9 @@ class Helper
     }
 
     /**
+     * Update qunatity / inventory_status of a product.
+     * If strict is set to true, the update is done even if the product has changed in the meantime.
+     * 
      * @param Standard $objProduct
      * @param string   $inventory_status, set empty if not to be updated
      * @param string   $quantity,         leave away or set empty if not to be updated
@@ -85,22 +88,31 @@ class Helper
 
         $objProductDouble = $standardAdapter->findPublishedByPk($objProduct->id);
 
-        // Get an adapter for the Database class
-        $databaseAdapter = $this->framework->getAdapter(Database::class);
-
         // We check if relevant properties of the product have been changed in the meantime
         if (($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) || $strict) {
-            // no changes or strict -> update inventory_status
-            $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
 
-            if ('' !== $quantity && '' !== $inventory_status) {
-                // update quantity and inventory_status
+            // no changes or strict -> update inventory
+
+            // Get an adapter for the Database class
+            $databaseAdapter = $this->framework->getAdapter(Database::class);
+
+            // Fetch the real database state of quantity and inventory_status
+            $result = $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($objProduct->id);
+
+            $updateQuantity = (null !== $result->quantity && '' !== $result->quantity && '' !== $quantity);
+
+            $updateInventoryStatus = (null !== $result->inventory_status && '' !== $result->inventory_status && '' !== $inventory_status);
+
+            // If we have to update any of the two fields, we have to lock the row for update
+            if ($updateQuantity || $updateInventoryStatus) {
+                $result = $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
+            }
+
+            if ($updateQuantity && $updateInventoryStatus) {
                 $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=?, inventory_status=? WHERE id=?')->execute($quantity, $inventory_status, $objProduct->id);
-            } elseif ('' !== $inventory_status) {
-                // update inventory_status
+            } elseif ($updateInventoryStatus) {
                 $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventory_status, $objProduct->id);
-            } elseif ('' !== $quantity) {
-                // update quantity
+            } elseif ($updateQuantity) {
                 $databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantity, $objProduct->id);
             }
 
@@ -371,13 +383,21 @@ class Helper
     public function manageStockAfterCheckout($objProduct, $qtyBought, &$overbought = 0)
     {
         // Unlimited quantity: no stockmanagement
-        if (null === $objProduct->quantity || '' === $objProduct->quantity) {
+
+        // Models take quantity from parent  
+        // if (null === $objProduct->quantity || '' === $objProduct->quantity) {
+
+        // So we use database queries instead of models
+        $databaseAdapter = $this->framework->getAdapter(Database::class);
+        $result = $databaseAdapter->getInstance()->prepare('SELECT quantity FROM tl_iso_product WHERE id=?')->execute($objProduct->id);
+
+        if (null === $result->quantity || '' === $result->quantity) {
             return false; // not soldout
         }
 
         // Quantity bought < Product quantity
 
-        if ((int) $qtyBought < (int) $objProduct->quantity) {
+        if ((int) $qtyBought < (int) $result->quantity) {
             // decrease product quantity in strict mode
             $this->updateInventory($objProduct, '', (string) ((int) $objProduct->quantity - (int) $qtyBought), true);
 
@@ -385,7 +405,7 @@ class Helper
         }
 
         // Quantity in Collection == Product quantity
-        if ((int) $qtyBought === (int) $objProduct->quantity) {
+        if ((int) $qtyBought === (int) $result->quantity) {
             // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
             $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
 
@@ -397,7 +417,7 @@ class Helper
         // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
         $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
 
-        $overbought = (int) $qtyBought - (int) $objProduct->quantity;
+        $overbought = (int) $qtyBought - (int) $result->quantity;
 
         return true; // soldout
     }

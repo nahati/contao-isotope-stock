@@ -815,12 +815,16 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $itemId = 3330;
         $quantityBought = 30;
 
-        // Item initially has a quantity in cart of 100, so we change the this to match the testcase
+        // Item initially has a quantity in cart of 99, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
+
 
         $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
 
         $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
+
+        // Parent product initially is RESERVED, so we change the this to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($this->AVAILABLE, $parentProductId);
 
         // Item 3329
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
@@ -828,7 +832,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $sibling1Id = 96;
 
-        $expectedQuantityOfProduct = '69';
+        $expectedQuantityOfProduct = '';
         $expectedInventory_statusOfProduct = $this->AVAILABLE;
         $expectedInventory_statusOfParentProduct = $this->AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
@@ -841,11 +845,8 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
     {
-        $itemId = 3330;
-        $quantityBought = 99;
-
-        // Item initially has a quantity in cart of 100, so we change the this to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
+        // $itemId = 3330;
+        // $quantityBought = 99;
 
         $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
 
@@ -857,7 +858,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $sibling1Id = 96;
 
-        $expectedQuantityOfProduct = '0';
+        $expectedQuantityOfProduct = '';
         $expectedInventory_statusOfProduct = $this->SOLDOUT;
         $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
@@ -870,8 +871,10 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     {
-        // $itemId = 3330;
-        // $quantityBought = 100;
+        $itemId = 3330;
+        $quantityBought = 100;
+        // Item initially has a quantityBought of 99, so we change the this to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
 
         $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
 
@@ -883,7 +886,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $sibling1Id = 96;
 
-        $expectedQuantityOfProduct = '0';
+        $expectedQuantityOfProduct = '';
         $expectedInventory_statusOfProduct = $this->SOLDOUT;
         $expectedInventory_statusOfParentProduct = $this->SOLDOUT;
         $expectedInventory_statusOfSiblingProduct1 = $this->SOLDOUT;
