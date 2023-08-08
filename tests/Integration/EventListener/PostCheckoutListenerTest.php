@@ -41,13 +41,23 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     /**
      * @var ContaoFramework
      */
+    private static $stcFramework;
+
+    /**
+     * @var Adapter<Database>
+     */
+    private static $stcDatabaseAdapter;
+    private static mixed $objResult;
+
+    /**
+     * @var ContaoFramework
+     */
     private $framework;
 
     /**
      * @var Adapter<Database>
      */
     private $databaseAdapter;
-    private mixed $objResult;
 
     // private PostCheckoutListener $listener;
     private Order $objOrder; // target collection, after copying
@@ -57,7 +67,9 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     private string $AVAILABLE = '2'; /* product available for sale */
     private string $SOLDOUT = '4'; /* product in cart though soldout */
 
-    // In setUpBefore::class() we initialize the neccessary environment once for all tests
+    /**
+     *  In setUpBeforeClass() we initialize part of the neccessary environment once for all tests.
+     */
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -66,42 +78,40 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         self::bootKernel();
 
-        // // Initialize the Contao framework
-        // self::$framework = static::getContainer()->get('contao.framework');
-        // self::$framework->initialize();
+        // Initialize the Contao stcFramework
+        self::$stcFramework = static::getContainer()->get('contao.framework');
+        self::$stcFramework->initialize();
 
-        // self::$databaseAdapter = self::$framework->getAdapter(Database::class);
+        self::$stcDatabaseAdapter = self::$stcFramework->getAdapter(Database::class);
 
-        // // Reset the entire database to initial state
-        // self::resetDatabase();
+        // Reset the entire database to initial state
+        self::resetDatabase();
 
-        // // Do needed Isotope and Notification Center initializations
-        // self::DoSomeIsotopeAndNcInitializations();
+        // Do needed Isotope and Notification Center initializations
+        self::DoSomeIsotopeAndNcInitializations();
     }
 
     /**
      * setup() is called for each Testcase and contains an additional setup for the tests.
+     * We initialize here another framework and another databaseAdapter instance for each test. In teardown() we destroy them.
+     *
      * Override this method if you need to change the basic setup.
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Initialize the Contao framework
-        $this->framework = $this->getContainer()->get('contao.framework');
+        // Initialize the Contao Framework
+        $this->framework = static::getContainer()->get('contao.framework');
         $this->framework->initialize();
 
         $this->databaseAdapter = $this->framework->getAdapter(Database::class);
 
-        // Reset the database to initial state
-        // $this->resetDatabase();
-        // TODO: !!!
-
         $this->resetRelevantDatabaseTables();
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
-        // Do needed Isotope and Notification Center initializations
-        $this->DoSomeIsotopeAndNcInitializations();
+        // // Do needed Isotope and Notification Center initializations
+        // $this->DoSomeIsotopeAndNcInitializations();
 
         // Instantiate an order object with given id
         $this->objOrder = Order::class::findByPk('268', ['return' => 'Model']);
@@ -112,7 +122,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $this->oldOrderStatus = $this->objOrder->order_status;
 
         // // Instantiate a Listener and call it
-        // $this->listener = new PostCheckoutListener($this->framework);
+        // $this->listener = new PostCheckoutListener(self::$stcFramework);
     }
 
     /**
@@ -123,22 +133,22 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         parent::tearDown();
 
         // unset($this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
-        unset($this->objOrder, $this->oldOrderStatus, $this->objResult);
+        unset($this->databaseAdapter, $this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
     }
 
     /**
      * Set the database to an AfterCheckout state.
      */
-    private function resetDatabase(): void
+    private static function resetDatabase(): void
     {
         // Drop all tables
-        foreach ($this->databaseAdapter->getInstance()->listTables() as $table) {
+        foreach (self::$stcDatabaseAdapter->getInstance()->listTables() as $table) {
             $sql = 'DROP TABLE IF EXISTS ' . $table;
-            $this->databaseAdapter->getInstance()->execute($sql);
+            self::$stcDatabaseAdapter->getInstance()->execute($sql);
         }
 
         // Create tables and insert data
-        $this->loadFixture('ContaoIsotopeStockBundleTest-AfterCheckout.sql');
+        self::loadFixture('ContaoIsotopeStockBundleTest-AfterCheckout.sql');
     }
 
     /**
@@ -166,17 +176,17 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      * Builds an sql query to load the database tables into the database
      * Files are located in the Fixtures folder and have been exported from the AfterCheckout database.
      */
-    private function loadFixture(string $fileName): void
+    private static function loadFixture(string $fileName): void
     {
         $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
 
-        $this->databaseAdapter->getInstance()->execute($sql);
+        self::$stcDatabaseAdapter->getInstance()->execute($sql);
     }
 
     /**
      * Do needed Isotope and Notification Center initializations.
      */
-    private function DoSomeIsotopeAndNcInitializations(): void
+    private static function DoSomeIsotopeAndNcInitializations(): void
     {
         // These assignments link the tables with the model ::classes. Now you can use the model ::classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_config'] = Config::class;
@@ -216,9 +226,9 @@ class PostCheckoutListenerTest extends FunctionalTestCase
             'sql' => "varchar(255) NOT NULL default ''",
         ];
 
-        $this->objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_attribute WHERE id=?')->execute(15);
+        self::$objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_attribute WHERE id=?')->execute(15);
 
-        $GLOBALS['TL_DCA']['tl_iso_product']['attributes']['status'] = new TextField($this->objResult);
+        $GLOBALS['TL_DCA']['tl_iso_product']['attributes']['status'] = new TextField(self::$objResult);
 
         // This is a copy from tl_iso_product_collection.php
         $GLOBALS['TL_DCA']['tl_iso_product_collection']['fields']['config_id'] = [
