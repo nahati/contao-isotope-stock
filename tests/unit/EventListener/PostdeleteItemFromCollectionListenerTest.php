@@ -18,6 +18,7 @@ use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
 use Nahati\ContaoIsotopeStockBundle\EventListener\PostDeleteItemFromCollectionListener;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * Test the PostDeleteItemFromCollectionListener class.
@@ -30,10 +31,6 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     private Cart $objCart;
     private Standard $objProduct;
     private Standard $objParentProduct;
-
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
@@ -191,7 +188,7 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     public function testPostDeleteItemFromCollectionListenerSetsInventoryStatusWhenProductIsNotAVariant(): void
     {
         // Mock a product, inventory_status is AVAILABLE, quantity is set
-        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->objProduct
             ->method('getName')
             ->willReturn('foo')
@@ -253,7 +250,7 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     public function testPostDeleteItemFromCollectionListenerSetsInventoryStatusWhenProductIsAVariant(): void
     {
         // Mock a product, inventory_status is AVAILABLE, quantity is set
-        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 100, 'pid' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 100, 'pid' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->objProduct
             ->method('getName')
             ->willReturn('foo')
@@ -266,7 +263,7 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         $this->assertSame($this->objProduct->getName(), 'foo');
 
         // Mock a parent product, inventory_status is SOLDOUT, quantity is set
-        $this->objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'parent', 'quantity' => '1', 'inventory_status' => $this->SOLDOUT]);
+        $this->objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'parent', 'quantity' => '1', 'inventory_status' => Helper::SOLDOUT]);
         $this->objParentProduct
             ->method('getName')
             ->willReturn('parent')

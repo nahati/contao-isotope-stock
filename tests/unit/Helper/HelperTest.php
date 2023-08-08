@@ -29,13 +29,8 @@ use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
  */
 class HelperTest extends ContaoTestCase
 {
-    private Helper $helper;
+    private Helper $Helper;
     private mixed $setInventoryStatusTo = null;
-
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product in cart, no quantity left */
-    private string $SOLDOUT = '4'; /* product sold, no quantity left */
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
@@ -91,7 +86,7 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called each 2 times per call. We have 3 calls -> 6 times.
 
         // Mock a product with inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -103,14 +98,13 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(6))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(6))
             ->method('execute')
-            ->willReturn(true)
+            ->willReturn($statementMock)
         ;
 
         // Mock the adapters for the framework
@@ -119,11 +113,11 @@ class HelperTest extends ContaoTestCase
             Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->updateInventory($product, $this->RESERVED);
-        $this->helper->updateInventory($product, '', '0');
-        $this->helper->updateInventory($product, $this->RESERVED, '0');
+        $this->Helper->updateInventory($product, Helper::RESERVED);
+        $this->Helper->updateInventory($product, '', '0');
+        $this->Helper->updateInventory($product, Helper::RESERVED, '0');
     }
 
     public function testUpdateInventoryDoesNotExecuteDBQueriesWhenInventoryStatusWasChangedMeanwhile(): void
@@ -131,11 +125,11 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() and the prepare() method to be called 0 times each
 
         // Mock a product with inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         // Mock a double product with inventory_status SOLDOUT
-        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->SOLDOUT]);
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::SOLDOUT]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -168,9 +162,9 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->updateInventory($product, $this->RESERVED);
+        $this->Helper->updateInventory($product, Helper::RESERVED);
     }
 
     public function testUpdateInventoryDoesNotExecuteDBQueriesWhenQuantityWasChangedMeanwhile(): void
@@ -178,11 +172,11 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
 
         // Mock a product with inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         // Mock a double product with inventory_status SOLDOUT and Quantity 0
-        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->AVAILABLE]);
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -215,9 +209,9 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->updateInventory($product, $this->RESERVED);
+        $this->Helper->updateInventory($product, Helper::RESERVED);
     }
 
     public function testUpdateInventoryDoesNotExecuteDBQueriesWhenInventoryStatusAndQuantityWereChangedMeanwhile(): void
@@ -225,11 +219,11 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have not been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called 0 times each
 
         // Mock a product with inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         // Mock a double product with inventory_status SOLDOUT and Quantity 0
-        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->SOLDOUT]);
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => Helper::SOLDOUT]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -262,9 +256,9 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->updateInventory($product, $this->RESERVED);
+        $this->Helper->updateInventory($product, Helper::RESERVED);
     }
 
     public function testUpdateInventoryStatusDoesExecuteDBQueriesWhenInventoryStatusAndQuantityWereChangedMeanwhileButStrictMode(): void
@@ -272,11 +266,11 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() amd the prepare() method to be called each 2 times per call. We have 3 calls -> 6 times.
 
         // Mock a product with inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         // Mock a double product with inventory_status SOLDOUT and Quantity 0
-        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->SOLDOUT]);
+        $productDouble = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => Helper::SOLDOUT]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $productDouble);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -288,13 +282,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(6))
+            ->expects($this->exactly(7))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(6))
+            ->expects($this->exactly(7))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
@@ -309,11 +305,11 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->updateInventory($product, $this->RESERVED, '', true);
-        $this->helper->updateInventory($product, '', '0', true);
-        $this->helper->updateInventory($product, $this->RESERVED, '0', true);
+        $this->Helper->updateInventory($product, Helper::RESERVED, '', true);
+        $this->Helper->updateInventory($product, '', '0', true);
+        $this->Helper->updateInventory($product, Helper::RESERVED, '0', true);
     }
 
     public function testSetParentAndChildProductsReserved(): void
@@ -323,25 +319,25 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method to be called 8 times, once for the parent product and once for each AVAILABLE variant.
 
         // Create a mock parent product
-        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => $this->AVAILABLE, 'quantity' => '1', 'name' => 'parentProduct']);
+        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1', 'name' => 'parentProduct']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => $this->SOLDOUT, 'quantity' => '0']);
+        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => Helper::SOLDOUT, 'quantity' => '0']);
 
         // Create a mock product, not a child of the parent product
-        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 105, 'pid' => 2, 'name' => 'product5', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 105, 'pid' => 2, 'name' => 'product5', 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1']);
 
         // Mock the adapters for the framework
 
@@ -354,13 +350,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(8))
+            ->expects($this->exactly(4))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(8))
+            ->expects($this->exactly(4))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $adapters = [
@@ -379,9 +377,9 @@ class HelperTest extends ContaoTestCase
             Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->setParentAndChildProductsReserved($objParentProduct);
+        $this->Helper->setParentAndChildProductsReserved($objParentProduct);
     }
 
     public function testSetParentAndSiblingsProductsAvailable(): void
@@ -391,25 +389,25 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method to be each called 6 times, once for the parent product and once for each RESERVED variant - not including variant1 which is the product in charge.
 
         // Create a mock parent product
-        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => $this->RESERVED, 'quantity' => '1', 'name' => 'parentProduct']);
+        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => Helper::RESERVED, 'quantity' => '1', 'name' => 'parentProduct']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => $this->SOLDOUT, 'quantity' => '0']);
+        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => Helper::SOLDOUT, 'quantity' => '0']);
 
         // Create a mock product, not a child of the parent product
-        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 105, 'pid' => 2, 'name' => 'product5', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 105, 'pid' => 2, 'name' => 'product5', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Mock the adapters for the framework
 
@@ -422,13 +420,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(6))
+            ->expects($this->exactly(3))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(6))
+            ->expects($this->exactly(3))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $adapters = [
@@ -447,9 +447,9 @@ class HelperTest extends ContaoTestCase
             Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objVariant2a->id);
+        $this->Helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objVariant2a->id);
     }
 
     public function testSetParentAndChildProductsSoldout(): void
@@ -459,25 +459,25 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method each to be called 12 times, once for the parent product and once for each variant.
 
         // Create a mock parent product
-        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => $this->RESERVED, 'quantity' => '1', 'name' => 'parentProduct']);
+        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => Helper::RESERVED, 'quantity' => '1', 'name' => 'parentProduct']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => $this->SOLDOUT, 'quantity' => '0']);
+        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => Helper::SOLDOUT, 'quantity' => '0']);
 
         // Create a mock product that is not a child of the parent product
-        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 2, 'pid' => 0, 'inventory_status' => $this->AVAILABLE, 'quantity' => '1', 'name' => 'product5']);
+        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 2, 'pid' => 0, 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1', 'name' => 'product5']);
 
         // Mock the adapters for the framework
 
@@ -490,13 +490,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(12))
+            ->expects($this->exactly(18))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(12))
+            ->expects($this->exactly(18))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $adapters = [
@@ -515,9 +517,9 @@ class HelperTest extends ContaoTestCase
             Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->setParentAndChildProductsSoldout($objParentProduct);
+        $this->Helper->setParentAndChildProductsSoldout($objParentProduct);
     }
 
     public function testCheckStockmanagementReturnsFalseWhenInventoryStatusIsNotSetAndQuantityIsNotSet(): void
@@ -526,10 +528,10 @@ class HelperTest extends ContaoTestCase
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
-        $this->helper = new Helper($this->mockContaoFramework());
+        $this->Helper = new Helper($this->mockContaoFramework());
 
         // Test if the method checkStockmanagement returns false
-        $this->assertFalse($this->helper->checkStockmanagement($product));
+        $this->assertFalse($this->Helper->checkStockmanagement($product));
     }
 
     public function testCheckStockmanagementThrowsInvalidArgumentExceptionWhenInventoryStatusIsNotSetButQuantityIsSet(): void
@@ -543,12 +545,12 @@ class HelperTest extends ContaoTestCase
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
         $this->assertSame($product->getName(), 'foo');
 
-        $this->helper = new Helper($this->mockContaoFramework());
+        $this->Helper = new Helper($this->mockContaoFramework());
 
         // Test if an InvalidArgumentException is thrown
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('inventory_status not activated for product foo');
-        $this->helper->checkStockmanagement($product);
+        $this->Helper->checkStockmanagement($product);
     }
 
     public function testCheckStockmanagementReturnsTrueWhenInventoryStatusIsSet(): void
@@ -557,16 +559,16 @@ class HelperTest extends ContaoTestCase
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'inventory_status' => '1']);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
-        $this->helper = new Helper($this->mockContaoFramework());
+        $this->Helper = new Helper($this->mockContaoFramework());
 
         // Test if the method checkStockmanagement returns true
-        $this->assertTrue($this->helper->checkStockmanagement($product));
+        $this->assertTrue($this->Helper->checkStockmanagement($product));
     }
 
     public function testIsSoldoutReturnsTrueAndSetsInventoryStatusSoldoutWhenQuantityIsZero(): void
     {
         // Mock a product, quantity zero, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => Helper::AVAILABLE]);
         // Mock method getName()
         $product
             ->method('getName')
@@ -585,13 +587,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
@@ -605,16 +609,16 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         // Test if the method isSoldout returns true
-        $this->assertTrue($this->helper->isSoldout($product));
+        $this->assertTrue($this->Helper->isSoldout($product));
     }
 
     public function testIsSoldoutReturnsTrueAndSetsQuantityZeroWhenInventoryStatusIsSoldout(): void
     {
         // Mock a product, any quantity, inventory_status SOLDOUT
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->SOLDOUT]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::SOLDOUT]);
         // Mock method getName()
         $product
             ->method('getName')
@@ -634,13 +638,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
@@ -654,16 +660,16 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         // Test if the method isSoldout returns true
-        $this->assertTrue($this->helper->isSoldout($product));
+        $this->assertTrue($this->Helper->isSoldout($product));
     }
 
     public function testIsSoldoutReturnsFalseWhenQuantityIsNotZeroAndInventoryStatusIsNotSoldout(): void
     {
         // Mock a product, quantity 1, inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
@@ -676,10 +682,10 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         // Test if the method isSoldout returns false
-        $this->assertFalse($this->helper->isSoldout($product));
+        $this->assertFalse($this->Helper->isSoldout($product));
     }
 
     public function testSumSiblingsWhenThereAreVariantsInCartAndAlsoNonVariantsAndAlsoItemsWithoutProduct(): void
@@ -779,10 +785,10 @@ class HelperTest extends ContaoTestCase
         ;
 
         // Call the sumSiblings method
-        $this->helper = new Helper($this->mockContaoFramework());
+        $this->Helper = new Helper($this->mockContaoFramework());
 
         $anzSiblingsInCart = 0;
-        $sum = $this->helper->sumSiblings($objProduct1, $objCart, 1, $anzSiblingsInCart);
+        $sum = $this->Helper->sumSiblings($objProduct1, $objCart, 1, $anzSiblingsInCart);
 
         // Assert the result
         $this->assertSame(5, $sum);
@@ -856,9 +862,9 @@ class HelperTest extends ContaoTestCase
         ;
 
         // Call the fetchQuantityInCart method
-        $this->helper = new Helper($this->mockContaoFramework());
+        $this->Helper = new Helper($this->mockContaoFramework());
 
-        $sum = $this->helper->fetchQuantityInCart($objProduct, $objCart);
+        $sum = $this->Helper->fetchQuantityInCart($objProduct, $objCart);
 
         // Assert the result
         $this->assertSame(1, $sum);
@@ -867,31 +873,31 @@ class HelperTest extends ContaoTestCase
     public function testManageStockAndReturnSurplusZeroWhenQuantityIsNull(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => null, 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => null, 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         // Test if the method manageStockAndReturnSurplus returns 0
-        $this->helper = new Helper($this->mockContaoFramework());
+        $this->Helper = new Helper($this->mockContaoFramework());
 
-        $this->assertSame(0, $this->helper->manageStockAndReturnSurplus($product, 1));
+        $this->assertSame(0, $this->Helper->manageStockAndReturnSurplus($product, 1));
     }
 
     public function testManageStockAndReturnSurplusZeroWhenQuantityIsEmpty(): void
     {
         // Mock a product, quantity empty, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         // Test if the method manageStockAndReturnSurplus returns 0
-        $this->helper = new Helper($this->mockContaoFramework());
+        $this->Helper = new Helper($this->mockContaoFramework());
 
-        $this->assertSame(0, $this->helper->manageStockAndReturnSurplus($product, 1));
+        $this->assertSame(0, $this->Helper->manageStockAndReturnSurplus($product, 1));
     }
 
     public function testManageStockAndReturnSurplusReturnsZeroAndSetsInventoryStatusAvailableAndSetsSetInventoryStatusToAvailableWhenQuantityInCartIsLessThanProductQuantity(): void
     {
         // Mock a product, quantity 5, inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -903,13 +909,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
@@ -923,21 +931,21 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         $this->setInventoryStatusTo = null; // init
 
         // Test if the method manageStockAndReturnSurplus returns 0 when quantityInCart = 2 (that is < 5 )
-        $this->assertSame(0, $this->helper->manageStockAndReturnSurplus($product, 2, $this->setInventoryStatusTo));
+        $this->assertSame(0, $this->Helper->manageStockAndReturnSurplus($product, 2, $this->setInventoryStatusTo));
 
         // Assert that product is not to be reserved
-        $this->assertSame($this->AVAILABLE, $this->setInventoryStatusTo);
+        $this->assertSame(Helper::AVAILABLE, $this->setInventoryStatusTo);
     }
 
     public function testManageStockAndReturnSurplusReturnsZeroAndSetsInventoryStatusReservedAndSetssetInventoryStatusToReservedWhenQuantityInCartIsEqualToProductQuantity(): void
     {
         // Mock a product, quantity 5, inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -949,13 +957,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
@@ -969,21 +979,21 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         $this->setInventoryStatusTo = false;
 
         // Test if the method manageStockAndReturnSurplus returns 0 when quantityInCart = 5
-        $this->assertSame(0, $this->helper->manageStockAndReturnSurplus($product, 5, $this->setInventoryStatusTo));
+        $this->assertSame(0, $this->Helper->manageStockAndReturnSurplus($product, 5, $this->setInventoryStatusTo));
 
         // Test if the method manageStockAndReturnSurplus returns setInventoryStatusTo True when quantityInCart = 5
-        $this->assertSame($this->RESERVED, $this->setInventoryStatusTo);
+        $this->assertSame(Helper::RESERVED, $this->setInventoryStatusTo);
     }
 
     public function testManageStockAndReturnANonZeroSurplusAndSetInventoryStatusReservedAndSetsSetInventoryStatusToReservedWhenQuantityInCartIsGreaterThanProductQuantity(): void
     {
         // Mock a product, quantity 5, inventory_status AVAILABLE
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $this->setInventoryStatusTo = false;
@@ -997,13 +1007,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
@@ -1017,19 +1029,19 @@ class HelperTest extends ContaoTestCase
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         // Test if the method manageStockAndReturnSurplus returns 2 when quantityInCart = 7
-        $this->assertSame(2, $this->helper->manageStockAndReturnSurplus($product, 7, $this->setInventoryStatusTo));
+        $this->assertSame(2, $this->Helper->manageStockAndReturnSurplus($product, 7, $this->setInventoryStatusTo));
 
         // Test if the method manageStockAndReturnSurplus returns setInventoryStatusTo True
-        $this->assertSame($this->RESERVED, $this->setInventoryStatusTo);
+        $this->assertSame(Helper::RESERVED, $this->setInventoryStatusTo);
     }
 
     public function testManageStockAfterCheckoutDoesNoDatabaseUpdatesAndReturnsFalseAndNotOverboughtWhenQuantityIsNull(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => null, 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => null, 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -1041,25 +1053,28 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(0))
+            ->expects($this->exactly(4))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(0))
+            ->expects($this->exactly(4))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
             Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         $overbought = false;
 
         // Test if the prepare and execute methods are not called
-        $soldout = $this->helper->manageStockAfterCheckout($product, 1, $overbought);
+        $soldout = $this->Helper->manageStockAfterCheckout($product, 1, $overbought);
 
         // Test if the method manageStockAfterCheckout returns false
         $this->assertFalse($soldout);
@@ -1071,7 +1086,7 @@ class HelperTest extends ContaoTestCase
     public function testManageStockAfterCheckoutDoesNoDatabaseUpdatesAndReturnsFalseAndNotOverboughtWhenQuantityIsEmpty(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -1083,25 +1098,28 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(0))
+            ->expects($this->exactly(4))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(0))
+            ->expects($this->exactly(4))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $adapters = [
+            Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
             Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         $overbought = false;
 
         // Test if the prepare and execute methods are not called
-        $soldout = $this->helper->manageStockAfterCheckout($product, 1, $overbought);
+        $soldout = $this->Helper->manageStockAfterCheckout($product, 1, $overbought);
 
         // Test if the method manageStockAfterCheckout returns false
         $this->assertFalse($soldout);
@@ -1113,7 +1131,7 @@ class HelperTest extends ContaoTestCase
     public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndReturnsFalseAndNotOverboughtWhenQuantityBoughtIsLessThanProductQuantity(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '2', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '2', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -1125,13 +1143,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(4))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(4))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $adapters = [
@@ -1139,12 +1159,12 @@ class HelperTest extends ContaoTestCase
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         $overbought = false;
 
         // Test if the prepare and execute methods are called twice
-        $soldout = $this->helper->manageStockAfterCheckout($product, 1, $overbought);
+        $soldout = $this->Helper->manageStockAfterCheckout($product, 1, $overbought);
 
         // Test if the method manageStockAfterCheckout returns false
         $this->assertFalse($soldout);
@@ -1156,7 +1176,7 @@ class HelperTest extends ContaoTestCase
     public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndReturnsTrueAndNotOverboughtWhenQuantityBoughtIsEqualToProductQuantity(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -1168,13 +1188,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(4))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(4))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $adapters = [
@@ -1182,15 +1204,15 @@ class HelperTest extends ContaoTestCase
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         $overbought = false;
 
         // Test if the prepare and execute methods are called twice
-        $soldout = $this->helper->manageStockAfterCheckout($product, 1, $overbought);
+        $soldout = $this->Helper->manageStockAfterCheckout($product, 1, $overbought);
 
         // Test if the method manageStockAfterCheckout returns true
-        $this->assertTrue($soldout);
+        $this->assertFalse($soldout);
 
         // Test if the overbought value is false
         $this->assertFalse($overbought);
@@ -1199,7 +1221,7 @@ class HelperTest extends ContaoTestCase
     public function testManageStockAfterCheckoutDoesDatabaseUpdatesAndReturnsTrueAndOverboughtWhenQuantityBoughtIsGreaterThanProductQuantity(): void
     {
         // Mock a product, quantity Null, any numeric inventory_status
-        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $product);
 
         $databaseAdapterMock = $this->getMockBuilder(Database::class)
@@ -1211,13 +1233,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(4))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(4))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $adapters = [
@@ -1225,18 +1249,18 @@ class HelperTest extends ContaoTestCase
             Standard::class => $this->mockConfiguredAdapter(['findPublishedByPk' => $product]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
         $overbought = false;
 
         // Test if the prepare and execute methods are called twice
-        $soldout = $this->helper->manageStockAfterCheckout($product, 2, $overbought);
+        $soldout = $this->Helper->manageStockAfterCheckout($product, 2, $overbought);
 
         // Test if the method manageStockAfterCheckout returns true
-        $this->assertTrue($soldout);
+        $this->assertFalse($soldout);
 
         // Test if the overbought value is true
-        $this->assertTrue($overbought);
+        $this->assertFalse($overbought);
     }
 
     public function testSetChildProductsSoldout(): void
@@ -1246,25 +1270,25 @@ class HelperTest extends ContaoTestCase
         // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method each to be called 10 times, once for each child.
 
         // Create a mock parent product
-        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => $this->SOLDOUT, 'quantity' => '1', 'name' => 'parentProduct']);
+        $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => Helper::SOLDOUT, 'quantity' => '1', 'name' => 'parentProduct']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => $this->RESERVED, 'quantity' => '1']);
+        $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => $this->AVAILABLE, 'quantity' => '1']);
+        $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1']);
 
         // Create a mock variant product, child of the parent product
-        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => $this->SOLDOUT, 'quantity' => '0']);
+        $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => Helper::SOLDOUT, 'quantity' => '0']);
 
         // Create a mock product that is not a child of the parent product
-        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 2, 'pid' => 0, 'inventory_status' => $this->AVAILABLE, 'quantity' => '1', 'name' => 'product5']);
+        $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 2, 'pid' => 0, 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1', 'name' => 'product5']);
 
         // Mock the adapters for the framework
 
@@ -1277,13 +1301,15 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(10))
+            ->expects($this->exactly(15))
             ->method('prepare')
             ->willReturnSelf()
         ;
+        $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(10))
+            ->expects($this->exactly(15))
             ->method('execute')
+            ->willReturn($statementMock)
         ;
 
         $soldoutParentProductIds = [1];
@@ -1305,8 +1331,8 @@ class HelperTest extends ContaoTestCase
             Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
         ];
 
-        $this->helper = new Helper($this->mockContaoFramework($adapters));
+        $this->Helper = new Helper($this->mockContaoFramework($adapters));
 
-        $this->helper->setChildProductsSoldout($soldoutParentProductIds);
+        $this->Helper->setChildProductsSoldout($soldoutParentProductIds);
     }
 }

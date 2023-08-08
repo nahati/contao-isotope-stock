@@ -18,6 +18,7 @@ use Isotope\Model\ProductCollection;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
 use Nahati\ContaoIsotopeStockBundle\EventListener\CopiedCollectionItemsListener;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * Test the CopiedCollectionItemsListener class.
@@ -35,9 +36,6 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
 
     private ProductCollectionItem $objItem;
     private Standard $objProduct;
-
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
@@ -57,7 +55,7 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         parent::setUp();
 
         // Mock a product, inventory_status AVAILABLE, quantity '1'
-        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => $this->AVAILABLE]);
+        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
         $this->objProduct
             ->method('getName')
             ->willReturn('foo')
@@ -66,7 +64,7 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         $this->assertSame($this->objProduct->id, 1);
         $this->assertSame($this->objProduct->name, 'foo');
         $this->assertSame($this->objProduct->quantity, '1');
-        $this->assertSame($this->objProduct->inventory_status, $this->AVAILABLE);
+        $this->assertSame($this->objProduct->inventory_status, Helper::AVAILABLE);
         $this->assertSame($this->objProduct->getName(), 'foo');
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)

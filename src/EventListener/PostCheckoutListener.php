@@ -42,9 +42,6 @@ class PostCheckoutListener
      */
     private array $overboughtProducts = [];
 
-    // private string $inventory_status;
-    private string $SOLDOUT = '4'; /* product in cart though soldout */
-
     public function __construct(ContaoFramework $framework)
     {
         $this->framework = $framework;
@@ -147,7 +144,7 @@ class PostCheckoutListener
                     if ($soldoutVariant) {
                         if (!$this->helper->existsAnyAvailableChild($objParentProduct->id)) {
                             // No child product is available, so we set parent product to SOLDOUT
-                            $this->helper->updateInventory($objParentProduct, $this->SOLDOUT, '0', true);
+                            $this->helper->updateInventory($objParentProduct, Helper::SOLDOUT, '0', true);
                         }
                     }
                 }

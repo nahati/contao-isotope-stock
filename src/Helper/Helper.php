@@ -30,12 +30,12 @@ class Helper
 {
     private ContaoFramework $framework;
 
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product in collection, no quantity left */
-    private string $SOLDOUT = '4'; /* product sold, no quantity left */
+    // inventory_status
+    public const AVAILABLE = '2'; /* product available for sale */
+    public const RESERVED = '3'; /* product in collection, no quantity left */
+    public const SOLDOUT = '4'; /* product sold, no quantity left */
 
-    private string $OVERBOUGHT = 'Overbought'; // status for overbought orders
+    public const OVERBOUGHT = 'Overbought'; // status for overbought orders
 
     public function __construct(ContaoFramework $framework)
     {
@@ -73,7 +73,7 @@ class Helper
     /**
      * Update qunatity / inventory_status of a product.
      * If strict is set to true, the update is done even if the product has changed in the meantime.
-     * 
+     *
      * @param Standard $objProduct
      * @param string   $inventory_status, set empty if not to be updated
      * @param string   $quantity,         leave away or set empty if not to be updated
@@ -90,7 +90,6 @@ class Helper
 
         // We check if relevant properties of the product have been changed in the meantime
         if (($objProductDouble->quantity === $objProduct->quantity && $objProductDouble->inventory_status === $objProduct->inventory_status) || $strict) {
-
             // no changes or strict -> update inventory
 
             // Get an adapter for the Database class
@@ -105,7 +104,7 @@ class Helper
 
             // If we have to update any of the two fields, we have to lock the row for update
             if ($updateQuantity || $updateInventoryStatus) {
-                $result = $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
+                $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=? FOR UPDATE')->execute($objProduct->id);
             }
 
             if ($updateQuantity && $updateInventoryStatus) {
@@ -137,12 +136,12 @@ class Helper
         $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
 
         // Set parent product RESERVED
-        $this->updateInventory($objParentProduct, $this->RESERVED);
+        $this->updateInventory($objParentProduct, self::RESERVED);
 
         // Set all AVAILABLE variants RESERVED
         foreach ($objVariants as $variant) {
-            if ($variant->inventory_status === $this->AVAILABLE) {
-                $this->updateInventory($variant, $this->RESERVED);
+            if (self::AVAILABLE === $variant->inventory_status) {
+                $this->updateInventory($variant, self::RESERVED);
             }
         }
     }
@@ -159,11 +158,11 @@ class Helper
         $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
 
         // Set parent product SOLDOUT
-        $this->updateInventory($objParentProduct, $this->SOLDOUT, '0');
+        $this->updateInventory($objParentProduct, self::SOLDOUT, '0');
 
         // Set all variants SOLDOUT
         foreach ($objVariants as $variant) {
-            $this->updateInventory($variant, $this->SOLDOUT, '0');
+            $this->updateInventory($variant, self::SOLDOUT, '0');
         }
     }
 
@@ -181,12 +180,12 @@ class Helper
         $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id, ['exclude' => $id]);
 
         // Set parent product AVAILABLE
-        $this->updateInventory($objParentProduct, $this->AVAILABLE);
+        $this->updateInventory($objParentProduct, self::AVAILABLE);
 
         // Set all RESERVED variants AVAILABLE
         foreach ($objVariants as $variant) {
-            if ($variant->inventory_status === $this->RESERVED) {
-                $this->updateInventory($variant, $this->AVAILABLE);
+            if (self::RESERVED === $variant->inventory_status) {
+                $this->updateInventory($variant, self::AVAILABLE);
             }
         }
     }
@@ -228,7 +227,7 @@ class Helper
     {
         // Quantity zero
         if ('0' === $objProduct->quantity) {
-            $this->updateInventory($objProduct, $this->SOLDOUT);
+            $this->updateInventory($objProduct, self::SOLDOUT);
 
             $this->issueErrorMessage('productOutOfStock', $objProduct->getName());
 
@@ -236,7 +235,7 @@ class Helper
         }
 
         // InventoryStatus SOLDOUT
-        if ($this->SOLDOUT === $objProduct->inventory_status) {
+        if (self::SOLDOUT === $objProduct->inventory_status) {
             $this->updateInventory($objProduct, '', '0');
 
             $this->issueErrorMessage('productOutOfStock', $objProduct->getName());
@@ -339,34 +338,34 @@ class Helper
 
         // Product SOLDOUT
         if ($this->isSoldout($objProduct)) {
-            $setInventoryStatusTo = $this->SOLDOUT;
+            $setInventoryStatusTo = self::SOLDOUT;
 
             return $qtyInCollection; // return surplus quantity
         }
 
         // Quantity in Collection < Product quantity
         if ((int) $qtyInCollection < (int) $objProduct->quantity) {
-            $this->updateInventory($objProduct, $this->AVAILABLE);
+            $this->updateInventory($objProduct, self::AVAILABLE);
 
-            $setInventoryStatusTo = $this->AVAILABLE;
+            $setInventoryStatusTo = self::AVAILABLE;
 
             return 0; // no surplus quantity
         }
 
         // Quantity in Collection == Product quantity
         if ((int) $qtyInCollection === (int) $objProduct->quantity) {
-            $this->updateInventory($objProduct, $this->RESERVED);
+            $this->updateInventory($objProduct, self::RESERVED);
 
-            $setInventoryStatusTo = $this->RESERVED;
+            $setInventoryStatusTo = self::RESERVED;
 
             return 0; // no surplus quantity
         }
 
         // (else) Quantity in Collection > Product quantity
 
-        $this->updateInventory($objProduct, $this->RESERVED);
+        $this->updateInventory($objProduct, self::RESERVED);
 
-        $setInventoryStatusTo = $this->RESERVED;
+        $setInventoryStatusTo = self::RESERVED;
 
         return (int) $qtyInCollection - (int) $objProduct->quantity; // return surplus quantity
     }
@@ -384,7 +383,7 @@ class Helper
     {
         // Unlimited quantity: no stockmanagement
 
-        // Models take quantity from parent  
+        // Models take quantity from parent
         // if (null === $objProduct->quantity || '' === $objProduct->quantity) {
 
         // So we use database queries instead of models
@@ -407,7 +406,7 @@ class Helper
         // Quantity in Collection == Product quantity
         if ((int) $qtyBought === (int) $result->quantity) {
             // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
-            $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
+            $this->updateInventory($objProduct, self::SOLDOUT, '0', true);
 
             return true; // soldout
         }
@@ -415,7 +414,7 @@ class Helper
         // (else) Quantity in Collection > Product quantity
 
         // Decrease product quantity to zero and set inventory_status SOLDOUT in strict mode
-        $this->updateInventory($objProduct, $this->SOLDOUT, '0', true);
+        $this->updateInventory($objProduct, self::SOLDOUT, '0', true);
 
         $overbought = (int) $qtyBought - (int) $result->quantity;
 
@@ -444,7 +443,7 @@ class Helper
             // Loop over all child products
             foreach ($objChildProducts as $objChildProduct) {
                 // Set SOLDOUT
-                $this->updateInventory($objChildProduct, $this->SOLDOUT, '0');
+                $this->updateInventory($objChildProduct, self::SOLDOUT, '0');
             }
         }
     }
@@ -475,7 +474,7 @@ class Helper
             $objChildProduct->refresh();
 
             // If one sibling is available, we can stop the loop
-            if ($objChildProduct->inventory_status === $this->AVAILABLE) {
+            if (self::AVAILABLE === $objChildProduct->inventory_status) {
                 $AtLeastOneChildIsAvailable = true;
 
                 break;
@@ -501,7 +500,7 @@ class Helper
         }
 
         // Update orderstatus to 'Overbought'
-        $this->updateOrderStatus($orderId, $this->OVERBOUGHT);
+        $this->updateOrderStatus($orderId, self::OVERBOUGHT);
     }
 
     /**

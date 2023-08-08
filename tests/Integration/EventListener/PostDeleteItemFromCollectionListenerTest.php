@@ -23,6 +23,7 @@ use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
 use Isotope\Model\ProductType;
 use Nahati\ContaoIsotopeStockBundle\EventListener\PostDeleteItemFromCollectionListener;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * Integration-Test of the PostDeleteItemFromCollectionListener class.
@@ -41,11 +42,6 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
 
     private ProductCollectionItem $objItem;
     private Cart $objCart;
-
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product reserved, not available for more sales */
-    private string $SOLDOUT = '4'; /* product in cart though soldout */
 
     /**
      * @param int    $itemId
@@ -246,9 +242,9 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     {
         $itemId = 3116;
         $productId = 89; // quantity 2, RESERVED, Bild 3
-        $inventoryStatusOfProduct = $this->RESERVED;
+        $inventoryStatusOfProduct = Helper::RESERVED;
         $parentProductId = 0; // no parent product
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -267,7 +263,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $productId = 89; // quantity 0, AVAILABLE, Bild 3
         $quantityOfProduct = '0';
         $parentProductId = 0; // no parent product
-        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $expectedInventory_statusOfProduct = Helper::SOLDOUT;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -286,7 +282,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $productId = 89; // quantity 0, AVAILABLE, Bild 3
         $quantityOfProduct = '';
         $parentProductId = 0; // no parent product
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -303,9 +299,9 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     {
         $itemId = 3119;
         $productId = 44; // quantity 2 , RESERVED, Variante Kopie Skulptur 2
-        $inventoryStatusOfProduct = $this->RESERVED;
+        $inventoryStatusOfProduct = Helper::RESERVED;
         $parentProductId = 32; //  quantity 4, RESERVED, Skulptur 2
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
 
         // Product initially has an inventory_status of AVAILABLE, so we change the inventory_status of the product to match the testcase
         self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfProduct, $parentProductId);
@@ -321,8 +317,8 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $itemId = 3119;
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
         $parentProductId = 32; //  quantity 4, SOLDOUT, Skulptur 2
-        $inventoryStatusOfParentProduct = $this->SOLDOUT;
-        $expectedInventory_statusOfProduct = $this->SOLDOUT;
+        $inventoryStatusOfParentProduct = Helper::SOLDOUT;
+        $expectedInventory_statusOfProduct = Helper::SOLDOUT;
 
         // Parent product initially has an inventory_status of AVAILABLE, so we change the inventory_status of parent product to match the testcase
         self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfParentProduct, $parentProductId);

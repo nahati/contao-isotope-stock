@@ -35,8 +35,6 @@ class PostDeleteItemFromCollectionListener
     private ContaoFramework $framework;
 
     private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for selling */
-    private string $SOLDOUT = '4'; /* product bought, no remaining quantity */
 
     /**
      * @var Helper // make use of methods from the Helper class
@@ -84,14 +82,14 @@ class PostDeleteItemFromCollectionListener
         $standardAdapter = $this->framework->getAdapter(Standard::class);
 
         // Set inventory_status according to quantity
-        $this->inventory_status = '0' === $objProduct->quantity ? $this->SOLDOUT : $this->AVAILABLE;
+        $this->inventory_status = '0' === $objProduct->quantity ? Helper::SOLDOUT : Helper::AVAILABLE;
 
         // Set inventory_status SOLDOUT if parent product is SOLDOUT
         if ($objProduct->pid > 0) {
             $objParentProduct = $standardAdapter->findByPk($objProduct->pid);
 
-            if ($objParentProduct->inventory_status === $this->SOLDOUT) {
-                $this->inventory_status = $this->SOLDOUT;
+            if (Helper::SOLDOUT === $objParentProduct->inventory_status) {
+                $this->inventory_status = Helper::SOLDOUT;
             }
         }
 

@@ -58,14 +58,10 @@ Helper (Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper\Helper)
  [x] Manage stock and return surplus returns zero and sets inventory status available and sets set inventory status to available when quantity in cart is less than product quantity
  [x] Manage stock and return surplus returns zero and sets inventory status reserved and setsset inventory status to reserved when quantity in cart is equal to product quantity
  [x] Manage stock and return a non zero surplus and set inventory status reserved and sets set inventory status to reserved when quantity in cart is greater than product quantity
- [x] Manage stock after checkout does no database updates when quantity is null
- [x] Manage stock after checkout does no database updates when quantity is empty
- [x] Manage stock after checkout does database updates when quantity bought is less than product quantity
- [x] Manage stock after checkout does database updates when quantity bought is equal to product quantity
- [x] Manage stock after checkout returns false when quantity bought is null
- [x] Manage stock after checkout returns false when quantity bought is empty
- [x] Manage stock after checkout returns false when quantity bought is less than product quantity
- [x] Manage stock after checkout returns false when quantity bought is equal to product quantity
- [x] Manage stock after checkout does database updates and returns true when quantity bought is greater than product quantity
+ [x] Manage stock after checkout does no database updates and returns false and not overbought when quantity is null
+ [x] Manage stock after checkout does no database updates and returns false and not overbought when quantity is empty
+ [x] Manage stock after checkout does database updates and returns false and not overbought when quantity bought is less than product quantity
+ [x] Manage stock after checkout does database updates and returns true and not overbought when quantity bought is equal to product quantity
+ [x] Manage stock after checkout does database updates and returns true and overbought when quantity bought is greater than product quantity
  [x] Set child products soldout
 

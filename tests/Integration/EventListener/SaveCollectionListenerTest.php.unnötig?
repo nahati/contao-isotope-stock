@@ -23,6 +23,8 @@ use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
 use Isotope\Model\ProductType;
 use Nahati\ContaoIsotopeStockBundle\EventListener\SaveCollectionListener;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
+
 
 /**
  * Integration-Test of the SaveCollectionListener class.
@@ -41,11 +43,6 @@ class SaveCollectionListenerTest extends FunctionalTestCase
 
     private ProductCollectionItem $objItem;
     private Cart $objCart;
-
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product reserved, not available for more sales */
-    private string $SOLDOUT = '4'; /* product in cart though soldout */
 
     /**
      * @param int    $itemId
@@ -261,7 +258,7 @@ class SaveCollectionListenerTest extends FunctionalTestCase
         $itemId = 3115;
         $productId = 100; // quantity 2 , AVAILABLE, Bild 2
         $parentProductId = 0; // no parent product
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
 
         $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
     }
@@ -274,9 +271,9 @@ class SaveCollectionListenerTest extends FunctionalTestCase
         $itemId = 3117;
         $productId = 47; // unlimited quantity, AVAILABLE, Variante Original von Skulptur 1
         $parentProductId = 31; //  unlimited quantity, AVAILABLE, Skulptur 1
-        $expectedInventory_statusOfProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         // item 3118
         // product 46, unlimited, AVAILABLE, Variante Original von Skulptur 1
@@ -294,9 +291,9 @@ class SaveCollectionListenerTest extends FunctionalTestCase
         $itemId = 3126;
         $productId = 49; // quantity 1 , SOLDOUT, Variante Original von Skulptur 5
         $parentProductId = 37; // quantity unlimited, AVAILABLE, Skulptur 5
-        $expectedInventory_statusOfProduct = $this->SOLDOUT;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::SOLDOUT;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         // Item 3125
         // product 48: quantity 1 , AVAILABLE, Variante Kopie Skulptur 5
@@ -321,9 +318,9 @@ class SaveCollectionListenerTest extends FunctionalTestCase
         $itemId = 3128;
         $productId = 52; // quantity 1 , AVAILABLE, Variante Original von Skulptur 6
         $parentProductId = 50; // quantity 2, SOLDOUT, Skulptur 6
-        $expectedInventory_statusOfProduct = $this->SOLDOUT;
-        $expectedInventory_statusOfParentProduct = $this->SOLDOUT; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT; // unchanged
+        $expectedInventory_statusOfProduct = Helper::SOLDOUT;
+        $expectedInventory_statusOfParentProduct = Helper::SOLDOUT; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::SOLDOUT; // unchanged
 
         // Item 3127
         // product 51: quantity 1 , SOLDOUT, Variante Kopie Skulptur 6

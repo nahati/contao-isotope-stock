@@ -35,11 +35,6 @@ class PreCheckoutListener
 {
     private ContaoFramework $framework;
 
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product in cart, no quantity left */
-    private string $SOLDOUT = '4'; /* product sold, no quantity left */
-
     /**
      * @var Helper // make use of methods from the Helper class
      */
@@ -131,11 +126,11 @@ class PreCheckoutListener
                 // Manage stock for parent product with overall quantity in collection for all it's childs
                 $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
 
-                if ($setInventoryStatusTo === $this->AVAILABLE) {
+                if (Helper::AVAILABLE === $setInventoryStatusTo) {
                     $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
-                } elseif ($setInventoryStatusTo === $this->RESERVED) {
+                } elseif (Helper::RESERVED === $setInventoryStatusTo) {
                     $this->helper->setParentAndChildProductsReserved($objParentProduct);
-                } elseif ($setInventoryStatusTo === $this->SOLDOUT) {
+                } elseif (Helper::SOLDOUT === $setInventoryStatusTo) {
                     $this->helper->setParentAndChildProductsSoldout($objParentProduct);
                 }
                 // do nothing if $setInventoryStatusTo = \null

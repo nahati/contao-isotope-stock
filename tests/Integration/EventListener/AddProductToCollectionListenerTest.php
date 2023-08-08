@@ -23,6 +23,7 @@ use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollectionItem;
 use Isotope\Model\ProductType;
 use Nahati\ContaoIsotopeStockBundle\EventListener\AddProductToCollectionListener;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * Integration-Test of the AddProductToCollectionListener class.
@@ -41,11 +42,6 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
 
     private Cart $objCart;
     private mixed $return;
-
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product reserved, not available for more sales */
-    private string $SOLDOUT = '4'; /* product in cart though soldout */
 
     /**
      * @param int    $productId
@@ -287,7 +283,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $parentProductId = 0; // no parent product
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -312,7 +308,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -337,7 +333,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -359,7 +355,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -381,7 +377,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -405,9 +401,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -433,9 +429,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -464,9 +460,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -495,9 +491,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -526,9 +522,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 0;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -552,9 +548,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -581,9 +577,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -610,9 +606,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -639,9 +635,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -666,9 +662,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -695,9 +691,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -721,9 +717,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 10;
         $expectedReturn = 10;
 
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -747,9 +743,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -773,9 +769,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->RESERVED;
-        $expectedInventory_statusOfSiblingProducts = $this->RESERVED;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+        $expectedInventory_statusOfSiblingProducts = Helper::RESERVED;
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -801,9 +797,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->AVAILABLE;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -829,9 +825,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -857,9 +853,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = $this->RESERVED;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -883,9 +879,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 0;
 
-        $expectedInventory_statusOfProduct = $this->SOLDOUT;
-        $expectedInventory_statusOfParentProduct = $this->AVAILABLE; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->AVAILABLE; // unchanged
+        $expectedInventory_statusOfProduct = Helper::SOLDOUT;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::AVAILABLE; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
 
@@ -912,9 +908,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 2;
         $expectedReturn = 0;
 
-        $expectedInventory_statusOfProduct = $this->SOLDOUT;
-        $expectedInventory_statusOfParentProduct = $this->SOLDOUT; // unchanged
-        $expectedInventory_statusOfSiblingProducts = $this->SOLDOUT; // unchanged
+        $expectedInventory_statusOfProduct = Helper::SOLDOUT;
+        $expectedInventory_statusOfParentProduct = Helper::SOLDOUT; // unchanged
+        $expectedInventory_statusOfSiblingProducts = Helper::SOLDOUT; // unchanged
 
         $this->doTest($productId, $quantityRequestedForCart, $this->objCart, $expectedReturn, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
 

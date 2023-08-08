@@ -16,15 +16,10 @@ namespace Nahati\ContaoIsotopeStockBundle\EventListener;
 
 use Contao\CoreBundle\ServiceAnnotation\Hook;
 use Isotope\Model\Product;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 class GetSystemMessagesListener
 {
-    /* inventory status: */
-    /**
-     * @var string
-     */
-    private $RESERVED = '3'; /* product in cart, no reamining quantity */
-
     /**
      * Invoked when System messages are being retrieved.
      *
@@ -39,7 +34,7 @@ class GetSystemMessagesListener
         $arrMessages = [];
 
         // Show messages for "RESERVED" products
-        $objProducts = Product::findBy(['tl_iso_product.inventory_status=?'], [$this->RESERVED]);
+        $objProducts = Product::findBy(['tl_iso_product.inventory_status=?'], [Helper::RESERVED]);
 
         if ($objProducts) {
             while ($objProducts->next()) {

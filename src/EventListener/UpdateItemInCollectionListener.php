@@ -34,11 +34,6 @@ class UpdateItemInCollectionListener
 {
     private ContaoFramework $framework;
 
-    // private string $inventory_status;
-    private string $AVAILABLE = '2'; /* product available for sale */
-    private string $RESERVED = '3'; /* product in cart, no quantity left */
-    private string $SOLDOUT = '4'; /* product sold, no quantity left */
-
     private bool $itemIsModified = false;
 
     /**
@@ -96,7 +91,7 @@ class UpdateItemInCollectionListener
 
             $arrSet['quantity'] -= $surplus; // decrease by surplus quantity
 
-            if ($surplus > 0 && $objProduct->inventory_status !== $this->SOLDOUT) {
+            if ($surplus > 0 && Helper::SOLDOUT !== $objProduct->inventory_status) {
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
 
                 $this->itemIsModified = true;
@@ -125,31 +120,31 @@ class UpdateItemInCollectionListener
             // Manage stock for parent product with overall quantity in cart for all it's childs
             $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
 
-            if ($setInventoryStatusTo === $this->AVAILABLE) {
+            if (Helper::AVAILABLE === $setInventoryStatusTo) {
                 $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
-            } elseif ($setInventoryStatusTo === $this->RESERVED) {
+            } elseif (Helper::RESERVED === $setInventoryStatusTo) {
                 $this->helper->setParentAndChildProductsReserved($objParentProduct);
-            } elseif ($setInventoryStatusTo === $this->SOLDOUT) {
+            } elseif (Helper::SOLDOUT === $setInventoryStatusTo) {
                 $this->helper->setParentAndChildProductsSoldout($objParentProduct);
             }
             // do nothing if $setInventoryStatusTo = \null
 
             // More in cart than the variant can afford
-            if ($surplusVariant > 0 && $objProduct->inventory_status !== $this->SOLDOUT) {
+            if ($surplusVariant > 0 && Helper::SOLDOUT !== $objProduct->inventory_status) {
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
 
                 $this->itemIsModified = true;
             }
 
             // More in cart than the parent can afford
-            if ($surplusParent > 0 && $objParentProduct->inventory_status !== $this->SOLDOUT) {
+            if ($surplusParent > 0 && Helper::SOLDOUT !== $objParentProduct->inventory_status) {
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
 
                 $this->itemIsModified = true;
             }
 
             // // Not Soldout
-            // if ($objProduct->inventory_status !== $this->SOLDOUT && $objParentProduct->inventory_status !== $this->SOLDOUT) {
+            // if ($objProduct->inventory_status !== Helper::SOLDOUT && $objParentProduct->inventory_status !== Helper::SOLDOUT) {
             //     // Evaluate possible new quantity in cart as given quantity in cart minus max surplus quantity
             //     $test = $arrSet['quantity'] - max($surplusVariant, $surplusParent); // decrease by max surplus quantity
 
