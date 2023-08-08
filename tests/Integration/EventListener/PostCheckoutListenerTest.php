@@ -410,6 +410,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
     }
 
@@ -433,6 +434,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
     }
 
@@ -454,6 +456,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // expectedInventory_statusOfSiblingProducts not used here
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
     }
@@ -479,6 +482,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
@@ -507,6 +511,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct2 = $this->AVAILABLE;
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
@@ -539,6 +544,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -569,6 +575,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct2 = $this->SOLDOUT;
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
@@ -602,6 +609,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct2 = $this->AVAILABLE;
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
@@ -638,6 +646,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -673,6 +682,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -705,6 +715,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -736,6 +747,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct2 = $this->AVAILABLE;
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
@@ -772,6 +784,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -807,6 +820,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, $sibling2Id, $expectedInventory_statusOfSiblingProduct2);
     }
 
@@ -837,6 +851,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
@@ -869,6 +884,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
 
@@ -877,7 +893,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     {
-        $itemId = 3330;
+        // $itemId = 3330;
         // $quantityBought = 100;
 
         $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
@@ -897,6 +913,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
 
@@ -905,7 +922,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsLessThanProductQuantity(): void
     {
-        $itemId = 3327;
+        // $itemId = 3327;
         // $quantityBought = 1;
 
         $productId = 38; // Available, Variante Original von Skulptur 4
@@ -933,6 +950,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
 
@@ -941,7 +959,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsEqualToProductQuantity(): void
     {
-        $itemId = 3325;
+        // $itemId = 3325;
         // $quantityBought = 1;
 
         $productId = 40; // AVAILABLE, Variante Original von Skulptur 3
@@ -961,6 +979,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfSiblingProduct1 = $this->AVAILABLE;
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
@@ -994,6 +1013,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->listener->__invoke($this->objOrder);
 
+
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
 
@@ -1003,6 +1023,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     public function testPostCheckoutListenerKeepsOrderStatusWhenOrderNotContainsAnyOverboughtProducts(): void
     {
         $this->listener->__invoke($this->objOrder);
+
 
         $this->objOrder->refresh();
 
@@ -1021,10 +1042,11 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // Item initially has a quantityBought of 1, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
 
-        $productId = 40; // AVAILABLE, Variante Original von Skulptur 3
+        // $productId = 40; // AVAILABLE, Variante Original von Skulptur 3
         // $quantityOfProduct = 1;
 
         $this->listener->__invoke($this->objOrder);
+
 
         $this->objOrder->refresh();
 
