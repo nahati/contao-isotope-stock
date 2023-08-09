@@ -18,8 +18,8 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Order;
-use Isotope\ServiceAnnotation\IsotopeHook;
 use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
+use Isotope\ServiceAnnotation\IsotopeHook;
 
 /**
  * Inspired by contao/calendar-bundle (injection of ContaoFramework to enable testing).
@@ -50,7 +50,8 @@ class PostCheckoutListener
     /**
      * Invoked after the checkout process has been completed.
      *
-     *  Updates the quantity. Marks as SOLDOUT in all bought products/variants with no remaining quantity.
+     * Updates the quantity. Marks as SOLDOUT in all bought products/variants with no remaining quantity.
+     * Also handles overbought situation
      *
      * @param Order $objOrder // ProductCollection in order, not empty
      */
@@ -59,16 +60,18 @@ class PostCheckoutListener
         // Instantiate a Helper object
         $this->helper = new Helper($this->framework);
 
-        // Array of all soldout parent product's IDs in the order
+        // Array of all soldout parent product's IDs for products in the order
         $soldoutParentProductIds = [];
 
         // Loop over all Items in the order
         foreach ($objOrder->getItems() as $objItem) {
+
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
 
             // No product
             if (!$objProduct) {
+
                 continue;
             }
 

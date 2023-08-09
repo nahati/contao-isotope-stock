@@ -122,6 +122,19 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     }
 
     /**
+     * tearDownAfterClass() is called once after the complete test contains some cleanup.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
+
+        self::$databaseAdapter = null;
+        self::$framework = null;
+    }
+
+
+
+    /**
      * Set the database to an initial state.
      */
     private static function resetDatabase(): void

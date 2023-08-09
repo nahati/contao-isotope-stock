@@ -43,29 +43,6 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     private ProductCollectionItem $objItem;
     private Cart $objCart;
 
-    /**
-     * @param int    $itemId
-     * @param int    $productId
-     * @param int    $parentProductId                           // optional
-     * @param string $expectedInventory_statusOfProduct
-     * @param string $expectedInventory_statusOfParentProduct   // optional
-     * @param string $expectedInventory_statusOfSiblingProducts // optional
-     */
-    private function doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = ''): void
-    {
-        // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
-
-        // Instantiate a Listener and call it
-        $listener = new PostDeleteItemFromCollectionListener(self::$framework);
-
-        $listener($this->objItem, $this->objCart);
-
-        // Test if product has expected inventory_status
-        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
-
-        $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
-    }
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
@@ -84,6 +61,54 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
 
         // Do needed Isotope initializations
         self::DoSomeIsotopeInitializations();
+    }
+
+    /**
+     * tearDownAfterClass() is called once after the complete test contains some cleanup.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
+
+        self::$databaseAdapter = null;
+        self::$framework = null;
+    }
+
+    /**
+     * setup() is called for each Testcase and contains an additional setup for the tests.
+     * Override this method if you need to change the basic setup.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Initialize the Contao framework
+        self::$framework = static::getContainer()->get('contao.framework');
+        self::$framework->initialize();
+
+        // Get a database adpater and reset relevant tables
+        self::$databaseAdapter = self::$framework->getAdapter(Database::class);
+
+        $this->resetRelevantDatabaseTables();
+        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
+
+        // Instantiate a Cart object with given id
+        // This cart is of logged-in member test@test.de
+        $this->objCart = Cart::findByPk('265', ['return' => 'Model']);
+
+        // Check if Cart object exists
+        $this->assertNotNull($this->objCart);
+    }
+
+    /**
+     * tearDown() is called after each testcase and contains the basic cleanup for the tests.
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        // unset($this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
+        unset($this->databaseAdapter, $this->framework, $this->objItem, $this->objCart);
     }
 
     /**
@@ -193,38 +218,30 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $GLOBALS['TL_LANG']['ERR']['productOutOfStock'] = 'The product "%s" is currently out of stock';
     }
 
-    /**
-     * setup() is called for each Testcase and contains an additional setup for the tests.
-     * Override this method if you need to change the basic setup.
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
 
-        // Initialize the Contao framework
-        self::$framework = static::getContainer()->get('contao.framework');
-        self::$framework->initialize();
-
-        // Get a database adpater and reset relevant tables
-        self::$databaseAdapter = self::$framework->getAdapter(Database::class);
-
-        $this->resetRelevantDatabaseTables();
-        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
-
-        // Instantiate a Cart object with given id
-        // This cart is of logged-in member test@test.de
-        $this->objCart = Cart::findByPk('265', ['return' => 'Model']);
-
-        // Check if Cart object exists
-        $this->assertNotNull($this->objCart);
-    }
 
     /**
-     * tearDown() is called after each testcase and contains the basic cleanup for the tests.
+     * @param int    $itemId
+     * @param int    $productId
+     * @param int    $parentProductId                           // optional
+     * @param string $expectedInventory_statusOfProduct
+     * @param string $expectedInventory_statusOfParentProduct   // optional
+     * @param string $expectedInventory_statusOfSiblingProducts // optional
      */
-    protected function tearDown(): void
+    private function doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = ''): void
     {
-        parent::tearDown();
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
+
+        // Instantiate a Listener and call it
+        $listener = new PostDeleteItemFromCollectionListener(self::$framework);
+
+        $listener($this->objItem, $this->objCart);
+
+        // Test if product has expected inventory_status
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
+
+        $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
     }
 
     /**

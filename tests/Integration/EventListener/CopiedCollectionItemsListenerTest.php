@@ -49,68 +49,6 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
      */
     private array $arrIds = []; // oldItem->id => newItem->id, not used here
 
-    /**
-     * Check if quantity of product is zero.
-     */
-    private function isQuantityOfProductZero(int $productId): bool
-    {
-        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
-
-        return '0' === $objResult->quantity;
-    }
-
-    /**
-     * @param int    $itemId
-     * @param int    $expectedQuantityInCart
-     * @param int    $productId
-     * @param string $expectedInventory_statusOfProduct
-     * @param int    $parentProductId                         // optional
-     * @param string $expectedInventory_statusOfParentProduct // optional
-     * @param int    $sibling1Id                              // optional
-     * @param string $expectedInventory_statusOfSibling1      // optional
-     * @param int    $sibling2Id                              // optional
-     * @param string $expectedInventory_statusOfSibling2      // optional
-     */
-    private function doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $sibling1Id = 0, $expectedInventory_statusOfSibling1 = '', $sibling2Id = 0, $expectedInventory_statusOfSibling2 = ''): void
-    {
-        // Instantiate a Listener and call it
-        $listener = new CopiedCollectionItemsListener(self::$framework);
-
-        $listener($this->objSource, $this->objTarget, $this->arrIds);
-
-        // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
-
-        // Test if item has expected quantity in cart
-        $this->assertSame($this->objItem->quantity, $expectedQuantityInCart);
-
-        // Test if product has expected inventory_status
-        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
-
-        $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
-
-        // Asserts only for variant products
-        if ($parentProductId > 0) {
-            if ($sibling1Id) {
-                // Test if the inventory_status of sibling1 is as expected
-                $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($sibling1Id);
-                $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfSibling1);
-            }
-
-            if ($sibling2Id) {
-                // Test if the inventory_status of sibling2 is as expected
-                $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($sibling2Id);
-
-                $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfSibling2);
-            }
-
-            // Test if inventory_status of the parent is as expected
-            $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($parentProductId);
-
-            $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfParentProduct);
-        }
-    }
-
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
     {
@@ -126,6 +64,66 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         self::$databaseAdapter = self::$framework->getAdapter(Database::class);
         self::resetDatabase();
     }
+
+    /**
+     * tearDownAfterClass() is called once after the complete test contains some cleanup.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
+
+        self::$databaseAdapter = null;
+        self::$framework = null;
+    }
+
+
+    /**
+     * setup() is called for each Testcase and contains an additional setup for the tests.
+     * Override this method if you need to change the basic setup.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Initialize the Contao framework
+        self::$framework = static::getContainer()->get('contao.framework');
+        self::$framework->initialize();
+
+        // Get a database adpater and reset relevant tables
+        self::$databaseAdapter = self::$framework->getAdapter(Database::class);
+
+        $this->resetRelevantDatabaseTables();
+        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
+
+        // Do needed Isotope initializations
+        $this->DoSomeIsotopeInitializations();
+
+        // Instantiate a Cart object with given id
+        // This cart is of a guest
+        $this->objSource = Cart::findByPk('267', ['return' => 'Model']);
+
+        // Check if Cart object exists
+        $this->assertNotNull($this->objSource);
+
+        // Instantiate a Cart object with given id
+        // This cart is of the logged-in user test@test.de
+        $this->objTarget = Cart::findByPk('265', ['return' => 'Model']);
+
+        // Check if Cart object exists
+        $this->assertNotNull($this->objTarget);
+    }
+
+    /**
+     * tearDown() is called after each testcase and contains the basic cleanup for the tests.
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        // unset($this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
+        unset($this->databaseAdapter, $this->framework, $objResult, $this->objTarget, $this->objSource, $arrIds);
+    }
+
 
     /**
      * Set the database to an initial state.
@@ -234,52 +232,69 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         $GLOBALS['TL_LANG']['ERR']['productOutOfStock'] = 'The product "%s" is currently out of stock';
     }
 
+
     /**
-     * setup() is called for each Testcase and contains an additional setup for the tests.
-     * Override this method if you need to change the basic setup.
+     * @param int    $itemId
+     * @param int    $expectedQuantityInCart
+     * @param int    $productId
+     * @param string $expectedInventory_statusOfProduct
+     * @param int    $parentProductId                         // optional
+     * @param string $expectedInventory_statusOfParentProduct // optional
+     * @param int    $sibling1Id                              // optional
+     * @param string $expectedInventory_statusOfSibling1      // optional
+     * @param int    $sibling2Id                              // optional
+     * @param string $expectedInventory_statusOfSibling2      // optional
      */
-    protected function setUp(): void
+    private function doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $sibling1Id = 0, $expectedInventory_statusOfSibling1 = '', $sibling2Id = 0, $expectedInventory_statusOfSibling2 = ''): void
     {
-        parent::setUp();
+        // Instantiate a Listener and call it
+        $listener = new CopiedCollectionItemsListener(self::$framework);
 
-        // Initialize the Contao framework
-        self::$framework = static::getContainer()->get('contao.framework');
-        self::$framework->initialize();
+        $listener($this->objSource, $this->objTarget, $this->arrIds);
 
-        // Get a database adpater and reset relevant tables
-        self::$databaseAdapter = self::$framework->getAdapter(Database::class);
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
 
-        $this->resetRelevantDatabaseTables();
-        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
+        // Test if item has expected quantity in cart
+        $this->assertSame($this->objItem->quantity, $expectedQuantityInCart);
 
-        // Do needed Isotope initializations
-        $this->DoSomeIsotopeInitializations();
+        // Test if product has expected inventory_status
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
 
-        // Instantiate a Cart object with given id
-        // This cart is of a guest
-        $this->objSource = Cart::findByPk('267', ['return' => 'Model']);
+        $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
 
-        // Check if Cart object exists
-        $this->assertNotNull($this->objSource);
+        // Asserts only for variant products
+        if ($parentProductId > 0) {
+            if ($sibling1Id) {
+                // Test if the inventory_status of sibling1 is as expected
+                $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($sibling1Id);
+                $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfSibling1);
+            }
 
-        // Instantiate a Cart object with given id
-        // This cart is of the logged-in user test@test.de
-        $this->objTarget = Cart::findByPk('265', ['return' => 'Model']);
+            if ($sibling2Id) {
+                // Test if the inventory_status of sibling2 is as expected
+                $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($sibling2Id);
 
-        // Check if Cart object exists
-        $this->assertNotNull($this->objTarget);
+                $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfSibling2);
+            }
+
+            // Test if inventory_status of the parent is as expected
+            $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($parentProductId);
+
+            $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfParentProduct);
+        }
     }
 
     /**
-     * tearDown() is called after each testcase and contains the basic cleanup for the tests.
+     * Check if quantity of product is zero.
      */
-    protected function tearDown(): void
+    private function isQuantityOfProductZero(int $productId): bool
     {
-        parent::tearDown();
+        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
 
-        // unset($this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
-        unset($this->databaseAdapter, $this->framework, $objResult);
+        return '0' === $objResult->quantity;
     }
+
 
     /**
      * This test I began with to check if tests can be run.

@@ -46,17 +46,26 @@
     <testsuite name="unit">
       <directory>./tests/unit</directory>
     </testsuite>
-    <testsuite name="integration">
-      <directory>./tests/Integration</directory>
+
+    <testsuite name="integrationCart">
+      <file>./tests/Integration/EventListener/AddProductToCollectionListenerTest.php</file>
+      <file>./tests/Integration/EventListener/CopiedCollectionItemsListenerTest.php</file>
+      <file>./tests/Integration/EventListener/PostDeleteItemFromCollectionListenerTest.php</file>
+      <file>./tests/Integration/EventListener/UpdateItemInCollectionListenerTest.php</file>
+    </testsuite>
+    <testsuite name="integrationOrder">
+      <file>./tests/Integration/EventListener/PostCheckoutListenerTest.php</file>
+      <file>./tests/Integration/EventListener/PreCheckoutListenerTest.php</file>
+    </testsuite>
+
+    <testsuite name="resetDBToInitialState">
+      <file>./tests/reset/resetDBToInitialState.php</file>
     </testsuite>
     <testsuite name="resetDBToInitialState">
-      <directory>./tests/reset/resetDBToInitialState.php</directory>
-    </testsuite>
-    <testsuite name="resetDBToInitialState">
-      <directory>./tests/reset/resetDBToInitialState.php</directory>
+      <file>./tests/reset/resetDBToInitialState.php</file>
     </testsuite>
     <testsuite name="resetDBToAfterCheckoutState">
-      <directory>./tests/reset/resetDBToAfterCheckoutState.php</directory>
+      <file>./tests/reset/resetDBToAfterCheckoutState.php</file>
     </testsuite>
   </testsuites>
 
