@@ -18,8 +18,8 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Order;
-use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 use Isotope\ServiceAnnotation\IsotopeHook;
+use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 
 /**
  * Inspired by contao/calendar-bundle (injection of ContaoFramework to enable testing).
@@ -65,13 +65,11 @@ class PostCheckoutListener
 
         // Loop over all Items in the order
         foreach ($objOrder->getItems() as $objItem) {
-
             /** @var Standard|null $objProduct */
             $objProduct = $objItem->getProduct() ?? null;
 
             // No product
             if (!$objProduct) {
-
                 continue;
             }
 

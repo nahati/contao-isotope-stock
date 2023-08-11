@@ -42,7 +42,7 @@ class PreCheckoutListener
 
     // private ProductCollectionItem $objItem;
 
-    private bool $orderIsModified = false;
+    private bool $orderNeedsChanges = false;
 
     public function __construct(ContaoFramework $framework)
     {
@@ -53,11 +53,13 @@ class PreCheckoutListener
      * Invoked during checkout but before completion.
      *
      * Handles changes of products in order, e.g. concurring changes.
+     * If order has to be modified, the checkout will be stopped and the user will be asked to return to the cart.
      *
      * @param Order    $objOrder    // ProductCollection in order, not empty
-     * @param Checkout $objCheckout // Checkout object, not used here
+     * @param Checkout $objCheckout // Checkout object
      *
-     * @return bool // false if order needs confirmation
+     * @return Response|null // Send a RedirectResponse if changes are needed
+     * @return bool          // false if order is empty
      */
     public function __invoke($objOrder, $objCheckout)
     {
@@ -94,10 +96,7 @@ class PreCheckoutListener
                 if ($surplus > 0) {
                     $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
 
-                    $objItem->quantity -= $surplus; // decrease by surplus quantity
-
-                    $objItem->save();
-                    $this->orderIsModified = true;
+                    $this->orderNeedsChanges = true;
                 }
 
                 continue;
@@ -126,15 +125,6 @@ class PreCheckoutListener
                 // Manage stock for parent product with overall quantity in collection for all it's childs
                 $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
 
-                if (Helper::AVAILABLE === $setInventoryStatusTo) {
-                    $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
-                } elseif (Helper::RESERVED === $setInventoryStatusTo) {
-                    $this->helper->setParentAndChildProductsReserved($objParentProduct);
-                } elseif (Helper::SOLDOUT === $setInventoryStatusTo) {
-                    $this->helper->setParentAndChildProductsSoldout($objParentProduct);
-                }
-                // do nothing if $setInventoryStatusTo = \null
-
                 // More in collection than the variant can afford
                 if ($surplusVariant > 0) {
                     $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
@@ -148,37 +138,37 @@ class PreCheckoutListener
                 $surplus = max($surplusVariant, $surplusParent);
 
                 if ($surplus > 0) {
-                    // Decrease quantity in cart by max surplus quantity
-                    $objItem->quantity -= max($surplusVariant, $surplusParent);
-                    $objItem->quantity = $objItem->quantity < 0 ? 0 : $objItem->quantity; // limit to zero
-
-                    $objItem->save(); // This does not work if this order is redirected to the "failed" page.
-
-                    $this->orderIsModified = true;
+                    $this->orderNeedsChanges = true;
                 }
 
                 continue;
             }
         } // for each
 
-        if ($this->orderIsModified) {
+        if ($this->orderNeedsChanges) {
+            // We could also just return false; but then the user would be redirected to the "failed" page with an incorrect message. So we go this way.
             try {
                 // Throw an exception to stop the checkout process
                 throw new \RuntimeException('The order could not be completed', 400);
             } catch (\RuntimeException $e) {
+                // message to be displayed on the "failed" page asking user to go back to cart
                 $message = $GLOBALS['TL_LANG']['ERR']['orderNotPossible'];
 
-                // Redirect the user to the "failed" page
-                $strUrl = Checkout::generateUrlForStep(Checkout::STEP_FAILED, null, null, true);
+                // Get an adapter for the Checkout class
+                /** @var Adapter<Checkout> $adapter */
+                $checkoutAdapter = $this->framework->getAdapter(Checkout::class);
+
+                // // Redirect the user to the "failed" page
+                $failedUrl = $checkoutAdapter->generateUrlForStep(Checkout::STEP_FAILED, null, null, true);
 
                 // and issue the message
-                $strUrl .= '?reason=' . urlencode($message);
+                $failedUrl .= '?reason=' . urlencode($message);
 
-                $response = new RedirectResponse($strUrl);
+                $response = new RedirectResponse($failedUrl);
                 $response->setStatusCode(Response::HTTP_FOUND);
                 $response->send();
 
-                exit;
+                return false;
             }
         } else {
             return true; // continue checkout

@@ -45,7 +45,6 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
         parent::tearDownAfterClass();
     }
 
-
     /**
      * setup() is called for each Testcase and contains the basic setup for the tests.
      * Override this method if you need to change the basic setup.
@@ -86,7 +85,8 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->quantityRequestedForCart = 1;
 
@@ -106,7 +106,8 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo');
+            ->willReturn('foo')
+        ;
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
         $this->assertSame($this->objProduct->id, 1);
         $this->assertSame($this->objProduct->name, 'foo');
@@ -115,7 +116,8 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
 
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
 
         $this->quantityRequestedForCart = 1;
 

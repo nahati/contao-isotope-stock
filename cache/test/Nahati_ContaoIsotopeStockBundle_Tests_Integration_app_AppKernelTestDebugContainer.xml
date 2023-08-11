@@ -114,7 +114,7 @@
     <parameter key="router.request_context.host">localhost</parameter>
     <parameter key="router.request_context.scheme">http</parameter>
     <parameter key="router.request_context.base_url"></parameter>
-    <parameter key="router.resource">./routes.yml</parameter>
+    <parameter key="router.resource">/shared/httpd/nahati/contao-isotope-stock/tests/Integration/app/config/routes.yml</parameter>
     <parameter key="request_listener.http_port">80</parameter>
     <parameter key="request_listener.https_port">443</parameter>
     <parameter key="cache.prefix.seed">_/shared/httpd/nahati/contao-isotope-stock.Nahati_ContaoIsotopeStockBundle_Tests_Integration_app_AppKernelTestDebugContainer</parameter>
@@ -475,6 +475,7 @@
       <parameter key="symfony-cmf/routing">2.3.4</parameter>
       <parameter key="symfony-cmf/routing-bundle">2.5.1</parameter>
       <parameter key="symfony/asset">5.4.21</parameter>
+      <parameter key="symfony/browser-kit">6.3.2</parameter>
       <parameter key="symfony/cache">5.4.25</parameter>
       <parameter key="symfony/cache-contracts">2.5.2</parameter>
       <parameter key="symfony/config">5.4.26</parameter>
@@ -1493,6 +1494,12 @@
       </argument>
     </service>
     <service id="identity_translator" class="Symfony\Component\Translation\IdentityTranslator"/>
+    <service id="test.client" class="Symfony\Bundle\FrameworkBundle\KernelBrowser" shared="false" public="true">
+      <argument type="service" id="kernel"/>
+      <argument type="collection"/>
+      <argument type="service" id="test.client.history"/>
+      <argument type="service" id="test.client.cookiejar"/>
+    </service>
     <service id="test.client.history" class="Symfony\Component\BrowserKit\History" shared="false"/>
     <service id="test.client.cookiejar" class="Symfony\Component\BrowserKit\CookieJar" shared="false"/>
     <service id="test.session.listener" class="Symfony\Component\HttpKernel\EventListener\SessionListener">
@@ -4079,7 +4086,7 @@
       <tag name="monolog.logger" channel="router"/>
       <tag name="container.service_subscriber" id="routing.loader"/>
       <argument type="service" id=".service_locator.OSH1YoD.router.default"/>
-      <argument>./routes.yml</argument>
+      <argument>/shared/httpd/nahati/contao-isotope-stock/tests/Integration/app/config/routes.yml</argument>
       <argument type="collection">
         <argument key="cache_dir">/shared/httpd/nahati/contao-isotope-stock/cache/test</argument>
         <argument key="debug">true</argument>

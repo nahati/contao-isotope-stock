@@ -1,0 +1,27 @@
+<?php //Contao%255CCoreBundle%255CController%255CCaptchaController%2523__invoke
+
+return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\Internal\Hydrator::hydrate(
+    $o = [
+        clone (\Symfony\Component\VarExporter\Internal\Registry::$prototypes['Symfony\\Component\\Routing\\Annotation\\Route'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('Symfony\\Component\\Routing\\Annotation\\Route')),
+    ],
+    null,
+    [
+        'Symfony\\Component\\Routing\\Annotation\\Route' => [
+            'path' => [
+                '/_contao/captcha/{_locale}',
+            ],
+            'name' => [
+                'contao_frontend_captcha',
+            ],
+            'defaults' => [
+                [
+                    '_scope' => 'frontend',
+                ],
+            ],
+        ],
+    ],
+    [
+        $o[0],
+    ],
+    []
+); }];

@@ -33,16 +33,15 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @var ContaoFramework
      */
-    private static $framework;
+    private static $stcFramework;
 
     /**
      * @var Adapter<Database>
      */
-    private static $databaseAdapter;
+    private static $stcDatabaseAdapter;
 
     private ProductCollectionItem $objItem;
     private Cart $objCart;
-
 
     // In setUpBeforeClass() we initialize the neccessary environment once for all tests
     public static function setUpBeforeClass(): void
@@ -51,12 +50,12 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
 
         static::bootKernel();
 
-        // Initialize the Contao framework
-        self::$framework = static::getContainer()->get('contao.framework');
-        self::$framework->initialize();
+        // Initialize the Contao stcFramework
+        self::$stcFramework = static::getContainer()->get('contao.framework');
+        self::$stcFramework->initialize();
 
         // Reset the database to initial state
-        self::$databaseAdapter = self::$framework->getAdapter(Database::class);
+        self::$stcDatabaseAdapter = self::$stcFramework->getAdapter(Database::class);
         self::resetDatabase();
 
         // Do needed Isotope initializations
@@ -70,8 +69,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     {
         parent::tearDownAfterClass();
 
-        self::$databaseAdapter = null;
-        self::$framework = null;
+        self::$stcFramework->reset();
     }
 
     /**
@@ -82,12 +80,12 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        // Initialize the Contao framework
-        self::$framework = static::getContainer()->get('contao.framework');
-        self::$framework->initialize();
+        // Initialize the Contao stcFramework
+        self::$stcFramework = static::getContainer()->get('contao.framework');
+        self::$stcFramework->initialize();
 
         // Get a database adpater and reset relevant tables
-        self::$databaseAdapter = self::$framework->getAdapter(Database::class);
+        self::$stcDatabaseAdapter = self::$stcFramework->getAdapter(Database::class);
 
         $this->resetRelevantDatabaseTables();
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
@@ -107,8 +105,8 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     {
         parent::tearDown();
 
-        // unset($this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
-        unset($this->databaseAdapter, $this->framework, $this->objItem, $this->objCart);
+        // unset($this->stcFramework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
+        unset($this->stcDatabaseAdapter, $this->stcFramework, $this->objItem, $this->objCart);
     }
 
     /**
@@ -117,9 +115,9 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     private static function resetDatabase(): void
     {
         // Drop all tables
-        foreach (self::$databaseAdapter->getInstance()->listTables() as $table) {
+        foreach (self::$stcDatabaseAdapter->getInstance()->listTables() as $table) {
             $sql = 'DROP TABLE IF EXISTS ' . $table;
-            self::$databaseAdapter->getInstance()->execute($sql);
+            self::$stcDatabaseAdapter->getInstance()->execute($sql);
         }
 
         // Create tables and insert data
@@ -133,17 +131,17 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     {
         // Reset ProductCollectionItem-table to initial state
         $sql = 'DROP TABLE ' . 'tl_iso_product_collection_item';
-        self::$databaseAdapter->getInstance()->execute($sql);
+        self::$stcDatabaseAdapter->getInstance()->execute($sql);
         self::loadFixture('tl_iso_product_collection_item-initial.sql');
 
         // Reset Product-table to initial state
         $sql = 'DROP TABLE ' . 'tl_iso_product';
-        self::$databaseAdapter->getInstance()->execute($sql);
+        self::$stcDatabaseAdapter->getInstance()->execute($sql);
         self::loadFixture('tl_iso_product-initial.sql');
 
         // Reset ProductCollection-table to initial state
         $sql = 'DROP TABLE ' . 'tl_iso_product_collection';
-        self::$databaseAdapter->getInstance()->execute($sql);
+        self::$stcDatabaseAdapter->getInstance()->execute($sql);
         self::loadFixture('tl_iso_product_collection-initial.sql');
     }
 
@@ -155,7 +153,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     {
         $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
 
-        self::$databaseAdapter->getInstance()->execute($sql);
+        self::$stcDatabaseAdapter->getInstance()->execute($sql);
     }
 
     /**
@@ -218,8 +216,6 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $GLOBALS['TL_LANG']['ERR']['productOutOfStock'] = 'The product "%s" is currently out of stock';
     }
 
-
-
     /**
      * @param int    $itemId
      * @param int    $productId
@@ -234,12 +230,12 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
 
         // Instantiate a Listener and call it
-        $listener = new PostDeleteItemFromCollectionListener(self::$framework);
+        $listener = new PostDeleteItemFromCollectionListener(self::$stcFramework);
 
         $listener($this->objItem, $this->objCart);
 
         // Test if product has expected inventory_status
-        $objResult = self::$databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
+        $objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
 
         $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
     }
@@ -266,7 +262,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         // expectedInventory_statusOfSiblingProducts not used here
 
         // Product initially has an inventory_status of AVAILABLE, so we change the inventory_status of the product to match the testcase
-        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfProduct, $parentProductId);
+        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfProduct, $parentProductId);
 
         $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
     }
@@ -285,7 +281,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         // expectedInventory_statusOfSiblingProducts not used here
 
         // Product initially has a quantity of 2, so we change the quantity of the product to match the testcase
-        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
         $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
     }
@@ -304,7 +300,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         // expectedInventory_statusOfSiblingProducts not used here
 
         // Product initially has a quantity of 2, so we change the quantity of the product to match the testcase
-        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
         $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
     }
@@ -321,7 +317,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
 
         // Product initially has an inventory_status of AVAILABLE, so we change the inventory_status of the product to match the testcase
-        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfProduct, $parentProductId);
+        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfProduct, $parentProductId);
 
         $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
     }
@@ -338,7 +334,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfProduct = Helper::SOLDOUT;
 
         // Parent product initially has an inventory_status of AVAILABLE, so we change the inventory_status of parent product to match the testcase
-        self::$databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfParentProduct, $parentProductId);
+        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfParentProduct, $parentProductId);
 
         $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
     }

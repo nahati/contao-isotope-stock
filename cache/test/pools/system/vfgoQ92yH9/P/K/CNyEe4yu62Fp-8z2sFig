@@ -1,0 +1,3 @@
+<?php //Contao%255CCoreBundle%255CController%255CPage%255CRootPageController%2523getNextPage
+
+return [PHP_INT_MAX, []];

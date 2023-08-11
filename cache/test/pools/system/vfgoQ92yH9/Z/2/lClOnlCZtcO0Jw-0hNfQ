@@ -1,0 +1,3 @@
+<?php //Contao%255CCoreBundle%255CController%255CSitemapController%2523callLegacyHook
+
+return [PHP_INT_MAX, []];

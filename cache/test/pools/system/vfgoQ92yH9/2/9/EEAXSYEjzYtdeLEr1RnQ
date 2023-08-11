@@ -1,0 +1,3 @@
+<?php //Contao%255CCoreBundle%255CController%255CFrontendModule%255CTemplateController%2523getResponse
+
+return [PHP_INT_MAX, []];

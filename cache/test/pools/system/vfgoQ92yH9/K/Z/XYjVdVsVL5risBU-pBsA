@@ -1,0 +1,34 @@
+<?php //Contao%255CCoreBundle%255CController%255CPage%255CErrorPageController
+
+return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\Internal\Hydrator::hydrate(
+    $o = [
+        clone (($p = &\Symfony\Component\VarExporter\Internal\Registry::$prototypes)['Contao\\CoreBundle\\ServiceAnnotation\\Page'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('Contao\\CoreBundle\\ServiceAnnotation\\Page')),
+        clone $p['Contao\\CoreBundle\\ServiceAnnotation\\Page'],
+        clone $p['Contao\\CoreBundle\\ServiceAnnotation\\Page'],
+        clone $p['Contao\\CoreBundle\\ServiceAnnotation\\Page'],
+    ],
+    null,
+    [
+        'Contao\\CoreBundle\\ServiceAnnotation\\Page' => [
+            'type' => [
+                'error_401',
+                'error_403',
+                'error_404',
+                'error_503',
+            ],
+            'path' => [
+                false,
+                false,
+                false,
+                false,
+            ],
+        ],
+    ],
+    [
+        $o[0],
+        $o[1],
+        $o[2],
+        $o[3],
+    ],
+    []
+); }];

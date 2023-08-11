@@ -11,7 +11,7 @@ framework:
     secret: "%env(APP_SECRET)%"
     router:
         utf8: true
-        resource: "./routes.yml"
+        resource: "%kernel.project_dir%/tests/Integration/app/config/routes.yml"
         strict_requirements: "%kernel.debug%"
     csrf_protection: ~
     default_locale: "%locale%"

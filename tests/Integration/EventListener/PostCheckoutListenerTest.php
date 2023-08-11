@@ -92,11 +92,10 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     {
         // parent::tearDownAfterClass();
 
-        self::$stcDatabaseAdapter = null;
-        self::$stcFramework = null;
+        self::$stcFramework->reset();
+
         self::$objResult = null;
     }
-
 
     /**
      * setup() is called for each Testcase and contains an additional setup for the tests.
@@ -139,7 +138,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     {
         parent::tearDown();
 
-        // unset($this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
         unset($this->databaseAdapter, $this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
     }
 
@@ -242,7 +240,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
                 'postmark' => 'NotificationCenter\Gateway\Postmark',
             ]
         );
-
 
         // Declare additional fields for tl_iso_product that are declared in the extension
         $GLOBALS['TL_DCA']['tl_iso_product']['fields']['inventory_status'] = [

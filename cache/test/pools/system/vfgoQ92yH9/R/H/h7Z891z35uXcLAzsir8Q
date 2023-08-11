@@ -1,0 +1,3 @@
+<?php //Contao%255CCoreBundle%255CController%255CAbstractController%2523getCsrfFormOptions
+
+return [PHP_INT_MAX, []];

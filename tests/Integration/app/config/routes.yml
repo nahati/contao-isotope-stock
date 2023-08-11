@@ -1,5 +1,5 @@
 contao:
-    resource: '@ContaoCoreBundle/Controller'
+    resource: "@ContaoCoreBundle/Controller"
     type: annotation
 
 contao_images:
@@ -8,7 +8,7 @@ contao_images:
 
 # Redirect /contao/ to /contao
 contao_backend_redirect:
-    path: '%contao.backend.route_prefix%/'
+    path: "%contao.backend.route_prefix%/"
     defaults:
         _scope: backend
         _controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction
