@@ -1,0 +1,32 @@
+
+
+Code Coverage Report:      
+  2023-08-12 17:55:19      
+                           
+ Summary:                  
+  Classes:  9.09% (1/11)   
+  Methods: 46.88% (15/32)  
+  Lines:   40.16% (153/381)
+
+Nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle
+  Methods:   0.00% ( 0/ 1)   Lines:   0.00% (  0/  1)
+Nahati\ContaoIsotopeStockBundle\ContaoManager\Plugin
+  Methods:   0.00% ( 0/ 1)   Lines:   0.00% (  0/  4)
+Nahati\ContaoIsotopeStockBundle\DependencyInjection\ContaoIsotopeStockExtension
+  Methods:   0.00% ( 0/ 1)   Lines:   0.00% (  0/  5)
+Nahati\ContaoIsotopeStockBundle\EventListener\AddProductToCollectionListener
+  Methods:  50.00% ( 1/ 2)   Lines:  13.33% (  4/ 30)
+Nahati\ContaoIsotopeStockBundle\EventListener\CopiedCollectionItemsListener
+  Methods:  50.00% ( 1/ 2)   Lines:  28.57% ( 12/ 42)
+Nahati\ContaoIsotopeStockBundle\EventListener\GetSystemMessagesListener
+  Methods:   0.00% ( 0/ 1)   Lines:   0.00% (  0/  9)
+Nahati\ContaoIsotopeStockBundle\EventListener\PostCheckoutListener
+  Methods:  50.00% ( 1/ 2)   Lines:  20.00% ( 10/ 50)
+Nahati\ContaoIsotopeStockBundle\EventListener\PostDeleteItemFromCollectionListener
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 15/ 15)
+Nahati\ContaoIsotopeStockBundle\EventListener\PreCheckoutListener
+  Methods:   0.00% ( 0/ 2)   Lines:   0.00% (  0/ 43)
+Nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener
+  Methods:  50.00% ( 1/ 2)   Lines:  21.95% (  9/ 41)
+Nahati\ContaoIsotopeStockBundle\Helper\Helper
+  Methods:  56.25% ( 9/16)   Lines:  73.05% (103/141)
