@@ -40,20 +40,12 @@ use NotificationCenter\Model\Notification;
 class PostCheckoutListenerTest extends FunctionalTestCase
 {
     /**
-     * @var ContaoFramework
-     */
-    private static $stcFramework;
-
-    /**
      * @var Adapter<Database>
      */
     private static $stcDatabaseAdapter;
     private static mixed $objResult;
 
-    /**
-     * @var ContaoFramework
-     */
-    private $framework;
+    private ContaoFramework $framework;
 
     /**
      * @var Adapter<Database>
@@ -65,21 +57,23 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     private int $oldOrderStatus; // old order status
 
     /**
-     *  In setUpBeforeClass() we initialize part of the neccessary environment once for all tests.
+     * In setUpBeforeClass() we initialize part of the neccessary environment once for all tests.
+     * Here expecially we set a path and reset the complete database.
      */
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
 
-        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
-
         static::bootKernel();
 
-        // Initialize the Contao stcFramework
-        self::$stcFramework = static::getContainer()->get('contao.framework');
-        self::$stcFramework->initialize();
+        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
 
-        self::$stcDatabaseAdapter = self::$stcFramework->getAdapter(Database::class);
+        // Initialize the Contao stcFramework
+        /** @var ContaoFramework $stcFramework */
+        $stcFramework = static::getContainer()->get('contao.framework');
+        $stcFramework->initialize();
+
+        self::$stcDatabaseAdapter = $stcFramework->getAdapter(Database::class);
 
         // Reset the entire database to initial state
         self::resetDatabase();
@@ -91,8 +85,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     public static function tearDownAfterClass(): void
     {
         // parent::tearDownAfterClass();
-
-        self::$stcFramework->reset();
 
         self::$objResult = null;
     }
@@ -133,10 +125,11 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
     /**
      * tearDown() is called after each testcase and contains the basic cleanup for the tests.
+     * Here expecially the kernel will be set to null.
      */
     protected function tearDown(): void
     {
-        parent::tearDown();
+        parent::tearDown(); // we cannot use this as it would set the kernel to null
 
         unset($this->databaseAdapter, $this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
     }

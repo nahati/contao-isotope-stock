@@ -18,7 +18,6 @@ use Contao\Database;
 use Contao\PageModel;
 use Contao\TestCase\FunctionalTestCase;
 use Isotope\Model\Address;
-use Isotope\Model\Attribute\TextField;
 use Isotope\Model\Config;
 use Isotope\Model\OrderStatus;
 use Isotope\Model\Product;
@@ -44,20 +43,12 @@ use Symfony\Component\HttpFoundation\Response;
 class PreCheckoutListenerTest extends FunctionalTestCase
 {
     /**
-     * @var ContaoFramework
-     */
-    private static $stcFramework;
-
-    /**
      * @var Adapter<Database>
      */
     private static $stcDatabaseAdapter;
     private static mixed $objResult;
 
-    /**
-     * @var ContaoFramework
-     */
-    private $framework;
+    private ContaoFramework $framework;
 
     /**
      * @var Adapter<Database>
@@ -71,23 +62,23 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     private static KernelBrowser $client;
 
     /**
-     *  In setUpBeforeClass() we initialize part of the neccessary environment once for all tests.
+     * In setUpBeforeClass() we initialize part of the neccessary environment once for all tests.
+     * Here expecially we cretae a client (boot the kernel,...), set a path and reset the complete database.
      */
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
 
-        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
-
         self::$client = static::createClient();
 
-        // static::bootKernel(); // instead we use the client
+        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
 
         // Initialize the Contao stcFramework
-        self::$stcFramework = static::getContainer()->get('contao.framework');
-        self::$stcFramework->initialize();
+        /** @var ContaoFramework $stcFramework */
+        $stcFramework = static::getContainer()->get('contao.framework');
+        $stcFramework->initialize();
 
-        self::$stcDatabaseAdapter = self::$stcFramework->getAdapter(Database::class);
+        self::$stcDatabaseAdapter = $stcFramework->getAdapter(Database::class);
 
         // Reset the entire database to initial state
         self::resetDatabase();
@@ -98,12 +89,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
      */
     public static function tearDownAfterClass(): void
     {
-        // parent::tearDownAfterClass();
-
-        self::$stcFramework->reset();
+        // parent::tearDownAfterClass(); // not existing
 
         self::$objResult = null;
-        self::$client->restart();
     }
 
     /**
@@ -144,9 +132,8 @@ class PreCheckoutListenerTest extends FunctionalTestCase
      */
     protected function tearDown(): void
     {
-        parent::tearDown();
+        parent::tearDown(); // we cannot use this as it would set the kernel to null
 
-        // unset($this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
         unset($this->databaseAdapter, $this->framework, $this->objOrder, $this->objResult);
     }
 
@@ -344,7 +331,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         self::$objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_attribute WHERE id=?')->execute(15);
 
-        $GLOBALS['TL_DCA']['tl_iso_product']['attributes']['status'] = new TextField(self::$objResult);
+        // $GLOBALS['TL_DCA']['tl_iso_product']['attributes']['status'] = new TextField(self::$objResult);
 
         Product::registerModelType('standard', Standard::class);
 
@@ -561,15 +548,15 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Another child product with id 101 exist, which is Available
         // $sibling2Id = 101;
 
-        // Get the checkout page from the database
-        $objPage = $this->databaseAdapter->getInstance()
-            ->prepare('SELECT * FROM tl_page WHERE id=?')
-            ->execute(18)
-            ->fetchAssoc()
-        ;
+        // // Get the checkout page from the database
+        // $objPage = $this->databaseAdapter->getInstance()
+        //     ->prepare('SELECT * FROM tl_page WHERE id=?')
+        //     ->execute(18)
+        //     ->fetchAssoc()
+        // ;
 
-        // Create a new instance of the PageModel class using the database result
-        $GLOBALS['objPage'] = new PageModel($objPage);
+        // // Create a new instance of the PageModel class using the database result
+        // $GLOBALS['objPage'] = new PageModel($objPage);
 
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
@@ -668,15 +655,15 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Another child product, not in cart, available
         // $sibling2Id = 101;
 
-        // Get the checkout page from the database
-        $objPage = $this->databaseAdapter->getInstance()
-            ->prepare('SELECT * FROM tl_page WHERE id=?')
-            ->execute(18)
-            ->fetchAssoc()
-        ;
+        // // Get the checkout page from the database
+        // $objPage = $this->databaseAdapter->getInstance()
+        //     ->prepare('SELECT * FROM tl_page WHERE id=?')
+        //     ->execute(18)
+        //     ->fetchAssoc()
+        // ;
 
-        // Create a new instance of the PageModel class using the database result
-        $GLOBALS['objPage'] = new PageModel($objPage);
+        // // Create a new instance of the PageModel class using the database result
+        // $GLOBALS['objPage'] = new PageModel($objPage);
 
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
@@ -716,15 +703,15 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Another child product, not in cart, available
         // $sibling2Id = 101;
 
-        // Get the checkout page from the database
-        $objPage = $this->databaseAdapter->getInstance()
-            ->prepare('SELECT * FROM tl_page WHERE id=?')
-            ->execute(18)
-            ->fetchAssoc()
-        ;
+        // // Get the checkout page from the database
+        // $objPage = $this->databaseAdapter->getInstance()
+        //     ->prepare('SELECT * FROM tl_page WHERE id=?')
+        //     ->execute(18)
+        //     ->fetchAssoc()
+        // ;
 
-        // Create a new instance of the PageModel class using the database result
-        $GLOBALS['objPage'] = new PageModel($objPage);
+        // // Create a new instance of the PageModel class using the database result
+        // $GLOBALS['objPage'] = new PageModel($objPage);
 
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
@@ -814,15 +801,15 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         // $sibling1Id = 96;
 
-        // Get the checkout page from the database
-        $objPage = $this->databaseAdapter->getInstance()
-            ->prepare('SELECT * FROM tl_page WHERE id=?')
-            ->execute(18)
-            ->fetchAssoc()
-        ;
+        // // Get the checkout page from the database
+        // $objPage = $this->databaseAdapter->getInstance()
+        //     ->prepare('SELECT * FROM tl_page WHERE id=?')
+        //     ->execute(18)
+        //     ->fetchAssoc()
+        // ;
 
-        // Create a new instance of the PageModel class using the database result
-        $GLOBALS['objPage'] = new PageModel($objPage);
+        // // Create a new instance of the PageModel class using the database result
+        // $GLOBALS['objPage'] = new PageModel($objPage);
 
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
@@ -917,15 +904,15 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         // $sibling1Id = 42;
 
-        // Get the checkout page from the database
-        $objPage = $this->databaseAdapter->getInstance()
-            ->prepare('SELECT * FROM tl_page WHERE id=?')
-            ->execute(18)
-            ->fetchAssoc()
-        ;
+        // // Get the checkout page from the database
+        // $objPage = $this->databaseAdapter->getInstance()
+        //     ->prepare('SELECT * FROM tl_page WHERE id=?')
+        //     ->execute(18)
+        //     ->fetchAssoc()
+        // ;
 
-        // Create a new instance of the PageModel class using the database result
-        $GLOBALS['objPage'] = new PageModel($objPage);
+        // // Create a new instance of the PageModel class using the database result
+        // $GLOBALS['objPage'] = new PageModel($objPage);
 
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
