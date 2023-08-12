@@ -1,3 +1,13 @@
+# Note:
+# To effectively apply the changes you will have
+# to re-index the git index (if there are already
+# commited files)
+#
+# $ git rm -r -f --cached .
+# $ git add .
+# $ git commit -m ".gitignore index rebuild"
+#
+
 # Composer
 /composer.lock
 /vendor/
