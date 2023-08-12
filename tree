@@ -8,18 +8,25 @@
 │   │   └───📄 tl_iso_product.php
 │   ├───📁 languages/
 │   │   ├───📁 de/
-│   │   │   └───...
+│   │   │   ├───📄 default.xlf
+│   │   │   └───📄 tl_iso_product.xlf
 │   │   └───📁 en/
-│   │       └───...
+│   │       ├───📄 default.xlf
+│   │       └───📄 tl_iso_product.xlf
 │   └───📁 templates/
 │       ├───📄 iso_collection_default.html5
 │       ├───📄 iso_list_default.html5
 │       ├───📄 iso_list_variants.html5
 │       └───📄 iso_reader_default.html5
 ├───📁 coverage/
-│   ├───📁 integration/
+│   ├───📁 integrationCart/
+│   │   ├───📄 coverage.txt
+│   │   └───📄 testdox.txt
+│   ├───📁 integrationOrder/
+│   │   ├───📄 coverage.txt
 │   │   └───📄 testdox.txt
 │   └───📁 unit/
+│       ├───📄 coverage.txt
 │       └───📄 testdox.txt
 ├───📁 src/
 │   ├───📁 ContaoManager/
@@ -33,7 +40,6 @@
 │   │   ├───📄 PostCheckoutListener.php
 │   │   ├───📄 PostDeleteItemFromCollectionListener.php
 │   │   ├───📄 PreCheckoutListener.php
-│   │   ├───📄 SaveCollectionListener.php.unnötig?
 │   │   └───📄 UpdateItemInCollectionListener.php
 │   ├───📁 Helper/
 │   │   └───📄 Helper.php
@@ -41,23 +47,43 @@
 ├───📁 tests/
 │   ├───📁 Integration/
 │   │   ├───📁 EventListener/
-│   │   │   └───...
+│   │   │   ├───📄 AddProductToCollectionListenerTest.php
+│   │   │   ├───📄 CopiedCollectionItemsListenerTest.php
+│   │   │   ├───📄 PostCheckoutListenerTest.php
+│   │   │   ├───📄 PostDeleteItemFromCollectionListenerTest.php
+│   │   │   ├───📄 PreCheckoutListenerTest.php
+│   │   │   └───📄 UpdateItemInCollectionListenerTest.php
 │   │   ├───📁 Fixtures/
-│   │   │   └───...
-│   │   ├───📁 app/
-│   │   │   └───...
-│   │   └───📁 reports/
-│   │       └───...
+│   │   │   ├───📄 ContaoIsotopeStockBundleTest-AfterCheckout.sql
+│   │   │   ├───📄 ContaoIsotopeStockBundleTest-initial.sql
+│   │   │   ├───📄 tl_iso_address.sql
+│   │   │   ├───📄 tl_iso_orderstatus.sql
+│   │   │   ├───📄 tl_iso_product-AfterCheckout.sql
+│   │   │   ├───📄 tl_iso_product-initial.sql
+│   │   │   ├───📄 tl_iso_product_collection-AfterCheckout.sql
+│   │   │   ├───📄 tl_iso_product_collection-initial.sql
+│   │   │   ├───📄 tl_iso_product_collection_item-AfterCheckout.sql
+│   │   │   ├───📄 tl_iso_product_collection_item-initial.sql
+│   │   │   ├───📄 tl_nc_gateway.sql
+│   │   │   ├───📄 tl_nc_language.sql
+│   │   │   ├───📄 tl_nc_message.sql
+│   │   │   └───📄 tl_nc_notification.sql
+│   │   └───📁 app/
+│   │       ├───📁 config/
+│   │       │   └───...
+│   │       └───📄 AppKernel.php
 │   ├───📁 reset/
 │   │   ├───📄 resetDBToAfterCheckoutState.php
 │   │   └───📄 resetDBToInitialState.php
 │   └───📁 unit/
 │       ├───📁 EventListener/
-│       │   └───...
+│       │   ├───📄 AddProductToCollectionListenerTest.php
+│       │   ├───📄 CopiedCollectionItemsListenerTest.php
+│       │   ├───📄 PostCheckoutListenerTest.php
+│       │   ├───📄 PostdeleteItemFromCollectionListenerTest.php
+│       │   └───📄 UpdateItemInCollectionListenerTest.php
 │       ├───📁 Helper/
-│       │   └───...
-│       ├───📁 reports/
-│       │   └───...
+│       │   └───📄 HelperTest.php
 │       └───📄 ContaoIsotopeStockBundleTest.php
 ├───📁 tools/
 │   ├───📁 ecs/
@@ -66,15 +92,13 @@
 │   └───📁 phpstan/
 │       ├───📄 composer.json
 │       └───📄 composer.lock
-├───📁 var/
 ├───📄 .editorconfig
 ├───📄 .env
 ├───📄 .gitignore
-├───📄 .phpcs.xml
 ├───📄 LICENSE
 ├───📄 README.md
 ├───📄 composer.json
-├───📄 coverage.txt
 ├───📄 ecs.php
 ├───📄 phpstan.neon
-└───📄 phpunit.xml
+├───📄 phpunit.xml
+└───📄 tree

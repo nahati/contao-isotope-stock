@@ -18,6 +18,7 @@ use Contao\Database;
 use Contao\PageModel;
 use Contao\TestCase\FunctionalTestCase;
 use Isotope\Model\Address;
+use Isotope\Model\Attribute\TextField;
 use Isotope\Model\Config;
 use Isotope\Model\OrderStatus;
 use Isotope\Model\Product;
@@ -35,6 +36,7 @@ use NotificationCenter\Model\Language;
 use NotificationCenter\Model\Message;
 use NotificationCenter\Model\Notification;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -59,17 +61,15 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     private Order $objOrder; // target collection, after copying
     private Checkout|null $objCheckout = null; // Checkout object, not used here
 
-    private static KernelBrowser $client;
+    private KernelBrowser $client;
 
     /**
      * In setUpBeforeClass() we initialize part of the neccessary environment once for all tests.
-     * Here expecially we cretae a client (boot the kernel,...), set a path and reset the complete database.
+     * Here expecially we set a path and reset the complete database.
      */
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-
-        self::$client = static::createClient();
 
         $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
 
@@ -82,10 +82,15 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         // Reset the entire database to initial state
         self::resetDatabase();
+
+        self::$objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_attribute WHERE id=?')->execute(15);
+
+        $GLOBALS['TL_DCA']['tl_iso_product']['attributes']['status'] = new TextField(self::$objResult);
     }
 
     /**
-     * tearDownAfterClass() is called once after the complete test contains some cleanup.
+     * tearDownAfterClass() is called once after the complete test
+     * Contains some cleanup.
      */
     public static function tearDownAfterClass(): void
     {
@@ -104,6 +109,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     {
         parent::setUp();
 
+        KernelTestCase::teardown(); // reset the kernel to allow client to be created
+        $this->client = static::createClient();
+
         // Initialize the Contao Framework
         $this->framework = static::getContainer()->get('contao.framework');
         $this->framework->initialize();
@@ -114,7 +122,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
         // Do needed Isotope and Notification Center initializations
-        $this->DoSomeIsotopeAndNcInitializations();
+        $this->doSomeIsotopeAndNcInitializations();
 
         // Instantiate an order object with given id
         $this->objOrder = Order::class::findByPk('268', ['return' => 'Model']);
@@ -132,9 +140,10 @@ class PreCheckoutListenerTest extends FunctionalTestCase
      */
     protected function tearDown(): void
     {
-        parent::tearDown(); // we cannot use this as it would set the kernel to null
+        parent::tearDown();
+        KernelTestCase::teardown();
 
-        unset($this->databaseAdapter, $this->framework, $this->objOrder, $this->objResult);
+        unset($this->client, $this->databaseAdapter, $this->framework, $this->objOrder, $this->objCheckout);
     }
 
     /**
@@ -149,7 +158,10 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         }
 
         // Create tables and insert data
-        self::loadFixture('ContaoIsotopeStockBundleTest-AfterCheckout.sql');
+        $fileName = 'ContaoIsotopeStockBundleTest-AfterCheckout.sql';
+        $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
+
+        self::$stcDatabaseAdapter->getInstance()->execute($sql);
     }
 
     /**
@@ -177,17 +189,17 @@ class PreCheckoutListenerTest extends FunctionalTestCase
      * Builds an sql query to load the database tables into the database
      * Files are located in the Fixtures folder and have been exported from the AfterCheckout database.
      */
-    private static function loadFixture(string $fileName): void
+    private function loadFixture(string $fileName): void
     {
         $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
 
-        self::$stcDatabaseAdapter->getInstance()->execute($sql);
+        $this->databaseAdapter->getInstance()->execute($sql);
     }
 
     /**
      * Do needed Isotope and Notification Center initializations.
      */
-    private function DoSomeIsotopeAndNcInitializations(): void
+    private function doSomeIsotopeAndNcInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'] = 'The maximum available quantity for "%s" is %s items';
@@ -329,10 +341,6 @@ class PreCheckoutListenerTest extends FunctionalTestCase
             ],
         ];
 
-        self::$objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_attribute WHERE id=?')->execute(15);
-
-        // $GLOBALS['TL_DCA']['tl_iso_product']['attributes']['status'] = new TextField(self::$objResult);
-
         Product::registerModelType('standard', Standard::class);
 
         // These assignments link the tables with the model ::classes. Now you can use the model ::classes to access and manipulate the data in the tables.
@@ -447,12 +455,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        self::$client->request('GET', '/');
+        $this->client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = self::$client->getResponse();
+        $response = $this->client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -561,12 +569,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        self::$client->request('GET', '/');
+        $this->client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = self::$client->getResponse();
+        $response = $this->client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -668,12 +676,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        self::$client->request('GET', '/');
+        $this->client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = self::$client->getResponse();
+        $response = $this->client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -716,12 +724,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        self::$client->request('GET', '/');
+        $this->client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = self::$client->getResponse();
+        $response = $this->client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -814,12 +822,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        self::$client->request('GET', '/');
+        $this->client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = self::$client->getResponse();
+        $response = $this->client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -917,12 +925,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        self::$client->request('GET', '/');
+        $this->client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = self::$client->getResponse();
+        $response = $this->client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);

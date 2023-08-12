@@ -43,7 +43,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      * @var Adapter<Database>
      */
     private static $stcDatabaseAdapter;
-    private static mixed $objResult;
+    private mixed $objResult;
 
     private ContaoFramework $framework;
 
@@ -64,8 +64,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     {
         parent::setUpBeforeClass();
 
-        static::bootKernel();
-
         $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
 
         // Initialize the Contao stcFramework
@@ -85,8 +83,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     public static function tearDownAfterClass(): void
     {
         // parent::tearDownAfterClass();
-
-        self::$objResult = null;
     }
 
     /**
@@ -99,6 +95,8 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     {
         parent::setUp();
 
+        static::bootKernel();
+
         // Initialize the Contao Framework
         $this->framework = static::getContainer()->get('contao.framework');
         $this->framework->initialize();
@@ -109,7 +107,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
         // Do needed Isotope and Notification Center initializations
-        $this->DoSomeIsotopeAndNcInitializations();
+        $this->doSomeIsotopeAndNcInitializations();
 
         // Instantiate an order object with given id
         $this->objOrder = Order::class::findByPk('268', ['return' => 'Model']);
@@ -118,9 +116,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $this->assertNotNull($this->objOrder);
 
         $this->oldOrderStatus = $this->objOrder->order_status;
-
-        // // Instantiate a Listener and call it
-        // $this->listener = new PostCheckoutListener(self::$stcFramework);
     }
 
     /**
@@ -129,7 +124,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     protected function tearDown(): void
     {
-        parent::tearDown(); // we cannot use this as it would set the kernel to null
+        parent::tearDown();
 
         unset($this->databaseAdapter, $this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
     }
@@ -146,7 +141,10 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         }
 
         // Create tables and insert data
-        self::loadFixture('ContaoIsotopeStockBundleTest-AfterCheckout.sql');
+        $fileName = 'ContaoIsotopeStockBundleTest-AfterCheckout.sql';
+        $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
+
+        self::$stcDatabaseAdapter->getInstance()->execute($sql);
     }
 
     /**
@@ -174,7 +172,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      * Builds an sql query to load the database tables into the database
      * Files are located in the Fixtures folder and have been exported from the AfterCheckout database.
      */
-    private static function loadFixture(string $fileName): void
+    private function loadFixture(string $fileName): void
     {
         $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
 
@@ -184,7 +182,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     /**
      * Do needed Isotope and Notification Center initializations.
      */
-    private function DoSomeIsotopeAndNcInitializations(): void
+    private function doSomeIsotopeAndNcInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'] = 'The maximum available quantity for "%s" is %s items';
@@ -324,9 +322,9 @@ class PostCheckoutListenerTest extends FunctionalTestCase
             ],
         ];
 
-        self::$objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_attribute WHERE id=?')->execute(15);
+        $this->objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_attribute WHERE id=?')->execute(15);
 
-        $GLOBALS['TL_DCA']['tl_iso_product']['attributes']['status'] = new TextField(self::$objResult);
+        $GLOBALS['TL_DCA']['tl_iso_product']['attributes']['status'] = new TextField($this->objResult);
 
         Product::registerModelType('standard', Standard::class);
 
@@ -389,9 +387,8 @@ class PostCheckoutListenerTest extends FunctionalTestCase
             $this->objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($parentProductId);
 
             $this->assertSame($this->objResult->inventory_status, $expectedInventory_statusOfParentProduct);
-
-            unset($listener);
         }
+        unset($listener);
     }
 
     /**
