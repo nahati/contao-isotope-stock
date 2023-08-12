@@ -88,12 +88,12 @@ jobs:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
             - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  --testsuite=integrationCart --colors=always --coverage-html docs/integration --testdox-text docs/integration/testdoxCart.txt
+              run: vendor/bin/phpunit  --testsuite=integrationCart --colors=always --coverage-html docs/integrationCart --testdox-text docs/integrationCart/testdox.txt
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
             - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit  --testsuite=integrationOrder --colors=always --coverage-html docs/integration --testdox-text docs/integration/testdoxOrder.txt
+              run: vendor/bin/phpunit  --testsuite=integrationOrder --colors=always --coverage-html docs/integrationOrder --testdox-text docs/integrationOrder/testdox.txt
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
@@ -103,4 +103,5 @@ jobs:
                   name: test-reports
                   path: |
                       docs/unit
-                      docs/integration
+                      docs/integrationCart
+                      docs/integrationOrder

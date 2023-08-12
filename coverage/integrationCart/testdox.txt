@@ -50,32 +50,6 @@ Copied Collection Items Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integrat
  [x] Copied collection items listener returns quantity zero when product is a variant and product is soldout
  [x] Copied collection items listener returns quantity zero when product is a variant and parent product is soldout
 
-Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PostCheckoutListener)
- [x] True is true
- [x] Post checkout listener keeps product quantity and inventory status when product is not a variant and product has unlimited quantity
- [x] Post checkout listener reduces product quantity when product is not a variant and quantity bought is less than product quantity
- [x] Post checkout listener reduces quantity of product and sets product soldout when product is not a variant and quantity bought is equal to product quantity
- [ ] Post checkout listener reduces quantity of product and sets product soldout when product is not a variant and quantity of product exceeds product quantity
- [x] Post checkout listener keeps quantity of product and inventory status when product is a variant and product and siblings and parent have unlimited quantity
- [x] Post checkout listener reduces quantity of product when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is less than parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is equal to parent quantity
- [ ] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is greater than parent quantity
- [x] Post checkout listener reduces quantity of product and sets product soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is less than parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is equal to parent quantity
- [ ] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is greater than parent quantity
- [ ] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is less than parent quantity and all child products are soldout
- [ ] Post checkout listener reduces quantity of product and sets product and sibling in cart soldout and keeps parent available when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is less than parent quantity and there is a non soldout sibling
- [ ] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is equal to parent quantity
- [ ] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is greater than parent quantity
- [x] Post checkout listener reduces quantity of product when product is a variant and quantity of product including all siblings is less than parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity of product including all siblings is equal to parent quantity
- [ ] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity of product including all siblings is greater than parent quantity
- [x] Post checkout listener reduces quantity of product when parent product has unlimited quantity and product is a variant and quantity bought is less than product quantity
- [x] Post checkout listener reduces quantity of product and sets product soldout when parent product has unlimited quantity and product is a variant and quantity bought is equal to product quantity
- [ ] Post checkout listener recduces quantity and sets product soldout when parent product has unlimited quantity and product is a variant and quantity bought is greater than product quantity
- [x] Post checkout listener keeps order status when order not contains any overbought products
- [ ] Post checkout listener sets order status overbought when order contains overbought products
-
 Post Delete Item From Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PostDeleteItemFromCollectionListener)
  [x] Post delete item from collection listener sets product available when product is not a variant product quantity is greater than zero
  [x] Post delete item from collection listener sets product soldout when product is not a variant and product quantity is zero
