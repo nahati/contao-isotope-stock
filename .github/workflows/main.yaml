@@ -92,7 +92,6 @@ jobs:
               run: |
                   sudo /etc/init.d/mysql start
                   mysql -uroot -proot -e "CREATE database ContaoIsotopeStockBundleTest"
-                  // load fixtures from sql file
                   mysql -uroot -proot ContaoIsotopeStockBundleTest < tests/Integration/Fixtures/ContaoIsotopeStockBundleTest-initial.sql
 
             - name: Run the functional tests with PDO MySQL
@@ -105,7 +104,6 @@ jobs:
                   sudo /etc/init.d/mysql start
                   mysql -uroot -proot -e "DROP database ContaoIsotopeStockBundleTest"
                   mysql -uroot -proot -e "CREATE database ContaoIsotopeStockBundleTest"
-                  // load fixtures from sql file
                   mysql -uroot -proot ContaoIsotopeStockBundleTest < tests/Integration/Fixtures/ContaoIsotopeStockBundleTest-AfterCheckout.sql
 
             - name: Run the functional tests with PDO MySQL
