@@ -36,7 +36,6 @@ use NotificationCenter\Model\Language;
 use NotificationCenter\Model\Message;
 use NotificationCenter\Model\Notification;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -112,7 +111,6 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
 
         // Initialize the Contao Framework
         $this->framework = static::getContainer()->get('contao.framework');
@@ -447,7 +445,8 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         $objPage = $this->databaseAdapter->getInstance()
             ->prepare('SELECT * FROM tl_page WHERE id=?')
             ->execute(18)
-            ->fetchAssoc();
+            ->fetchAssoc()
+        ;
 
         // Create a new instance of the PageModel class using the database result
         $GLOBALS['objPage'] = new PageModel($objPage);

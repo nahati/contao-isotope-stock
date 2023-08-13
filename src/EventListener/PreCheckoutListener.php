@@ -146,7 +146,6 @@ class PreCheckoutListener
         } // for each
 
         if ($this->orderNeedsChanges) {
-
             // We could also just return false; but then the user would be redirected to the "failed" page with an incorrect message. So we go this way.
 
             try {
