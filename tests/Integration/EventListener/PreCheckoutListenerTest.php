@@ -445,8 +445,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         $objPage = $this->databaseAdapter->getInstance()
             ->prepare('SELECT * FROM tl_page WHERE id=?')
             ->execute(18)
-            ->fetchAssoc()
-        ;
+            ->fetchAssoc();
 
         // Create a new instance of the PageModel class using the database result
         $GLOBALS['objPage'] = new PageModel($objPage);

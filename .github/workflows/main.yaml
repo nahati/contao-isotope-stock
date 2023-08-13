@@ -76,11 +76,6 @@ jobs:
               env:
                   COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Initialize the database
-              run: |
-                  sudo /etc/init.d/mysql start
-                  mysql -uroot -proot -e "CREATE database ContaoIsotopeStockBundleTest"
-
             - name: Checkout
               uses: actions/checkout@v3
 
@@ -92,21 +87,29 @@ jobs:
 
             - name: Run PHPUnit with code coverage
               run: vendor/bin/phpunit --colors=always --testsuite=unit --coverage-html docs/unit --testdox-text docs/unit/testdox.txt
-              env:
-                  DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
-            - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit --testsuite=integrationOrder --filter PreCheckoutListenerTest --colors=always --coverage-html docs/integrationOrder --testdox-text docs/integrationOrder/testdox.txt
-              env:
-                  DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
+            - name: Initialize the database for integration tests Cart
+              run: |
+                  sudo /etc/init.d/mysql start
+                  mysql -uroot -proot -e "CREATE database ContaoIsotopeStockBundleTest"
+                  // load fixtures from sql file
+                  mysql -uroot -proot ContaoIsotopeStockBundleTest < tests/Integration/Fixtures/ContaoIsotopeStockBundleTest-initial.sql
 
             - name: Run the functional tests with PDO MySQL
               run: vendor/bin/phpunit --testsuite=integrationCart --colors=always --coverage-html docs/integrationCart --testdox-text docs/integrationCart/testdox.txt
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
+            - name: Initialize the database for integration tests Order
+              run: |
+                  sudo /etc/init.d/mysql start
+                  mysql -uroot -proot -e "DROP database ContaoIsotopeStockBundleTest"
+                  mysql -uroot -proot -e "CREATE database ContaoIsotopeStockBundleTest"
+                  // load fixtures from sql file
+                  mysql -uroot -proot ContaoIsotopeStockBundleTest < tests/Integration/Fixtures/ContaoIsotopeStockBundleTest-AfterCheckout.sql
+
             - name: Run the functional tests with PDO MySQL
-              run: vendor/bin/phpunit --testsuite=integrationOrder --filter PostCheckoutListenerTest --colors=always --coverage-html docs/integrationOrder --testdox-text docs/integrationOrder/testdox.txt
+              run: vendor/bin/phpunit --testsuite=integrationOrder  --colors=always --coverage-html docs/integrationOrder --testdox-text docs/integrationOrder/testdox.txt
               env:
                   DATABASE_URL: mysql://root:root@127.0.0.1:3306/ContaoIsotopeStockBundleTest
 
