@@ -61,7 +61,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     private Order $objOrder; // target collection, after copying
     private Checkout|null $objCheckout = null; // Checkout object, not used here
 
-    private KernelBrowser $client;
+    protected static KernelBrowser $client;
 
     /**
      * In setUpBeforeClass() we initialize part of the neccessary environment once for all tests.
@@ -70,6 +70,8 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
+
+        self::$client = static::createClient();
 
         $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
 
@@ -96,6 +98,8 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     {
         // parent::tearDownAfterClass(); // not existing
 
+        self::$client->restart();
+
         self::$objResult = null;
     }
 
@@ -109,8 +113,6 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        KernelTestCase::teardown(); // reset the kernel to allow client to be created
-        $this->client = static::createClient();
 
         // Initialize the Contao Framework
         $this->framework = static::getContainer()->get('contao.framework');
@@ -141,9 +143,8 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        KernelTestCase::teardown();
 
-        unset($this->client, $this->databaseAdapter, $this->framework, $this->objOrder, $this->objCheckout);
+        unset($this->databaseAdapter, $this->framework, $this->objOrder, $this->objCheckout);
     }
 
     /**
@@ -446,8 +447,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         $objPage = $this->databaseAdapter->getInstance()
             ->prepare('SELECT * FROM tl_page WHERE id=?')
             ->execute(18)
-            ->fetchAssoc()
-        ;
+            ->fetchAssoc();
 
         // Create a new instance of the PageModel class using the database result
         $GLOBALS['objPage'] = new PageModel($objPage);
@@ -455,12 +455,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        $this->client->request('GET', '/');
+        self::$client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
-        // Get the response from the lient
-        $response = $this->client->getResponse();
+        // Get the response from the client
+        $response = self::$client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -569,12 +569,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        $this->client->request('GET', '/');
+        self::$client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = $this->client->getResponse();
+        $response = self::$client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -676,12 +676,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        $this->client->request('GET', '/');
+        self::$client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = $this->client->getResponse();
+        $response = self::$client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -724,12 +724,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        $this->client->request('GET', '/');
+        self::$client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = $this->client->getResponse();
+        $response = self::$client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -822,12 +822,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        $this->client->request('GET', '/');
+        self::$client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = $this->client->getResponse();
+        $response = self::$client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
@@ -925,12 +925,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Instantiate a Listener and call it
         $listener = new PreCheckoutListener($this->framework);
 
-        $this->client->request('GET', '/');
+        self::$client->request('GET', '/');
 
         $listener($this->objOrder, $this->objCheckout);
 
         // Get the response from the lient
-        $response = $this->client->getResponse();
+        $response = self::$client->getResponse();
 
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);

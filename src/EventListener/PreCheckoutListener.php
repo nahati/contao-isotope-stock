@@ -146,7 +146,9 @@ class PreCheckoutListener
         } // for each
 
         if ($this->orderNeedsChanges) {
+
             // We could also just return false; but then the user would be redirected to the "failed" page with an incorrect message. So we go this way.
+
             try {
                 // Throw an exception to stop the checkout process
                 throw new \RuntimeException('The order could not be completed', 400);
@@ -155,7 +157,7 @@ class PreCheckoutListener
                 $message = $GLOBALS['TL_LANG']['ERR']['orderNotPossible'];
 
                 // Get an adapter for the Checkout class
-                /** @var Adapter<Checkout> $adapter */
+                /** @var Adapter<Checkout> $checkoutAdapter */
                 $checkoutAdapter = $this->framework->getAdapter(Checkout::class);
 
                 // // Redirect the user to the "failed" page
