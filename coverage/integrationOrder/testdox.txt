@@ -1,3 +1,23 @@
+Pre Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PreCheckoutListener)
+ [x] Pre checkout listener returns true when product is not a variant and product has unlimited quantity
+ [x] Pre checkout listener returns true when product is not a variant and quantity bought is less than product quantity
+ [x] Pre checkout listener returns true when product is not a variant and quantity bought is equal to product quantity
+ [x] Pre checkout listener sends redirect response when product is not a variant and quantity of product exceeds product quantity
+ [x] Pre checkout listener returns true when product is a variant and product and siblings and parent have unlimited quantity
+ [x] Pre checkout listener returns true when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is less than parent quantity
+ [x] Pre checkout listener returns true when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is equal to parent quantity
+ [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is greater than parent quantity
+ [x] Pre checkout listener returns true when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is less than parent quantity
+ [x] Pre checkout listener returns true when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is equal to parent quantity
+ [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is greater than parent quantity
+ [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is greater than product quantity
+ [x] Pre checkout listener returns true when product is a variant and quantity of product including all siblings is less than parent quantity
+ [x] Pre checkout listener returns true when product is a variant and quantity of product including all siblings is equal to parent quantity
+ [x] Pre checkout listener sends redirect response when product is a variant and quantity of product including all siblings is greater than parent quantity
+ [x] Pre checkout listener returns true when parent product has unlimited quantity and product is a variant and quantity bought is less than product quantity
+ [x] Pre checkout listener returns true when product has unlimited quantity and product is a variant and quantity bought is equal to product quantity
+ [x] Pre checkout listener sends redirect response when parent product has unlimited quantity and product is a variant and quantity bought is greater than product quantity
+
 Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PostCheckoutListener)
  [x] True is true
  [x] Post checkout listener keeps product quantity and inventory status when product is not a variant and product has unlimited quantity
@@ -23,24 +43,4 @@ Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventL
  [x] Post checkout listener recduces quantity and sets product soldout when parent product has unlimited quantity and product is a variant and quantity bought is greater than product quantity
  [x] Post checkout listener keeps order status when order not contains any overbought products
  [x] Post checkout listener sets order status overbought when order contains overbought products
-
-Pre Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PreCheckoutListener)
- [x] Pre checkout listener returns true when product is not a variant and product has unlimited quantity
- [x] Pre checkout listener returns true when product is not a variant and quantity bought is less than product quantity
- [x] Pre checkout listener returns true when product is not a variant and quantity bought is equal to product quantity
- [x] Pre checkout listener sends redirect response when product is not a variant and quantity of product exceeds product quantity
- [x] Pre checkout listener returns true when product is a variant and product and siblings and parent have unlimited quantity
- [x] Pre checkout listener returns true when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is less than parent quantity
- [x] Pre checkout listener returns true when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is equal to parent quantity
- [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is greater than parent quantity
- [x] Pre checkout listener returns true when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is less than parent quantity
- [x] Pre checkout listener returns true when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is equal to parent quantity
- [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is greater than parent quantity
- [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is greater than product quantity
- [x] Pre checkout listener returns true when product is a variant and quantity of product including all siblings is less than parent quantity
- [x] Pre checkout listener returns true when product is a variant and quantity of product including all siblings is equal to parent quantity
- [x] Pre checkout listener sends redirect response when product is a variant and quantity of product including all siblings is greater than parent quantity
- [x] Pre checkout listener returns true when parent product has unlimited quantity and product is a variant and quantity bought is less than product quantity
- [x] Pre checkout listener returns true when product has unlimited quantity and product is a variant and quantity bought is equal to product quantity
- [x] Pre checkout listener sends redirect response when parent product has unlimited quantity and product is a variant and quantity bought is greater than product quantity
 

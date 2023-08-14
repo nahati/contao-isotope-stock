@@ -2,10 +2,6 @@
 
 This bundle adds a stock-management and a gallery feature to Isotope.
 
-## Important note
-
-THIS VERSION IS **ALMOST** READY FOR PRODUCTION
-
 ## Last changes
 
 - Complete redesign
@@ -144,8 +140,7 @@ Apply changes to update the packages. Update Database.
 
 ## Testmethods
 
-- [Unit-Test - Testcases](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/unit/reports/testdox.txt)
-- [Integration-Test - Testcases](https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/tests/Integration/reports/testdox.txt)
+See the used test methods in folder `coverage`.
 
 ## Special thanks
 

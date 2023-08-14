@@ -15,6 +15,7 @@ namespace Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener;
 use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
+use Contao\System;
 use Contao\TestCase\FunctionalTestCase;
 use Isotope\Model\Product;
 use Isotope\Model\Product\Standard;
@@ -30,15 +31,12 @@ use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
  */
 class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 {
-    /**
-     * @var ContaoFramework
-     */
-    private static $stcFramework;
+    private ContaoFramework $framework;
 
     /**
      * @var Adapter<Database>
      */
-    private static $stcDatabaseAdapter;
+    private $databaseAdapter;
 
     private ProductCollectionItem $objItem;
     private Cart $objCart;
@@ -46,104 +44,46 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     private mixed $return;
 
     /**
-     * @param int    $itemId
-     * @param int    $quantityInCart
-     * @param mixed  $expectedReturn
-     * @param int    $productId
-     * @param int    $parentProductId                           // optional
-     * @param string $expectedInventory_statusOfProduct
-     * @param string $expectedInventory_statusOfParentProduct   // optional
-     * @param string $expectedInventory_statusOfSiblingProducts // optional
+     * setup() is called for each Testcase.
      */
-    private function doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = ''): void
+    protected function setUp(): void
     {
-        // Instantiate the Item with given id of this Cart
-        $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
+        parent::setUp();
 
-        // Create an arry $arrSet with quantity 1
-        $this->arrSet = ['quantity' => $quantityInCart];
+        $ifcKernel = static::bootKernel();
 
-        // Instantiate a Listener and call it
-        $listener = new UpdateItemInCollectionListener(self::$stcFramework);
+        $container = $ifcKernel->getContainer();
+        System::setContainer($container);
 
-        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
+        // Initialize the Contao Framework
+        $this->framework = $container->get('contao.framework');
+        $this->framework->initialize();
 
-        // Test if expected return is returned
-        $this->assertSame($this->return, $expectedReturn);
+        // Get a database adpater and reset relevant tables
+        $this->databaseAdapter = $this->framework->getAdapter(Database::class);
 
-        // Test if product has expected inventory_status
-        $objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
-
-        $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
-
-        // Asserts only for variant products
-        if ($parentProductId > 0) {
-            // Test if inventory_status of all siblings (excluding the given product) is as expected
-            $objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute($parentProductId, $productId);
-
-            while ($objResult->next()) {
-                $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfSiblingProducts);
-            }
-
-            // Test if inventory_status of the parent is as expected
-            $objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($parentProductId);
-
-            $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfParentProduct);
-        }
-    }
-
-    /**
-     * Check if quantity of product is zero.
-     */
-    private function isQuantityOfProductZero(int $productId): bool
-    {
-        $objResult = self::$stcDatabaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
-
-        return '0' === $objResult->quantity;
-    }
-
-    // In setUpBeforeClass() we initialize the neccessary environment once for all tests
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-
-        static::bootKernel();
-
-        // Initialize the Contao stcFramework
-        self::$stcFramework = static::getContainer()->get('contao.framework');
-        self::$stcFramework->initialize();
-
-        // Reset the database to initial state
-        self::$stcDatabaseAdapter = self::$stcFramework->getAdapter(Database::class);
-        self::resetDatabase();
+        $this->resetRelevantDatabaseTables();
+        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
         // Do needed Isotope initializations
-        self::DoSomeIsotopeInitializations();
+        $this->doSomeIsotopeInitializations();
+
+        // Instantiate a Cart object with given id
+        // This cart is of logged-in member test@test.de
+        $this->objCart = Cart::findByPk('265', ['return' => 'Model']);
+
+        // Check if Cart object exists
+        $this->assertNotNull($this->objCart);
     }
 
     /**
-     * tearDownAfterClass() is called once after the complete test contains some cleanup.
+     * tearDown() is called after each testcase and contains the basic cleanup for the tests.
      */
-    public static function tearDownAfterClass(): void
+    protected function tearDown(): void
     {
-        parent::tearDownAfterClass();
+        parent::tearDown();
 
-        self::$stcFramework->reset();
-    }
-
-    /**
-     * Set the database to an initial state.
-     */
-    private static function resetDatabase(): void
-    {
-        // Drop all tables
-        foreach (self::$stcDatabaseAdapter->getInstance()->listTables() as $table) {
-            $sql = 'DROP TABLE IF EXISTS ' . $table;
-            self::$stcDatabaseAdapter->getInstance()->execute($sql);
-        }
-
-        // Create tables and insert data
-        self::loadFixture('ContaoIsotopeStockBundleTest-initial.sql');
+        unset($this->databaseAdapter, $this->framework, $this->objCart, $this->objItem, $this->arrSet, $this->return);
     }
 
     /**
@@ -153,17 +93,17 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     {
         // Reset ProductCollectionItem-table to initial state
         $sql = 'DROP TABLE ' . 'tl_iso_product_collection_item';
-        self::$stcDatabaseAdapter->getInstance()->execute($sql);
+        $this->databaseAdapter->getInstance()->execute($sql);
         self::loadFixture('tl_iso_product_collection_item-initial.sql');
 
         // Reset Product-table to initial state
         $sql = 'DROP TABLE ' . 'tl_iso_product';
-        self::$stcDatabaseAdapter->getInstance()->execute($sql);
+        $this->databaseAdapter->getInstance()->execute($sql);
         self::loadFixture('tl_iso_product-initial.sql');
 
         // Reset ProductCollection-table to initial state
         $sql = 'DROP TABLE ' . 'tl_iso_product_collection';
-        self::$stcDatabaseAdapter->getInstance()->execute($sql);
+        $this->databaseAdapter->getInstance()->execute($sql);
         self::loadFixture('tl_iso_product_collection-initial.sql');
     }
 
@@ -171,17 +111,17 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
      * Builds an sql query to load the database tables into the database
      * Files are located in the Fixtures folder and have been exported from the initial database.
      */
-    private static function loadFixture(string $fileName): void
+    private function loadFixture(string $fileName): void
     {
         $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
 
-        self::$stcDatabaseAdapter->getInstance()->execute($sql);
+        $this->databaseAdapter->getInstance()->execute($sql);
     }
 
     /**
      * Do needed Isotope initializations.
      */
-    private static function DoSomeIsotopeInitializations(): void
+    private static function doSomeIsotopeInitializations(): void
     {
         // These assignments link the tables with the model classes. Now you can use the model classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_producttype'] = ProductType::class;
@@ -239,37 +179,60 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     }
 
     /**
-     * setup() is called for each Testcase and contains an additional setup for the tests.
-     * Override this method if you need to change the basic setup.
+     * @param int    $itemId
+     * @param int    $quantityInCart
+     * @param mixed  $expectedReturn
+     * @param int    $productId
+     * @param int    $parentProductId                           // optional
+     * @param string $expectedInventory_statusOfProduct
+     * @param string $expectedInventory_statusOfParentProduct   // optional
+     * @param string $expectedInventory_statusOfSiblingProducts // optional
      */
-    protected function setUp(): void
+    private function doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = ''): void
     {
-        parent::setUp();
+        // Instantiate the Item with given id of this Cart
+        $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
 
-        // Initialize the Contao stcFramework
-        self::$stcFramework = static::getContainer()->get('contao.framework');
-        self::$stcFramework->initialize();
+        // Create an arry $arrSet with quantity 1
+        $this->arrSet = ['quantity' => $quantityInCart];
 
-        // Get a database adpater and reset relevant tables
-        self::$stcDatabaseAdapter = self::$stcFramework->getAdapter(Database::class);
+        // Instantiate a Listener and call it
+        $listener = new UpdateItemInCollectionListener($this->framework);
 
-        $this->resetRelevantDatabaseTables();
-        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
+        $this->return = $listener($this->objItem, $this->arrSet, $this->objCart);
 
-        // Instantiate a Cart object with given id
-        // This cart is of logged-in member test@test.de
-        $this->objCart = Cart::findByPk('265', ['return' => 'Model']);
+        // Test if expected return is returned
+        $this->assertSame($this->return, $expectedReturn);
 
-        // Check if Cart object exists
-        $this->assertNotNull($this->objCart);
+        // Test if product has expected inventory_status
+        $objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
+
+        $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
+
+        // Asserts only for variant products
+        if ($parentProductId > 0) {
+            // Test if inventory_status of all siblings (excluding the given product) is as expected
+            $objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute($parentProductId, $productId);
+
+            while ($objResult->next()) {
+                $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfSiblingProducts);
+            }
+
+            // Test if inventory_status of the parent is as expected
+            $objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($parentProductId);
+
+            $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfParentProduct);
+        }
     }
 
     /**
-     * tearDown() is called after each testcase and contains the basic cleanup for the tests.
+     * Check if quantity of product is zero.
      */
-    protected function tearDown(): void
+    private function isQuantityOfProductZero(int $productId): bool
     {
-        parent::tearDown();
+        $objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($productId);
+
+        return '0' === $objResult->quantity;
     }
 
     /**
@@ -430,7 +393,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -455,7 +418,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -480,7 +443,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -532,7 +495,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -560,7 +523,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -588,7 +551,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -640,7 +603,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }
@@ -728,7 +691,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // quantity in Cart 1
 
         // Product initially has a quantity of 1, so we change the quantity of the product to match the testcase
-        self::$stcDatabaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
         $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $expectedInventory_statusOfSiblingProducts);
     }

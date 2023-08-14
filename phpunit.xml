@@ -54,13 +54,10 @@
       <file>./tests/Integration/EventListener/UpdateItemInCollectionListenerTest.php</file>
     </testsuite>
     <testsuite name="integrationOrder">
-      <file>./tests/Integration/EventListener/PostCheckoutListenerTest.php</file>
       <file>./tests/Integration/EventListener/PreCheckoutListenerTest.php</file>
+      <file>./tests/Integration/EventListener/PostCheckoutListenerTest.php</file>
     </testsuite>
 
-    <testsuite name="resetDBToInitialState">
-      <file>./tests/reset/resetDBToInitialState.php</file>
-    </testsuite>
     <testsuite name="resetDBToInitialState">
       <file>./tests/reset/resetDBToInitialState.php</file>
     </testsuite>

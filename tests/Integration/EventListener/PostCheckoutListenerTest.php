@@ -15,6 +15,7 @@ namespace Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener;
 use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
+use Contao\System;
 use Contao\TestCase\FunctionalTestCase;
 use Isotope\Model\Address;
 use Isotope\Model\Attribute\TextField;
@@ -39,12 +40,6 @@ use NotificationCenter\Model\Notification;
  */
 class PostCheckoutListenerTest extends FunctionalTestCase
 {
-    /**
-     * @var Adapter<Database>
-     */
-    private static $stcDatabaseAdapter;
-    private mixed $objResult;
-
     private ContaoFramework $framework;
 
     /**
@@ -52,53 +47,26 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     private $databaseAdapter;
 
+    private mixed $objResult;
+
     // private PostCheckoutListener $listener;
     private Order $objOrder; // target collection, after copying
     private int $oldOrderStatus; // old order status
 
     /**
-     * In setUpBeforeClass() we initialize part of the neccessary environment once for all tests.
-     * Here expecially we set a path and reset the complete database.
-     */
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-
-        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
-
-        // Initialize the Contao stcFramework
-        /** @var ContaoFramework $stcFramework */
-        $stcFramework = static::getContainer()->get('contao.framework');
-        $stcFramework->initialize();
-
-        self::$stcDatabaseAdapter = $stcFramework->getAdapter(Database::class);
-
-        // Reset the entire database to initial state
-        self::resetDatabase();
-    }
-
-    /**
-     * tearDownAfterClass() is called once after the complete test contains some cleanup.
-     */
-    public static function tearDownAfterClass(): void
-    {
-        // parent::tearDownAfterClass();
-    }
-
-    /**
-     * setup() is called for each Testcase and contains an additional setup for the tests.
-     * We initialize here another framework and another databaseAdapter instance for each test. In teardown() we destroy them.
-     *
-     * Override this method if you need to change the basic setup.
+     * setup() is called for each Testcase.
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        static::bootKernel();
+        $ifcKernel = static::bootKernel();
+
+        $container = $ifcKernel->getContainer();
+        System::setContainer($container);
 
         // Initialize the Contao Framework
-        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework = $container->get('contao.framework');
         $this->framework->initialize();
 
         $this->databaseAdapter = $this->framework->getAdapter(Database::class);
@@ -116,6 +84,8 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $this->assertNotNull($this->objOrder);
 
         $this->oldOrderStatus = $this->objOrder->order_status;
+
+        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
     }
 
     /**
@@ -127,24 +97,6 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         parent::tearDown();
 
         unset($this->databaseAdapter, $this->framework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
-    }
-
-    /**
-     * Set the database to an AfterCheckout state.
-     */
-    private static function resetDatabase(): void
-    {
-        // Drop all tables
-        foreach (self::$stcDatabaseAdapter->getInstance()->listTables() as $table) {
-            $sql = 'DROP TABLE IF EXISTS ' . $table;
-            self::$stcDatabaseAdapter->getInstance()->execute($sql);
-        }
-
-        // Create tables and insert data
-        $fileName = 'ContaoIsotopeStockBundleTest-AfterCheckout.sql';
-        $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
-
-        self::$stcDatabaseAdapter->getInstance()->execute($sql);
     }
 
     /**
@@ -176,7 +128,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     {
         $sql = file_get_contents(__DIR__ . '/..' . '/Fixtures/' . $fileName);
 
-        self::$stcDatabaseAdapter->getInstance()->execute($sql);
+        $this->databaseAdapter->getInstance()->execute($sql);
     }
 
     /**
