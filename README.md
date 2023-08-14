@@ -26,16 +26,16 @@ This bundle adds a stock-management and a gallery feature to Isotope.
 
 Handle limited editions (for single products as well as for variants):
 
-#### Checkout
-
-- Updates available quantity after checkout.
-- Sets inventory status to `soldout` if no quantity left at all.
-
 #### Cart
 
 - Updates quantity in cart according to the available quantity.
 - Sets inventory status to `available` or to `reserved` according to the available quantity left.
 - Adds a system message for each reserved product (issued at the backend dashboard).
+
+#### Checkout
+
+- Updates available quantity after checkout.
+- Sets inventory status to `soldout` if no quantity left at all.
 
 #### Product list
 
@@ -61,6 +61,13 @@ Does not (yet) handle these usecases ([see here](https://github.com/isotope/core
 An Exception is thrown if
 
 - Stock management is not properly configured ([see here](#stockmanagement))
+
+#### Some features in detail:
+
+- On page Cart: Show message if cart was changed.
+- On page checkout: Show message if cart was changed / user is asked to confirm.
+- On page Checkout: Show message if product quantity has changed during the checkout process (by concurring updates) / user is asked to go back to cart.
+- On page Order completed: Show message if product quantity has changed in the last step of the checkout process (by simultaneously concurring updates) / order status is set to `Overbought`, a notification is send.
 
 ### B) Gallery feature
 
@@ -135,7 +142,7 @@ Apply changes to update the packages. Update Database.
 
 ## Installation on Command-line
 
-      composer require nahati/contao-isotope-**stock**
+      composer require nahati/contao-isotope-stock
       vendor/bin/contao-console contao:migrate
 
 ## Testmethods

@@ -60,6 +60,11 @@ class PostCheckoutListener
         // Instantiate a Helper object
         $this->helper = new Helper($this->framework);
 
+        // Check that order is a non empty collection
+        if (!$objOrder->getItems()) {
+            return;
+        }
+
         // Array of all soldout parent product's IDs for products in the order
         $soldoutParentProductIds = [];
 

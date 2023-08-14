@@ -27,6 +27,10 @@ Post Delete Item From Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests
  [x] Post delete item from collection listener sets inventory status when product is not a variant
  [x] Post delete item from collection listener sets inventory status when product is a variant
 
+Pre Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\PreCheckoutListener)
+ [x] Pre checkout listener does nothing when stockmanagement is not configured
+ [x] Pre checkout listener throws invalid argument exception when stockmanagement is badly configured
+
 Update Item In Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\UpdateItemInCollectionListener)
  [x] True is true
  [x] Update item in collection listener returns false when item without product
