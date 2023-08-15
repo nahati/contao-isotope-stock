@@ -54,16 +54,16 @@ class Helper
 
         if (0 === $quantity && '' === $productName) {
             $messageAdapter->addError(
-                $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message'
+                $GLOBALS['TL_LANG']['ERR'][$message]
             );
         } elseif (0 === $quantity) {
             $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message for product %s',
+                $GLOBALS['TL_LANG']['ERR'][$message],
                 $productName
             ));
         } else {
             $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message for product %s with quantity %s',
+                $GLOBALS['TL_LANG']['ERR'][$message],
                 $productName,
                 $quantity
             ));
