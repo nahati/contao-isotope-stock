@@ -37,7 +37,7 @@ use NotificationCenter\Model\Notification;
 
 /**
  * Integration-Test of the PostCheckoutListener class.
- * 
+ *
  * @covers \Nahati\ContaoIsotopeStockBundle\EventListener\PostCheckoutListener
  */
 class PostCheckoutListenerTest extends FunctionalTestCase

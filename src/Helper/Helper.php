@@ -44,27 +44,27 @@ class Helper
 
     /**
      * @param string $message
-     * @param string $name     of the product (optional)
-     * @param int    $quantity of the product or quantity overbought (optional)
+     * @param string $productName (optional)
+     * @param int    $quantity    (optional)
      */
-    public function issueErrorMessage($message, $name = '', $quantity = 0): void
+    public function issueErrorMessage($message, $productName = '', $quantity = 0): void
     {
         // Get an adapter for the Message class
         $messageAdapter = $this->framework->getAdapter(Message::class);
 
-        if (0 === $quantity && '' === $name) {
+        if (0 === $quantity && '' === $productName) {
             $messageAdapter->addError(
                 $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message'
             );
         } elseif (0 === $quantity) {
             $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message for product %s',
-                $name
+                $productName
             ));
         } else {
             $messageAdapter->addError(sprintf(
                 $GLOBALS['TL_LANG']['ERR'][$message] ?? 'Non available message for product %s with quantity %s',
-                $name,
+                $productName,
                 $quantity
             ));
         }
@@ -127,21 +127,21 @@ class Helper
     /**
      * Set parent product and all available child products RESERVED.
      */
-    public function setParentAndChildProductsReserved(Standard $objParentProduct): void
+    public function setParentAndChildProductsReserved(Standard $parentProduct): void
     {
         // Get an adapter for the Standard class
         $standardAdapter = $this->framework->getAdapter(Standard::class);
 
         // Get all children of the parent product (variants)
-        $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id);
+        $childProducts = $standardAdapter->findPublishedBy('pid', $parentProduct->id);
 
         // Set parent product RESERVED
-        $this->updateInventory($objParentProduct, self::RESERVED);
+        $this->updateInventory($parentProduct, self::RESERVED);
 
         // Set all AVAILABLE variants RESERVED
-        foreach ($objVariants as $variant) {
-            if (self::AVAILABLE === $variant->inventory_status) {
-                $this->updateInventory($variant, self::RESERVED);
+        foreach ($childProducts as $childProduct) {
+            if (self::AVAILABLE === $childProduct->inventory_status) {
+                $this->updateInventory($childProduct, self::RESERVED);
             }
         }
     }
@@ -228,7 +228,6 @@ class Helper
         // Quantity zero
         if ('0' === $objProduct->quantity) {
             $this->updateInventory($objProduct, self::SOLDOUT);
-
             $this->issueErrorMessage('productOutOfStock', $objProduct->getName());
 
             return true;
@@ -237,7 +236,6 @@ class Helper
         // InventoryStatus SOLDOUT
         if (self::SOLDOUT === $objProduct->inventory_status) {
             $this->updateInventory($objProduct, '', '0');
-
             $this->issueErrorMessage('productOutOfStock', $objProduct->getName());
 
             return true;
@@ -298,11 +296,11 @@ class Helper
      */
     public function fetchQuantityInCart($objProduct, $objCart)
     {
-        $sum = 0;
+        $quantityInCart = 0;
 
-        foreach ($objCart->getItems() as $objItem) {
+        foreach ($objCart->getItems() as $objCartItem) {
             /** @var Standard|null $objProductInCart */
-            $objProductInCart = $objItem->getProduct() ?? null;
+            $objProductInCart = $objCartItem->getProduct() ?? null;
 
             // No product
             if (!$objProductInCart) {
@@ -314,10 +312,10 @@ class Helper
                 continue;
             }
 
-            $sum += $objItem->quantity;
+            $quantityInCart += $objCartItem->quantity;
         }
 
-        return $sum;
+        return $quantityInCart;
     }
 
     /**
@@ -463,25 +461,23 @@ class Helper
         // Fetch all child products
         $objChildProducts = $standardAdapter->findBy('pid', $objParentProductId);
 
+        // If no child products are found, we can stop here
         if (null === $objChildProducts) {
             return false;
         }
 
-        // Check if there is at least one child available
-        $AtLeastOneChildIsAvailable = false;
-
+        // Check if at least one child is available
         foreach ($objChildProducts as $objChildProduct) {
+            // Refresh the object to make sure we have the latest data
             $objChildProduct->refresh();
 
             // If one sibling is available, we can stop the loop
             if (self::AVAILABLE === $objChildProduct->inventory_status) {
-                $AtLeastOneChildIsAvailable = true;
-
-                break;
+                return true;
             }
         }
 
-        return $AtLeastOneChildIsAvailable;
+        return false;
     }
 
     /**
@@ -496,7 +492,9 @@ class Helper
     {
         // Issue an error message per overbought product
         foreach ($overboughtProducts as $overboughtProduct) {
-            $this->issueErrorMessage('overbought', $overboughtProduct['productName'], $overboughtProduct['overbought']);
+            $productName = $overboughtProduct['productName'];
+            $overboughtQuantity = $overboughtProduct['overbought'];
+            $this->issueErrorMessage('overbought', $productName, $overboughtQuantity);
         }
 
         // Update orderstatus to 'Overbought'
@@ -520,9 +518,16 @@ class Helper
             return;
         }
 
-        $orderStatus_id = OrderStatus::findOneBy('name', $orderStatus)->id;
+        // Fetch the orderstatus
+        /** @var OrderStatus|null $objOrderStatus */
+        $objOrderStatus = OrderStatus::findOneBy('name', $orderStatus);
+
+        // If the orderstatus is not found, return
+        if (null === $objOrderStatus) {
+            return;
+        }
 
         // Set the orderstatus
-        $objOrder->updateOrderstatus(['order_status' => $orderStatus_id]);
+        $objOrder->updateOrderstatus(['order_status' => $objOrderStatus->id]);
     }
 }
