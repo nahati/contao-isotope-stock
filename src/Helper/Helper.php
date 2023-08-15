@@ -47,27 +47,18 @@ class Helper
      * @param string $productName (optional)
      * @param int    $quantity    (optional)
      */
-    public function issueErrorMessage($message, $productName = '', $quantity = 0): void
+    public function issueErrorMessage($message, $productName = '', $quantity = 0): string
     {
         // Get an adapter for the Message class
         $messageAdapter = $this->framework->getAdapter(Message::class);
 
-        if (0 === $quantity && '' === $productName) {
-            $messageAdapter->addError(
-                $GLOBALS['TL_LANG']['ERR'][$message]
-            );
-        } elseif (0 === $quantity) {
-            $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR'][$message],
-                $productName
-            ));
-        } else {
-            $messageAdapter->addError(sprintf(
-                $GLOBALS['TL_LANG']['ERR'][$message],
-                $productName,
-                $quantity
-            ));
-        }
+        // Get the error message
+        $errorMessage = sprintf($GLOBALS['TL_LANG']['ERR'][$message], $productName, $quantity);
+
+        // Add the error
+        $messageAdapter->addError($errorMessage);
+
+        return $errorMessage;
     }
 
     /**

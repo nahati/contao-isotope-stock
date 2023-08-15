@@ -9,7 +9,7 @@
                 <target>Your order needs to be changed. Please go to cart and refresh it.</target>
             </trans-unit>
             <trans-unit id="ERR.overbought">
-                <target>The product "%s" has been overbought by "%s"! We will come back to you
+                <target>The product "%s" has been overbought by %d! We will come back to you
                     soon.</target>
             </trans-unit>
             <trans-unit id="ERR.inventoryStatusInactive">
@@ -23,13 +23,13 @@
                 <target>The product "%s" is currently out of stock</target>
             </trans-unit>
             <trans-unit id="ERR.quantityNotAvailable">
-                <target>The maximum available quantity for "%s" is %s items</target>
+                <target>The maximum available quantity for "%s" is %d items</target>
             </trans-unit>
             <trans-unit id="ERR.parentQuantityNotAvailable">
-                <target>The maximum available quantity for "%s" is %s items</target>
+                <target>The maximum available quantity for "%s" is %d items</target>
             </trans-unit>
             <trans-unit id="ERR.variantQuantityNotAvailable">
-                <target>The maximum available quantity for a variant of "%s" is %s items</target>
+                <target>The maximum available quantity for a variant of "%s" is ds items</target>
             </trans-unit>
             <trans-unit id="ERR.adaptCart">
                 <target>Adapt the "%s" in cart by their quantity!</target>

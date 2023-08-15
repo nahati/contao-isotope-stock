@@ -10,7 +10,7 @@
                     aktualisieren Sie ihn.</target>
             </trans-unit>
             <trans-unit id="ERR.overbought">
-                <target>Das Produkt "%s" ist um "%s" überverkauft. Wir melden uns in Kürze bei
+                <target>Das Produkt "%s" ist um "%d" überverkauft. Wir melden uns in Kürze bei
                     Ihnen!"</target>
             </trans-unit>
             <trans-unit id="ERR.inventoryStatusInactive">
@@ -23,13 +23,13 @@
                 <target>Das Produkt "%s" ist aktuell nicht verfügbar</target>
             </trans-unit>
             <trans-unit id="ERR.quantityNotAvailable">
-                <target>Die maximal verfügbare Bestellmenge für "%s" ist %s Stück</target>
+                <target>Die maximal verfügbare Bestellmenge für "%s" ist %d Stück</target>
             </trans-unit>
             <trans-unit id="ERR.parentQuantityNotAvailable">
-                <target>Die maximal verfügbare Bestellmenge für "%s" ist %s Stück</target>
+                <target>Die maximal verfügbare Bestellmenge für "%s" ist %d Stück</target>
             </trans-unit>
             <trans-unit id="ERR.variantQuantityNotAvailable">
-                <target>Die maximal verfügbare Bestellmenge für eine Variante von "%s" ist %s Stück</target>
+                <target>Die maximal verfügbare Bestellmenge für eine Variante von "%s" ist %d Stück</target>
             </trans-unit>
             <trans-unit id="ERR.productHasChanged">
                 <target>"%s" wurde zwischenzeitlich geändert, bitte starten Sie erneut!</target>

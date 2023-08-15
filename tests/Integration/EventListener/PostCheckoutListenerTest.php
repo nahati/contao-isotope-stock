@@ -153,6 +153,8 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $GLOBALS['TL_LANG']['ERR']['productOutOfStock'] = 'The product "%s" is currently out of stock';
 
+        $GLOBALS['TL_LANG']['ERR']['overbought'] = 'The product "%s" has been overbought by "%d"! We will come back to you soon.';
+
         /*
         * Number formatting
         */
