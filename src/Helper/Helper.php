@@ -71,12 +71,12 @@ class Helper
     }
 
     /**
-     * Update qunatity / inventory_status of a product.
+     * Update quantity / inventory_status of a product.
      * If strict is set to true, the update is done even if the product has changed in the meantime.
      *
      * @param Standard $objProduct
      * @param string   $inventory_status, set empty if not to be updated
-     * @param string   $quantity,         leave away or set empty if not to be updated
+     * @param string   $quantity,         omit or set empty if not to be updated
      * @param bool     $strict            update even if product has changed in the meantime
      *
      * @return Boolean // update done

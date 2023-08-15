@@ -38,7 +38,7 @@ class HelperTest extends ContaoTestCase
         parent::setUpBeforeClass();
 
         // Do needed Isotope initializations
-        self::DoSomeIsotopeInitializations();
+        self::doSomeIsotopeInitializations();
     }
 
     protected function setUp(): void
@@ -57,7 +57,7 @@ class HelperTest extends ContaoTestCase
     /**
      * Do needed Isotope initializations.
      */
-    private static function DoSomeIsotopeInitializations(): void
+    private static function doSomeIsotopeInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'] = 'The maximum available quantity for "%s" is %s items';

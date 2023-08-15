@@ -37,6 +37,8 @@ use NotificationCenter\Model\Notification;
 
 /**
  * Integration-Test of the PostCheckoutListener class.
+ * 
+ * @covers \Nahati\ContaoIsotopeStockBundle\EventListener\PostCheckoutListener
  */
 class PostCheckoutListenerTest extends FunctionalTestCase
 {
@@ -85,7 +87,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $this->oldOrderStatus = $this->objOrder->order_status;
 
-        $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
+        // $GLOBALS['TL_CONFIG']['templateFiles'] = 'contao/templates';
     }
 
     /**

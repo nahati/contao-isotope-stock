@@ -7,6 +7,7 @@
 <?php $this->block('form_part1'); ?>
 
 <form id="<?= $this->formId; ?>" name="iso<?= rand(); ?>" method="post" enctype="<?= $this->enctype; ?>">
+
   <div class="formbody" itemscope itemtype="http://schema.org/Product">
     <input type="hidden" name="FORM_SUBMIT" value="<?= $this->formSubmit; ?>">
     <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
@@ -18,7 +19,7 @@
         <?php endif; ?>
         <?= $this->highlightKeywords($this->generateAttribute('name')); ?>
         <?php if ($this->href) : ?>
-      </a>
+        </a>
       <?php endif; ?>
     </h3>
 
@@ -37,55 +38,62 @@
 
 
     <?php if ($this->sku) : ?>
-    <div class="sku" itemprop="sku">
-      <?= $this->generateAttribute('sku'); ?>
-    </div>
+
+      <div class="sku" itemprop="sku">
+        <?= $this->generateAttribute('sku'); ?>
+      </div>
     <?php endif;
-                                                                                  if ($this->teaser) : ?>
-    <div class="teaser">
-      <?= $this->highlightKeywords($this->generateAttribute('teaser')); ?>
-    </div>
+    if ($this->teaser) : ?>
+
+      <div class="teaser">
+        <?= $this->highlightKeywords($this->generateAttribute('teaser')); ?>
+      </div>
     <?php endif; ?>
 
     <?php /* @var \Isotope\Interfaces\IsotopePrice $price */ if ($price = $this->product->getPrice()) : ?>
-    <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-      <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
-      <div class="price" itemprop="price"
-        content="<?= \Isotope\Isotope::roundPrice($price->getAmount(1, $this->product->getOptions())) ?>">
-        <?= $this->generatePrice(); ?>
+
+      <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+        <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
+
+        <div class="price" itemprop="price" content="<?= \Isotope\Isotope::roundPrice($price->getAmount(1, $this->product->getOptions())) ?>">
+          <?= $this->generatePrice(); ?>
+        </div>
+        <?php if ($this->baseprice) : ?>
+
+          <div class="baseprice">
+            <?= $this->generateAttribute('baseprice'); ?>
+          </div>
+        <?php endif; ?>
       </div>
-      <?php if ($this->baseprice) : ?>
-      <div class="baseprice">
-        <?= $this->generateAttribute('baseprice'); ?>
-      </div>
-      <?php endif; ?>
-    </div>
     <?php endif; ?>
 
     <?php if ($this->href) : ?>
-    <div class="details"><a href="<?= $this->href; ?>" title="<?= $this->label_detail; ?>">
-        <?= $this->label_detail; ?>
-      </a></div>
+
+      <div class="details"><a href="<?= $this->href; ?>" title="<?= $this->label_detail; ?>">
+          <?= $this->label_detail; ?>
+        </a></div>
     <?php endif; ?>
 
     <?php if ($this->actions) : ?>
-    <div class="submit_container">
-      <?php if ($this->hasOptions) : ?>
-      <div class="options">
-        <?php foreach ($this->options as $arrOption) : echo $arrOption['html'];
+
+      <div class="submit_container">
+        <?php if ($this->hasOptions) : ?>
+
+          <div class="options">
+            <?php foreach ($this->options as $arrOption) : echo $arrOption['html'];
             endforeach; ?>
+          </div>
+        <?php endif; ?>
+        <?php if ($this->useQuantity) : ?>
+
+          <div class="quantity_container">
+            <label for="quantity_requested_<?= $this->raw['id']; ?>">
+              <?= $GLOBALS['TL_LANG']['MSC']['quantity']; ?>:
+            </label> <input type="text" class="text" id="quantity_requested_<?= $this->raw['id']; ?>" name="quantity_requested" placeholder="<?= $this->minimum_quantity; ?>" maxlength="10">
+          </div>
+        <?php endif; ?>
+        <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
       </div>
-      <?php endif; ?>
-      <?php if ($this->useQuantity) : ?>
-      <div class="quantity_container">
-        <label for="quantity_requested_<?= $this->raw['id']; ?>">
-          <?= $GLOBALS['TL_LANG']['MSC']['quantity']; ?>:
-        </label> <input type="text" class="text" id="quantity_requested_<?= $this->raw['id']; ?>"
-          name="quantity_requested" placeholder="<?= $this->minimum_quantity; ?>" maxlength="10">
-      </div>
-      <?php endif; ?>
-      <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
-    </div>
     <?php endif; ?>
 
   </div>
