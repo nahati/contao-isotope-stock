@@ -1,3 +1,5 @@
+# THIS IS A DRAFT VERSION - NOT YET READY FOR PRODUCTION
+
 # Contao Isotope Stock
 
 This bundle adds a stock-management and a gallery feature to Isotope.
