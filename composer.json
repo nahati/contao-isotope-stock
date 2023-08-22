@@ -16,8 +16,8 @@
     },
     "require": {
         "PHP": "^8.1",
-        "contao/core-bundle": "^4.13.16",
-        "isotope/isotope-core": "^2.8.10",
+        "contao/core-bundle": "^4.13",
+        "isotope/isotope-core": "^2.8",
         "symfony/config": "^5.4",
         "symfony/dependency-injection": "^5.4",
         "symfony/http-kernel": "^5.4",
