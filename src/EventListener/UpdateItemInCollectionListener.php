@@ -72,10 +72,9 @@ class UpdateItemInCollectionListener
             return false;
         }
 
-        // Stockmanagement not or not correctly configured
-        if (!$this->helper->checkStockmanagement($objProduct)) {
-            // if not correctly configured, throw exception
-
+        // Stockmanagement: neither type A nor type B enabled.
+        // If not correctly configured, throw exception.
+        if (!$this->helper->checkStockmanagementTypeA($objProduct) && (!$this->helper->checkStockmanagementTypeB($objProduct))) {
             return $arrSet; // return unchanged quantity
         }
 

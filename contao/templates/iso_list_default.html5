@@ -29,6 +29,24 @@
     <div class="inventory_status" itemprop="inventory_status">
       <?= $this->generateAttribute('inventory_status'); ?>
     </div>
+    <? if ($this->generateAttribute('quantity')) : ?>
+      <div class="quantity" itemprop="quantity">
+        <?= $GLOBALS['TL_LANG']['tl_iso_product']['quantity'][0]; ?>
+        <?= $this->generateAttribute('quantity'); ?>
+      </div>
+    <?php endif; ?>
+    <? if ($this->generateAttribute('minQuantityPerOrder')) : ?>
+      <div class="minQuantityPerOrder" itemprop="minQuantityPerOrder">
+        <?= $GLOBALS['TL_LANG']['tl_iso_product']['minQuantityPerOrder'][0]; ?>
+        <?= $this->generateAttribute('minQuantityPerOrder'); ?>
+      </div>
+    <?php endif; ?>
+    <? if ($this->generateAttribute('maxQuantityPerOrder')) : ?>
+      <div class="maxQuantityPerOrder" itemprop="maxQuantityPerOrder">
+        <?= $GLOBALS['TL_LANG']['tl_iso_product']['maxQuantityPerOrder'][0]; ?>
+        <?= $this->generateAttribute('maxQuantityPerOrder'); ?>
+      </div>
+    <?php endif; ?>
 
 
     <?php $this->endblock(); ?>

@@ -1,3 +1,6 @@
+reset Database (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\resetDatabase)
+ [x] Reset database
+
 Add Product To Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\AddProductToCollectionListener)
  [x] Add product to collection listener returns unchanged quantity when product is not a variant and product has unlimited quantity
  [x] Add product to collection listener returns unchanged quantity and sets product available when product is not a variant and quantity in cart is less than product quantity
@@ -58,7 +61,8 @@ Post Delete Item From Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests
  [x] Post delete item from collection listener sets product soldout when product is a variant and product has quantity greater than zero and parent is soldout
 
 Update Item In Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\UpdateItemInCollectionListener)
- [x] Update item in collection listener returns unchanged quantity when product is not a variant and product has unlimited quantity
+ [x] Update item in collection listener returns unchanged quantity when product is not a variant and product has unlimited quantity and product has unlimited quantity per order
+ [x] Update item in collection listener returns changed quantity when product is not a variant and product has unlimited quantity and product has limited quantity per order
  [x] Update item in collection listener returns unchanged quantity and sets product available when product is not a variant and quantity in cart is less than product quantity
  [x] Update item in collection listener returns unchanged quantity and sets product available when product is not a variant and product is reserved and quantity in cart is less than product quantity
  [x] Update item in collection listener returns unchanged quantity and sets product reserved when product is not a variant and quantity in cart is equal to product quantity

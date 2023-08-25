@@ -49,9 +49,16 @@ Helper (Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper\Helper)
  [x] Set parent and child products reserved
  [x] Set parent and siblings products available
  [x] Set parent and child products soldout
- [x] Check stockmanagement returns false when inventory status is not set and quantity is not set
- [x] Check stockmanagement throws invalid argument exception when inventory status is not set but quantity is set
- [x] Check stockmanagement returns true when inventory status is set
+ [x] Check stockmanagement type a returns false when inventory status is not set and quantity is not set
+ [x] Check stockmanagement type a throws invalid argument exception when inventory status is not set but quantity is set
+ [x] Check stockmanagement type a returns true when inventory status is set
+ [x] Check stockmanagement type b returns true when max quantity per order is enabled
+ [x] Check stockmanagement type b returns false when neither max quantity per order nor min quantity per order is enabled
+ [x] Check stockmanagement type b returns true when max quantity per order is equal to zero and min quantity per order is equal to two
+ [x] Check stockmanagement type b returns true when max quantity per order is equal to two and min quantity per order is equal to one
+ [x] Check stockmanagement type b returns false when max quantity per order is equal to zero and min quantity per order is equal to one
+ [x] Check stockmanagement type b throws an exception when min quantity per order is greater than max quantity per order
+ [x] Check stockmanagement type b returns true when min quantity per order is enabled
  [x] Is soldout returns true and sets inventory status soldout when quantity is zero
  [x] Is soldout returns true and sets quantity zero when inventory status is soldout
  [x] Is soldout returns false when quantity is not zero and inventory status is not soldout

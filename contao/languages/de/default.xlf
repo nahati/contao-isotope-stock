@@ -2,6 +2,10 @@
 <xliff version="1.1">
     <file>
         <body>
+            <trans-unit id="ERR.minGreaterMax">
+                <target>Dies ist nicht erlaubt: Die Mindestmenge pro Bestellung ist größer als die
+                    Maximalmenge pro Bestellung!</target>
+            </trans-unit>
             <trans-unit id="ERR.confirmCheckout">
                 <target>Ihr Warenkorb wurde geändert. Bitte bestätigen Sie!</target>
             </trans-unit>

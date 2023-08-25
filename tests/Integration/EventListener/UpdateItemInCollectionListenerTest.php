@@ -246,12 +246,32 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3112;
         $quantityInCart = 1;
         $expectedReturn = ['quantity' => 1];
         $productId = 88; // unlimited quantity, AVAILABLE, Bild 1
+        $parentProductId = 0; // no parent product
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        // expectedInventory_statusOfParentProduct not used here
+        // expectedInventory_statusOfSiblingProducts not used here
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct);
+    }
+
+    /**
+     * @group non-variant_products
+     */
+    public function testUpdateItemInCollectionListenerReturnsChangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndProductHasLimitedQuantityPerOrder(): void
+    {
+        $itemId = 3149;
+        $quantityInCart = 1;
+        // $minQuantityPerOrder = '2';
+        // $maxQuantityPerOrder = '4';
+        $expectedReturn = ['quantity' => 1];
+        // TODO: 2
+        $productId = 102; // unlimited quantity, AVAILABLE, Bild 1a
         $parentProductId = 0; // no parent product
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
         // expectedInventory_statusOfParentProduct not used here

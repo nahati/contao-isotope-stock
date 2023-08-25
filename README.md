@@ -163,6 +163,7 @@ Add a notification of type `change order status`. Under shop configuration add a
 **Stock management type B**
 
 If you want to limit the quantity per order, activate `minQuantityPerOrder` and/or `maxQuantityPerOrder` for this product-type.
+Make sure to set the maximum equal to or greater than the minimum!
 
 For products with no such limit keep the respective field(s) empty.
 

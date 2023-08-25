@@ -15,6 +15,18 @@
                 <target>Is this product unsellable, available, reserved or
                     sold out?</target>
             </trans-unit>
+            <trans-unit id="tl_iso_product.minQuantityPerOrder.0">
+                <target>Min quantity per order</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.minQuantityPerOrder.1">
+                <target>If limited orders, enter the minimum quantity per order for this product</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.maxQuantityPerOrder.0">
+                <target>Max quantity per order</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.maxQuantityPerOrder.1">
+                <target>If limited orders, enter the maximum quantity per order for this product</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

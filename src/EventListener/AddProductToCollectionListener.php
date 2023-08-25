@@ -64,10 +64,9 @@ class AddProductToCollectionListener
         // Instantiate a Helper object
         $this->helper = new Helper($this->framework);
 
-        // Stockmanagement not or not correctly configured
-        if (!$this->helper->checkStockmanagement($objProduct)) {
-            // if not correctly configured, throw exception
-
+        // Stockmanagement: neither type A nor type B enabled.
+        // If not correctly configured, throw exception.
+        if (!$this->helper->checkStockmanagementTypeA($objProduct) && (!$this->helper->checkStockmanagementTypeB($objProduct))) {
             return $quantityRequestedForCart; // return unchanged requested quantity
         }
 

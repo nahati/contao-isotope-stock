@@ -2,6 +2,10 @@
 <xliff version="1.1">
     <file>
         <body>
+            <trans-unit id="ERR.minGreaterMax">
+                <target>This is not allowed: The minimum quantity per Order is greater than the
+                    maximum quantity per Order!</target>
+            </trans-unit>
             <trans-unit id="ERR.confirmCheckout">
                 <target>Your cart has been changed. Please confirm!</target>
             </trans-unit>

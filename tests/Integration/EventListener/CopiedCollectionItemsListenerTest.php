@@ -74,7 +74,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
 
         // Instantiate a Cart object with given id
         // This cart is of a guest
-        $this->objSource = Cart::findByPk('267', ['return' => 'Model']);
+        $this->objSource = Cart::findByPk('268', ['return' => 'Model']);
 
         // Check if Cart object exists
         $this->assertNotNull($this->objSource);

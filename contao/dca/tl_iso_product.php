@@ -31,3 +31,23 @@ $GLOBALS['TL_DCA']['tl_iso_product']['fields']['inventory_status'] = [
     'attributes' => ['legend' => 'general_legend', 'fe_filter' => true, 'fe_search' => true, 'fe_sorting' => true],
     'sql' => "char(1) default '2'",
 ];
+
+$GLOBALS['TL_DCA']['tl_iso_product']['fields']['minQuantityPerOrder'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_iso_product']['minQuantityPerOrder'],
+    'filter' => true,
+    'sorting' => true,
+    'inputType' => 'text',
+    'eval' => ['mandatory' => false, 'doNotShow' => false, 'tl_class' => 'w50'],
+    'attributes' => ['legend' => 'general_legend', 'multilingual' => false, 'fe_sorting' => true],
+    'sql' => "varchar(255) default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_iso_product']['fields']['maxQuantityPerOrder'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_iso_product']['maxQuantityPerOrder'],
+    'filter' => true,
+    'sorting' => true,
+    'inputType' => 'text',
+    'eval' => ['mandatory' => false, 'doNotShow' => false, 'tl_class' => 'w50'],
+    'attributes' => ['legend' => 'general_legend', 'multilingual' => false, 'fe_sorting' => true],
+    'sql' => "varchar(255) default ''",
+];

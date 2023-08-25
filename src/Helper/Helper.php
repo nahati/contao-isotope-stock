@@ -182,7 +182,7 @@ class Helper
     }
 
     /**
-     * Check configuration of stockmanagement.
+     * Check configuration of stockmanagement type A.
      *
      * @param Standard $objProduct
      *
@@ -190,7 +190,7 @@ class Helper
      *
      * @return bool // true if stockmanagement is enabled
      */
-    public function checkStockmanagement($objProduct)
+    public function checkStockmanagementTypeA($objProduct)
     {
         // inventory_status not activated
         if (!isset($objProduct->inventory_status)) {
@@ -205,6 +205,37 @@ class Helper
         else {
             return true;
         }
+    }
+
+    /**
+     * Check configuration of stockmanagement type B.
+     *
+     * @param Standard $objProduct
+     *
+     * @throws \InvalidArgumentException // if configuration is falsy
+     *
+     * @return bool // true if stockmanagement is enabled
+     */
+    public function checkStockmanagementTypeB($objProduct)
+    {
+        $min = false;
+        $max = false;
+
+        // minQuantityPerOrder activated
+        if ((($objProduct->minQuantityPerOrder ?? '') !== '') && $objProduct->minQuantityPerOrder > '1') {
+            $min = true;
+        }
+
+        // maxQuantityPerOrder activated
+        if ((($objProduct->maxQuantityPerOrder ?? '') !== '') && $objProduct->maxQuantityPerOrder > '0') {
+            $max = true;
+        }
+
+        if ($min && $max && $objProduct->minQuantityPerOrder > $objProduct->maxQuantityPerOrder) {
+            throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['minGreaterMax'], $objProduct->getName()));
+        }
+
+        return $min || $max;
     }
 
     /**

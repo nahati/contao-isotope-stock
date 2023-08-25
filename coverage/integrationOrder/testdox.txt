@@ -1,3 +1,6 @@
+reset Database (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\resetDatabase)
+ [x] Reset database
+
 Pre Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PreCheckoutListener)
  [x] Pre checkout listener returns true when product is not a variant and product has unlimited quantity
  [x] Pre checkout listener returns true when product is not a variant and quantity bought is less than product quantity

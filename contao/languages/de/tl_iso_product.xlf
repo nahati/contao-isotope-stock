@@ -15,6 +15,20 @@
             <trans-unit id="tl_iso_product.inventory_status.1">
                 <target>Ist das Produkt unverkäuflich, verfügbar, reserviert oder ausverkauft?</target>
             </trans-unit>
+            <trans-unit id="tl_iso_product.minQuantityPerOrder.0">
+                <target>Mindestmenge pro Order</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.minQuantityPerOrder.1">
+                <target>Wenn die Bestellungen limitiert sind, geben Sie hier die Mindestmenge pro
+                    Bestellung für dieses Produkt an.</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.maxQuantityPerOrder.0">
+                <target>Maximalmenge pro Order</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_product.maxQuantityPerOrder.1">
+                <target>Wenn die Bestellungen limitiert sind, geben Sie hier die Maximalmenge pro
+                    Bestellung für dieses Produkt an.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
