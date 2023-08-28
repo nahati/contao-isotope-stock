@@ -214,9 +214,11 @@ class Helper
      *
      * @throws \InvalidArgumentException // if configuration is falsy
      *
-     * @return bool // true if stockmanagement is enabled
+     * @return array <string, bool> ['min' => <bool>, 'max' => <bool>]
+     *                              min is true if minQuantityPerOrder is set and > '1'
+     *                              max is true if maxQuantityPerOrder is set and > '0'
      */
-    public function checkStockmanagementTypeB($objProduct)
+    public function checkStockmanagementTypeB($objProduct): array
     {
         $min = false;
         $max = false;
@@ -235,7 +237,7 @@ class Helper
             throw new \InvalidArgumentException(sprintf($GLOBALS['TL_LANG']['ERR']['minGreaterMax'], $objProduct->getName()));
         }
 
-        return $min || $max;
+        return ['min' => $min, 'max' => $max];
     }
 
     /**
@@ -351,6 +353,11 @@ class Helper
      */
     public function manageStockAndReturnSurplus($objProduct, $qtyInCollection, &$setInventoryStatusTo = null)
     {
+        // Stockmanagement not enabled or not correctly configured
+        if (!$this->checkStockmanagementTypeA($objProduct)) {
+            return 0; // no surplus quantity
+        }
+
         // Unlimited quantity: no stockmanagement, no surplus quantity
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
             return 0; // no surplus quantity
@@ -388,6 +395,33 @@ class Helper
         $setInventoryStatusTo = self::RESERVED;
 
         return (int) $qtyInCollection - (int) $objProduct->quantity; // return surplus quantity
+    }
+
+    /**
+     * Manage Stock Type B for a given product and a given quantity in Collection and return the surPlus and surMinus.
+     *
+     * @param Standard $objProduct
+     * @param int      $qtyInCollection // quantity in Collection (product retr. all siblings)
+     *
+     * @return array <string, int> ['surMinus' => <int>, 'surPlus' => <int>]
+     *                             $surMinus is the quantity that is missing to reach MinQuantityPerOrder (>= 0)
+     *               $surplus is the quantity that exceeds MaxQuantityPerOrder (>= 0)*/
+    public function manageStockTypeBAndReturnDifferences($objProduct, $qtyInCollection): array
+    {
+        $return = ['surMinus' => 0, 'surPlus' => 0];
+
+        // minQuantityPerOrder is set
+        if ($this->checkStockmanagementTypeB($objProduct)['min']) {
+            // return quantity below minQuantityPerOrder if any; otherwise return 0
+            $return['surMinus'] = $objProduct->minQuantityPerOrder - $qtyInCollection > 0 ? $objProduct->minQuantityPerOrder - $qtyInCollection : 0;
+        }
+        // maxQuantityPerOrder is set
+        if ($this->checkStockmanagementTypeB($objProduct)['max']) {
+            // return quantity above maxQuantityPerOrder if any; otherwise return 0
+            $return['surPlus'] = $qtyInCollection - $objProduct->maxQuantityPerOrder > 0 ? $qtyInCollection - $objProduct->maxQuantityPerOrder : 0;
+        }
+
+        return $return;
     }
 
     /**

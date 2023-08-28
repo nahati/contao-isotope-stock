@@ -2,12 +2,30 @@
 <xliff version="1.1">
     <file>
         <body>
+            <trans-unit id="ERR.productNotSellableAsMinQuantityPerOrderUnreached">
+                <target>Das Produkt "%s" kann in dieser Menge nicht gekauft werden, da die minimale
+                    Bestellmenge nicht erreicht ist.</target>
+            </trans-unit>
+            <trans-unit id="ERR.productNotSellableAsMaxQuantityPerOrderExceeded">
+                <target>Das Produkt "%s" kann in dieser Menge nicht gekauft werden, da die maximale
+                    Bestellmenge überschritten ist.</target>
+            </trans-unit>
+            <trans-unit id="ERR.minQuantityPerOrderUnreached">
+                <target>Die minimale Bestellmenge für "%s" ist %d</target>
+            </trans-unit>
+            <trans-unit id="ERR.maxQuantityPerOrderExceeded">
+                <target>Die maximale Bestellmenge für "%s" ist %d</target>
+            </trans-unit>
             <trans-unit id="ERR.minGreaterMax">
                 <target>Dies ist nicht erlaubt: Die Mindestmenge pro Bestellung ist größer als die
                     Maximalmenge pro Bestellung!</target>
             </trans-unit>
             <trans-unit id="ERR.confirmCheckout">
-                <target>Ihr Warenkorb wurde geändert. Bitte bestätigen Sie!</target>
+                <target>Ihre Bestellung muss geändert werden. Bitte nehmen Sie die Änderungen vor
+                    und bestätigen Sie!</target>
+            </trans-unit>
+            <trans-unit id="ERR.makeModifications">
+                <target>Your cart needs Modifications. Do that and confirm!</target>
             </trans-unit>
             <trans-unit id="ERR.orderNotPossible">
                 <target>Ihre Bestellung muss geändert werden. Bitte gehen Sie zum Warenkorb und

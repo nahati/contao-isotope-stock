@@ -598,7 +598,7 @@ class HelperTest extends ContaoTestCase
         $this->assertTrue($this->helper->checkStockmanagementTypeA($product));
     }
 
-    public function testCheckStockmanagementTypeBReturnsTrueWhenMaxQuantityPerOrderIsEnabled(): void
+    public function testCheckStockmanagementTypeBReturnsMaxTrueWhenMaxQuantityPerOrderIsEnabled(): void
     {
         // Mock a product, maxQuantityPerOrder is set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '2']);
@@ -606,11 +606,11 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework());
 
-        // Test if the method checkStockmanagementTypeA returns true
-        $this->assertTrue($this->helper->checkStockmanagementTypeB($product));
+        // Test the return
+        $this->assertTrue($this->helper->checkStockmanagementTypeB($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBReturnsFalseWhenNeitherMaxQuantityPerOrderNorMinQuantityPerOrderIsEnabled(): void
+    public function testCheckStockmanagementTypeBReturnsMinAndMaxFalseWhenNeitherMaxQuantityPerOrderNorMinQuantityPerOrderIsEnabled(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are not set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
@@ -618,11 +618,12 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework());
 
-        // Test if the method checkStockmanagementTypeA returns true
-        $this->assertFalse($this->helper->checkStockmanagementTypeB($product));
+        // Test the return
+        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['min']);
+        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBReturnsTrueWhenMaxQuantityPerOrderIsEqualToZeroAndMinQuantityPerOrderIsEqualToTwo(): void
+    public function testCheckStockmanagementTypeBReturnsMinTrueAndMaxFalseWhenMaxQuantityPerOrderIsEqualToZeroAndMinQuantityPerOrderIsEqualToTwo(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '0', 'minQuantityPerOrder' => '2']);
@@ -630,11 +631,12 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework());
 
-        // Test if the method checkStockmanagementTypeA returns true
-        $this->assertTrue($this->helper->checkStockmanagementTypeB($product));
+        // Test the return
+        $this->assertTrue($this->helper->checkStockmanagementTypeB($product)['min']);
+        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBReturnsTrueWhenMaxQuantityPerOrderIsEqualToTwoAndMinQuantityPerOrderIsEqualToOne(): void
+    public function testCheckStockmanagementTypeBReturnsMinFalseAndMaxTrueWhenMaxQuantityPerOrderIsEqualToTwoAndMinQuantityPerOrderIsEqualToOne(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '2', 'minQuantityPerOrder' => '1']);
@@ -642,11 +644,12 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework());
 
-        // Test if the method checkStockmanagementTypeA returns true
-        $this->assertTrue($this->helper->checkStockmanagementTypeB($product));
+        // Test the return
+        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['min']);
+        $this->assertTrue($this->helper->checkStockmanagementTypeB($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBReturnsFalseWhenMaxQuantityPerOrderIsEqualToZeroAndMinQuantityPerOrderIsEqualToOne(): void
+    public function testCheckStockmanagementTypeBReturnsMinAndMaxFalseWhenMaxQuantityPerOrderIsEqualToZeroAndMinQuantityPerOrderIsEqualToOne(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '0', 'minQuantityPerOrder' => '1']);
@@ -654,8 +657,9 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework());
 
-        // Test if the method checkStockmanagementTypeA returns true
-        $this->assertFalse($this->helper->checkStockmanagementTypeB($product));
+        // Test the return
+        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['min']);
+        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['max']);
     }
 
     public function testCheckStockmanagementTypeBThrowsAnExceptionWhenMinQuantityPerOrderIsGreaterThanMaxQuantityPerOrder(): void
@@ -672,7 +676,7 @@ class HelperTest extends ContaoTestCase
         $this->helper->checkStockmanagementTypeB($product);
     }
 
-    public function testCheckStockmanagementTypeBReturnsTrueWhenMinQuantityPerOrderIsEnabled(): void
+    public function testCheckStockmanagementTypeBReturnsMinTrueWhenMinQuantityPerOrderIsEnabled(): void
     {
         // Mock a product, minQuantityPerOrder is set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'minQuantityPerOrder' => '2']);
@@ -681,7 +685,7 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework());
 
         // Test if the method checkStockmanagementTypeA returns true
-        $this->assertTrue($this->helper->checkStockmanagementTypeB($product));
+        $this->assertTrue($this->helper->checkStockmanagementTypeB($product)['min']);
     }
 
     public function testIsSoldoutReturnsTrueAndSetsInventoryStatusSoldoutWhenQuantityIsZero(): void
