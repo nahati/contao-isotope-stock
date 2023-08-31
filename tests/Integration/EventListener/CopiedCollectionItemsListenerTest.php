@@ -74,7 +74,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
 
         // Instantiate a Cart object with given id
         // This cart is of a guest
-        $this->objSource = Cart::findByPk('268', ['return' => 'Model']);
+        $this->objSource = Cart::findByPk('269', ['return' => 'Model']);
 
         // Check if Cart object exists
         $this->assertNotNull($this->objSource);
@@ -95,7 +95,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         parent::tearDown();
 
         // unset($this->stcFramework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
-        unset($this->stcDatabaseAdapter, $this->stcFramework, $this->objResult, $this->objTarget, $this->objSource, $this->arrIds);
+        unset($this->databaseAdapter, $this->framework, $this->objTarget, $this->objSource, $this->arrIds);
     }
 
     /**
@@ -358,30 +358,35 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // item 3118
         // product 46, unlimited, AVAILABLE, Variante Original von Skulptur 1
         $sibling1Id = 46;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::AVAILABLE;
+        $expectedInventory_statusOfSibling1 = Helper::AVAILABLE;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
     }
 
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndMaxQuantityPerOrderIsUnreached(): void
     {
         $itemId = 3119; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
-        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2, maxQuantityPerOrder 2
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
         $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::AVAILABLE;
+
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -401,12 +406,17 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -426,12 +436,17 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -457,12 +472,17 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -485,9 +505,16 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::AVAILABLE;
+
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
+
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
     }
 
     /**
@@ -511,12 +538,17 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -540,12 +572,17 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -569,12 +606,17 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::AVAILABLE;
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -597,9 +639,14 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
+
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -623,12 +670,17 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
 
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
     }
 
     /**
@@ -651,9 +703,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
         // quantity in Cart 1
         $sibling1Id = 96;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::AVAILABLE;
+        $expectedInventory_statusOfSibling1 = Helper::AVAILABLE;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
     }
 
     /**
@@ -676,9 +728,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
         // quantity in Cart 1
         $sibling1Id = 96;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
     }
 
     /**
@@ -697,9 +749,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
         // quantity in Cart 1
         $sibling1Id = 96;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
     }
 
     /**
@@ -722,9 +774,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 39: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 4
         // quantity in Cart 1
         $sibling1Id = 39;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::AVAILABLE;
+        $expectedInventory_statusOfSibling1 = Helper::AVAILABLE;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
     }
 
     /**
@@ -743,9 +795,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
         // quantity in Cart 1
         $sibling1Id = 42;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::AVAILABLE;
+        $expectedInventory_statusOfSibling1 = Helper::AVAILABLE;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
     }
 
     /**
@@ -768,9 +820,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
         // quantity in Cart 1
         $sibling1Id = 42;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::AVAILABLE;
+        $expectedInventory_statusOfSibling1 = Helper::AVAILABLE;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
     }
 
     /**
@@ -789,9 +841,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 48: quantity 1 , AVAILABLE, Variante Kopie Skulptur 5
         // quantity in Cart 1
         $sibling1Id = 48;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::AVAILABLE;
+        $expectedInventory_statusOfSibling1 = Helper::AVAILABLE;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
 
         // We check if the product's quantity is really set to zero in the database
         $this->assertTrue($this->isQuantityOfProductZero($productId));
@@ -813,9 +865,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         // product 51: quantity 1 , SOLDOUT, Variante Kopie Skulptur 6
         // quantity in Cart 1
         $sibling1Id = 51;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::SOLDOUT;
+        $expectedInventory_statusOfSibling1 = Helper::SOLDOUT;
 
-        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, 0, '');
 
         // We check if the product's quantity is really set to zero in the database
         $this->assertTrue($this->isQuantityOfProductZero($productId));

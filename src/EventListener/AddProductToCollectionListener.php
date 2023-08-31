@@ -110,14 +110,17 @@ class AddProductToCollectionListener
             // Manage stock for parent product with overall quantity in cart for all it's childs plus the requested quantity for the current product
             $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily + $qtyAlreadyInCart, $setInventoryStatusTo);
 
-            if (Helper::AVAILABLE === $setInventoryStatusTo) {
-                $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
-            } elseif (Helper::RESERVED === $setInventoryStatusTo) {
+            // When parent is still available, we do not know here what to do with the children.
+            // if (Helper::AVAILABLE === $setInventoryStatusTo) {
+            //     $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
+            // } elseif (Helper::RESERVED === $setInventoryStatusTo) {
+
+            if (Helper::RESERVED === $setInventoryStatusTo) {
                 $this->helper->setParentAndChildProductsReserved($objParentProduct);
             } elseif (Helper::SOLDOUT === $setInventoryStatusTo) {
                 $this->helper->setParentAndChildProductsSoldout($objParentProduct);
             }
-            // do nothing if $setInventoryStatusTo = \null
+            // do nothing if $setInventoryStatusTo = \null or AVAILABLE
 
             // More in cart than the variant can afford
             if ($surplusVariant > 0 && Helper::SOLDOUT !== $objProduct->inventory_status) {

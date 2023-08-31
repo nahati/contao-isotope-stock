@@ -100,14 +100,17 @@ class UpdateItemInCollectionListener
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
             }
 
-            if (Helper::AVAILABLE === $setInventoryStatusTo) {
-                $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
-            } elseif (Helper::RESERVED === $setInventoryStatusTo) {
+            // When parent is still available, we do not know here what to do with the children.
+            // if (Helper::AVAILABLE === $setInventoryStatusTo) {
+            //     $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
+            // } elseif (Helper::RESERVED === $setInventoryStatusTo) {
+
+            if (Helper::RESERVED === $setInventoryStatusTo) {
                 $this->helper->setParentAndChildProductsReserved($objParentProduct);
             } elseif (Helper::SOLDOUT === $setInventoryStatusTo) {
                 $this->helper->setParentAndChildProductsSoldout($objParentProduct);
             }
-            // do nothing if $setInventoryStatusTo = \null
+            // do nothing if $setInventoryStatusTo = \null or AVAILABLE
 
             $arrSet['quantity'] -= max($surplusProduct, $surplusParent); // decrease by max surplus quantity
 
@@ -235,7 +238,8 @@ class UpdateItemInCollectionListener
             return false;
         }
 
-        $qtyInCartBefore = $arrSet['quantity'];
+        /** @var int $qtyInCartBefore */
+        $qtyInCartBefore = (int) ($arrSet['quantity']);
 
         // Stock Management Type B, which might change the quantity in cart ($arrSet is newly calculated - call by reference).
         $this->stockManagementB($objProduct, $arrSet, $objCart);

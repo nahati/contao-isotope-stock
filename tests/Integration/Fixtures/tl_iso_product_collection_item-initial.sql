@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Aug 25, 2023 at 04:20 PM
+-- Generation Time: Aug 31, 2023 at 04:04 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -60,12 +60,14 @@ INSERT INTO `tl_iso_product_collection_item` (`id`, `pid`, `tstamp`, `product_id
 (3123, 265, 1688932167, 39, 'standard', 'S0004', 'Variante Kopie von Skulptur 4 &#40;unlimited&#41;', 0x613a313a7b733a363a22737461747573223b693a323b7d, 1, '100.00', '100.00', '', 33),
 (3124, 265, 1688932257, 38, 'standard', 'S0004', 'Variante Original von Skulptur 4 &#40;quantity 1, RESERVED&#41;', 0x613a313a7b733a363a22737461747573223b693a313b7d, 1, '250.00', '250.00', '', 33),
 (3125, 265, 1688932323, 48, 'standard', 'S0005', 'Variante Kopie von Skulptur 5 &#40;quantity 2&#41;', 0x613a313a7b733a363a22737461747573223b693a323b7d, 1, '0.00', '0.00', '', 33),
-(3126, 265, 1688932357, 49, 'standard', 'S0005', 'Variante Original von Skulptur 5 &#40;quantity 1, SOLDOUT&#41;', 0x613a313a7b733a363a22737461747573223b693a313b7d, 1, '0.00', '0.00', '', 33),
-(3127, 265, 1688932431, 51, 'standard', 'S0006', 'Variante Kopie von Skulptur 6 &#40;quantity 2, SOLDOUT&#41;', 0x613a313a7b733a363a22737461747573223b693a323b7d, 1, '0.00', '0.00', '', 33),
-(3128, 265, 1688932440, 52, 'standard', 'S0006', 'Variante Original von Skulptur 6 &#40;quantity 1&#41;', 0x613a313a7b733a363a22737461747573223b693a313b7d, 1, '0.00', '0.00', '', 33),
+(3126, 265, 1688932357, 49, 'standard', 'S0005', 'Variante Original von Skulptur 5 &#40;quantity 1, SOLDOUT&#41;', 0x613a313a7b733a363a22737461747573223b693a313b7d, 0, '0.00', '0.00', '', 33),
+(3127, 265, 1688932431, 51, 'standard', 'S0006', 'Variante Kopie von Skulptur 6 &#40;quantity 2, SOLDOUT&#41;', 0x613a313a7b733a363a22737461747573223b693a323b7d, 0, '0.00', '0.00', '', 33),
+(3128, 265, 1688932440, 52, 'standard', 'S0006', 'Variante Original von Skulptur 6 &#40;quantity 1&#41;', 0x613a313a7b733a363a22737461747573223b693a313b7d, 0, '0.00', '0.00', '', 33),
 (3129, 265, 1688932521, 96, 'standard', 'K0001', 'Eintrittskarte online', 0x613a313a7b733a363a22737461747573223b693a323b7d, 1, '100.00', '100.00', '', 58),
-(3130, 265, 1688932530, 97, 'standard', 'K0001', 'Eintrittskarte Schalter', 0x613a313a7b733a363a22737461747573223b693a313b7d, 100, '100.00', '100.00', '', 58),
-(3149, 268, 1692980176, 102, 'standard', 'B0001a', 'Bild 1a &#40;no variants, unlimited, limited per order&#41;', 0x613a303a7b7d, 1, '100.00', '100.00', '', 32);
+(3130, 265, 1688932530, 97, 'standard', 'K0001', 'Eintrittskarte Schalter', 0x613a313a7b733a363a22737461747573223b693a313b7d, 99, '100.00', '100.00', '', 58),
+(3151, 265, 1693309701, 102, 'standard', 'B0001a', 'Bild 1a &#40;no variants, unlimited, limited per order&#41;', 0x613a303a7b7d, 1, '100.00', '100.00', '', 32),
+(3152, 265, 1693309701, 103, 'standard', 'B0002a', 'Bild 2a &#40;no variants, quantity &#61; 2, minQuantityPerOrder 3&#41;', 0x613a303a7b7d, 2, '0.00', '0.00', '', 32),
+(3153, 269, 1693428011, 97, 'standard', 'K0001', 'Eintrittskarte Schalter', 0x613a313a7b733a363a22737461747573223b693a313b7d, 1, '100.00', '100.00', '', 58);
 
 --
 -- Indexes for dumped tables
@@ -87,7 +89,7 @@ ALTER TABLE `tl_iso_product_collection_item`
 -- AUTO_INCREMENT for table `tl_iso_product_collection_item`
 --
 ALTER TABLE `tl_iso_product_collection_item`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3150;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3154;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -94,6 +94,8 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'] = 'inventory_status not activated for product %s';
+
+        $GLOBALS['TL_LANG']['ERR']['minGreaterMax'] = 'This is not allowed: The minimum quantity per Order is greater than the maximum quantity per Order!';
     }
 
     // // Dummy Test
@@ -213,49 +215,7 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         $listener($this->objSource, $this->objTarget, $this->arrIds);
     }
 
-    public function testCopiedCollectionItemsListenerDoesNothingWhenStockmanagementIsNotConfigured(): void
-    {
-        // Mock a product, inventory_status is not set, quantity is not set
-        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
-        $this->objProduct
-            ->expects($this->exactly(0))
-            ->method('isVariant')
-        ;
-
-        $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-        $this->objItem
-            ->expects($this->once())
-            ->method('getProduct')
-            ->willReturn($this->objProduct)
-        ;
-
-        $this->objSource = $this->getMockBuilder(Cart::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-
-        $this->objTarget = $this->getMockBuilder(Cart::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-        $this->objTarget
-            ->expects($this->exactly(2))
-            ->method('getItems')
-            ->willReturn([$this->objItem])
-        ;
-
-        // Mock the adpaters for the framework, we don't need them here
-        $adapters = [];
-
-        $listener = new CopiedCollectionItemsListener($this->mockContaoFramework($adapters));
-
-        $listener($this->objSource, $this->objTarget, $this->arrIds);
-    }
-
-    public function testCopiedCollectionItemsListenerThrowsInvalidArgumentExceptionWhenStockmanagementIsBadlyConfigured(): void
+    public function testCopiedCollectionItemsListenerThrowsInvalidArgumentExceptionWhenStockmanagementTypeAIsBadlyConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
@@ -264,7 +224,6 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
             ->willReturn('foo')
         ;
         $this->objProduct
-            ->expects($this->exactly(0))
             ->method('isVariant')
         ;
 
@@ -296,6 +255,52 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         // Test if an InvalidArgumentException is thrown
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('inventory_status not activated for product foo');
+
+        // Mock the adpaters for the framework, we don't need them here
+        $adapters = [];
+
+        $listener = new CopiedCollectionItemsListener($this->mockContaoFramework($adapters));
+
+        $listener($this->objSource, $this->objTarget, $this->arrIds);
+    }
+
+    public function testCopiedCollectionItemsListenerThrowsInvalidArgumentExceptionWhenStockmanagementTypeBIsBadlyConfigured(): void
+    {
+        // Mock a product, min > max
+        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'minQuantityPerOrder' => '5', 'maxQuantityPerOrder' => '4']);
+        $this->objProduct
+            ->method('getName')
+            ->willReturn('foo')
+        ;
+
+        $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $this->objItem
+            ->expects($this->once())
+            ->method('getProduct')
+            ->willReturn($this->objProduct)
+        ;
+
+        $this->objSource = $this->getMockBuilder(Cart::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        $this->objTarget = $this->getMockBuilder(Cart::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $this->objTarget
+            ->expects($this->exactly(2))
+            ->method('getItems')
+            ->willReturn([$this->objItem])
+        ;
+
+        // Test if an InvalidArgumentException is thrown
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('This is not allowed: The minimum quantity per Order is greater than the maximum quantity per Order!');
 
         // Mock the adpaters for the framework, we don't need them here
         $adapters = [];

@@ -129,9 +129,15 @@ class Helper
         // Set parent product RESERVED
         $this->updateInventory($parentProduct, self::RESERVED);
 
+        // Get an adapter for the Database class
+        $databaseAdapter = $this->framework->getAdapter(Database::class);
+
         // Set all AVAILABLE variants RESERVED
         foreach ($childProducts as $childProduct) {
-            if (self::AVAILABLE === $childProduct->inventory_status) {
+            // Fetch the real database state of inventory_status
+            $result = $databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE id=?')->execute($childProduct->id);
+
+            if (self::AVAILABLE === $result->inventory_status) {
                 $this->updateInventory($childProduct, self::RESERVED);
             }
         }
@@ -157,29 +163,34 @@ class Helper
         }
     }
 
-    /**
-     * Set parent product and all reserved siblings products AVAILABLE.
-     *
-     * @param int $id of the product to be excluded
-     */
-    public function setParentAndSiblingsProductsAvailable(Standard $objParentProduct, int $id): void
-    {
-        // Get an adapter for the Standard class
-        $standardAdapter = $this->framework->getAdapter(Standard::class);
+    // We do not use this method, as it might result in wrong constellations!
+    // /**
+    //  * Set parent product and all reserved siblings products AVAILABLE.
+    //  *
+    //  * @param int $objProduct of the product to be excluded
+    //  */
+    // public function setParentAndSiblingsProductsAvailable(Standard $objParentProduct, int $id): void
+    // {
+    //     // Get an adapter for the Standard class
+    //     $standardAdapter = $this->framework->getAdapter(Standard::class);
 
-        // Get all children of the parent product (variants) except the product with the given id
-        $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id, ['exclude' => $id]);
+    //     // Get all children of the parent product (variants) except the product with the given id
+    //     $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id, ['exclude' => $id]);
 
-        // Set parent product AVAILABLE
-        $this->updateInventory($objParentProduct, self::AVAILABLE);
+    //     // TODO: This does not exclude $id; fix that!
 
-        // Set all RESERVED variants AVAILABLE
-        foreach ($objVariants as $variant) {
-            if (self::RESERVED === $variant->inventory_status) {
-                $this->updateInventory($variant, self::AVAILABLE);
-            }
-        }
-    }
+    //     // Set parent product AVAILABLE
+    //     $this->updateInventory($objParentProduct, self::AVAILABLE);
+
+    //     // Set all RESERVED variants AVAILABLE
+
+    //     // TODO: This is wrong! The sibling should be kept reserved in case its limit is reached
+    //     foreach ($objVariants as $variant) {
+    //         if (self::RESERVED === $variant->inventory_status) {
+    //             $this->updateInventory($variant, self::AVAILABLE);
+    //         }
+    //     }
+    // }
 
     /**
      * Check configuration of stockmanagement type A.

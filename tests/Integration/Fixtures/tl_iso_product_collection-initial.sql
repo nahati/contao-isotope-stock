@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Aug 25, 2023 at 04:19 PM
+-- Generation Time: Aug 31, 2023 at 04:04 PM
 -- Server version: 10.10.3-MariaDB-1:10.10.3+maria~ubu2204-log
 -- PHP Version: 8.1.15
 
@@ -65,8 +65,8 @@ CREATE TABLE `tl_iso_product_collection` (
 --
 
 INSERT INTO `tl_iso_product_collection` (`id`, `tstamp`, `type`, `member`, `locked`, `store_id`, `settings`, `checkout_info`, `payment_data`, `shipping_data`, `source_collection_id`, `document_number`, `uniqid`, `order_status`, `date_paid`, `date_shipped`, `sendNotification`, `config_id`, `payment_id`, `shipping_id`, `billing_address_id`, `shipping_address_id`, `subtotal`, `tax_free_subtotal`, `total`, `tax_free_total`, `currency`, `language`, `notes`, `coupons`) VALUES
-(265, 1690659345, 'cart', 5, NULL, 0, NULL, NULL, NULL, NULL, 0, '', NULL, 0, NULL, NULL, '', 1, 0, 0, 0, 0, '121070.00', '121070.00', '121070.00', '121070.00', 'EUR', '', NULL, NULL),
-(268, 1692980178, 'cart', 0, NULL, 0, NULL, NULL, NULL, NULL, 0, '', '9a7a144e27dd6762d88da4af5a58a9a3800b135fecc86f7671638252f484ee6f', 0, NULL, NULL, '', 1, 0, 0, 0, 0, '100.00', '100.00', '100.00', '100.00', 'EUR', '', NULL, NULL);
+(265, 1693309704, 'cart', 5, NULL, 0, NULL, NULL, NULL, NULL, 0, '', NULL, 0, NULL, NULL, '', 1, 0, 0, 0, 0, '121070.00', '121070.00', '121070.00', '121070.00', 'EUR', '', NULL, 0x613a303a7b7d),
+(269, 1693428012, 'cart', 0, NULL, 0, NULL, NULL, NULL, NULL, 0, '', '08877ec5a91cb839aed8004cdafacbe4a7a4689c4c8d17374ffa6e32de241d84', 0, NULL, NULL, '', 1, 0, 0, 0, 0, '100.00', '100.00', '100.00', '100.00', 'EUR', '', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -90,7 +90,7 @@ ALTER TABLE `tl_iso_product_collection`
 -- AUTO_INCREMENT for table `tl_iso_product_collection`
 --
 ALTER TABLE `tl_iso_product_collection`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=269;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=270;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -21,11 +21,11 @@
                     Maximalmenge pro Bestellung!</target>
             </trans-unit>
             <trans-unit id="ERR.confirmCheckout">
-                <target>Ihre Bestellung muss geändert werden. Bitte nehmen Sie die Änderungen vor
-                    und bestätigen Sie!</target>
+                <target>Ihr Warenkorb wurde geändert. Bitte bestätigen Sie!</target>
             </trans-unit>
             <trans-unit id="ERR.makeModifications">
-                <target>Your cart needs Modifications. Do that and confirm!</target>
+                <target>Ihre Bestellung muss geändert werden. Bitte nehmen Sie die Änderungen vor
+                    und bestätigen Sie!</target>
             </trans-unit>
             <trans-unit id="ERR.orderNotPossible">
                 <target>Ihre Bestellung muss geändert werden. Bitte gehen Sie zum Warenkorb und

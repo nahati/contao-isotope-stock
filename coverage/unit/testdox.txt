@@ -11,8 +11,8 @@ Copied Collection Items Listener (Nahati\ContaoIsotopeStockBundle\Tests\CopiedCo
  [x] Copied collection items listener does nothing when target is not a cart
  [x] Copied collection items listener does nothing when target is empty
  [x] Copied collection items listener does nothing when item without product
- [ ] Copied collection items listener does nothing when stockmanagement is not configured
- [x] Copied collection items listener throws invalid argument exception when stockmanagement is badly configured
+ [x] Copied collection items listener throws invalid argument exception when stockmanagement type a is badly configured
+ [x] Copied collection items listener throws invalid argument exception when stockmanagement type b is badly configured
 
 Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\PostCheckoutListener)
  [x] Post checkout listener does nothing when no items in order
@@ -47,7 +47,6 @@ Helper (Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper\Helper)
  [x] Update inventory does not execute d b queries when inventory status and quantity were changed meanwhile
  [x] Update inventory status does execute d b queries when inventory status and quantity were changed meanwhile but strict mode
  [x] Set parent and child products reserved
- [x] Set parent and siblings products available
  [x] Set parent and child products soldout
  [x] Check stockmanagement type a returns false when inventory status is not set and quantity is not set
  [x] Check stockmanagement type a throws invalid argument exception when inventory status is not set but quantity is set
