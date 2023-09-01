@@ -274,13 +274,13 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testUpdateItemInCollectionListenerReturnsChangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndProductHasLimitedQuantityPerOrder(): void
+    public function testUpdateItemInCollectionListenerReturnsChangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndMinQuantityPerOrderIsUnreached(): void
     {
         $itemId = 3151;
         $quantityInCart = 1;
-        // $minQuantityPerOrder = '2';
+        // $minQuantityPerOrder = '3';
         // $maxQuantityPerOrder = '4';
-        $expectedReturn = ['quantity' => 2];
+        $expectedReturn = ['quantity' => 3];
         $productId = 102; // unlimited quantity, AVAILABLE, Bild 1a
         $parentProductId = 0; // no parent product
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
@@ -365,7 +365,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductReservedAndIssuesAMakeModificationsMessageWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantityAndMinQuantityPerOrderIsUnreached(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedAndIssuesAMakeModificationsMessageWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantityAndMinQuantityPerOrderIsUnreachable(): void
     {
         $itemId = 3152;
         $quantityInCart = 2;

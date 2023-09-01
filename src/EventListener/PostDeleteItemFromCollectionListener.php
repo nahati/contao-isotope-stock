@@ -34,8 +34,6 @@ class PostDeleteItemFromCollectionListener
 {
     private ContaoFramework $framework;
 
-    private string $inventory_status;
-
     /**
      * @var Helper // make use of methods from the Helper class
      */
@@ -67,9 +65,9 @@ class PostDeleteItemFromCollectionListener
             return;
         }
 
-        // Stockmanagement: neither type A nor type B enabled.
+        // Stockmanagement: type A not enabled.
         // If not correctly configured, throw exception.
-        if (!$this->helper->checkStockmanagementTypeA($objProduct) && (!$this->helper->checkStockmanagementTypeB($objProduct))) {
+        if (!$this->helper->checkStockmanagementTypeA($objProduct)) {
             return; // no stock-management
         }
 
@@ -80,18 +78,18 @@ class PostDeleteItemFromCollectionListener
         /** @var Adapter<Standard> $standardAdapter */
         $standardAdapter = $this->framework->getAdapter(Standard::class);
 
-        // Set inventory_status according to quantity
-        $this->inventory_status = '0' === $objProduct->quantity ? Helper::SOLDOUT : Helper::AVAILABLE;
+        // Set SOLDOUT if quantity zero
+        if ('0' === $objProduct->quantity) {
+            $databaseAdapter->getInstance()->prepare('UPDATE ' . Standard::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute(Helper::SOLDOUT, $objProduct->getId());
+        }
 
-        // Set inventory_status SOLDOUT if parent product is SOLDOUT
+        // Set SOLDOUT if parent product is SOLDOUT
         if ($objProduct->pid > 0) {
             $objParentProduct = $standardAdapter->findByPk($objProduct->pid);
 
             if (Helper::SOLDOUT === $objParentProduct->inventory_status) {
-                $this->inventory_status = Helper::SOLDOUT;
+                $databaseAdapter->getInstance()->prepare('UPDATE ' . Standard::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute(Helper::SOLDOUT, $objProduct->getId());
             }
         }
-
-        $databaseAdapter->getInstance()->prepare('UPDATE ' . Standard::getTable() . ' SET inventory_status = ?  WHERE id = ?')->execute($this->inventory_status, $objProduct->getId());
     }
 }

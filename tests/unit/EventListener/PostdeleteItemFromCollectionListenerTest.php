@@ -107,7 +107,7 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         // Nothing left to test here
     }
 
-    public function testPostDeleteItemFromCollectionListenerDoesNothingWhenStockmanagementIsNotConfigured(): void
+    public function testPostDeleteItemFromCollectionListenerDoesNothingWhenStockmanagementTypeAIsNotConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is not set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
@@ -141,7 +141,7 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         // Nothing left to test here
     }
 
-    public function testPostDeleteItemFromCollectionListenerThrowsInvalidArgumentExceptionWhenStockmanagementIsBadlyConfigured(): void
+    public function testPostDeleteItemFromCollectionListenerThrowsInvalidArgumentExceptionWhenStockmanagementTypeAIsBadlyConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
@@ -188,16 +188,21 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     public function testPostDeleteItemFromCollectionListenerSetsInventoryStatusWhenProductIsNotAVariant(): void
     {
         // Mock a product, inventory_status is AVAILABLE, quantity is set
-        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'foo', 'quantity' => '1', 'inventory_status' => Helper::AVAILABLE]);
+        $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'name' => 'foo', 'quantity' => '0', 'inventory_status' => Helper::AVAILABLE]);
         $this->objProduct
+            ->expects($this->once())
             ->method('getName')
             ->willReturn('foo')
+        ;
+        $this->objProduct
+            ->method('isVariant')
+            ->willReturn(false)
         ;
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $this->objProduct);
         $this->assertSame($this->objProduct->id, 1);
         $this->assertSame($this->objProduct->pid, 0);
         $this->assertSame($this->objProduct->name, 'foo');
-        $this->assertSame($this->objProduct->quantity, '1');
+        $this->assertSame($this->objProduct->quantity, '0');
         $this->assertSame($this->objProduct->getName(), 'foo');
 
         // Create mock Item objects

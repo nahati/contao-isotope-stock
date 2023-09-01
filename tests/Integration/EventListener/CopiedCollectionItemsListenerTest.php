@@ -16,6 +16,7 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Contao\System;
+use Isotope\Model\Config;
 use Contao\TestCase\FunctionalTestCase;
 use Isotope\Model\Product;
 use Isotope\Model\Product\Standard;
@@ -140,6 +141,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         $GLOBALS['TL_MODELS']['tl_iso_product'] = Standard::class;
         $GLOBALS['TL_MODELS']['tl_iso_product_collection'] = ProductCollection::class;
         $GLOBALS['TL_MODELS']['tl_iso_product_collection_item'] = ProductCollectionItem::class;
+        $GLOBALS['TL_MODELS']['tl_iso_config'] = Config::class;
 
         Product::registerModelType('standard', Standard::class);
 
@@ -341,6 +343,50 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
 
         $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
+    }
+
+    /**
+     * @group non-variant_products
+     */
+    public function testCopiedCollectionItemsListenerReturnsChangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndMinQuantityPerOrderIsUnreached(): void
+    {
+        $itemId = 3151;
+        // $quantityInCart = 1;
+        $expectedQuantityInCart = 3;
+
+        // $minQuantityPerOrder = '3';
+        // $maxQuantityPerOrder = '4';
+        $productId = 102; // unlimited quantity, AVAILABLE, Bild 1a
+        $parentProductId = 0; // no parent product
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        // expectedInventory_statusOfParentProduct not used here
+        // expectedInventory_statusOfSiblingProducts not used here
+
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
+    }
+
+
+    /**
+     * @group non-variant_products
+     */
+    public function testCopiedCollectionItemsListenerReturnsUnchangedQuantityAndSetsProductReservedAndIssuesAMakeModificationsMessageWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantityAndMinQuantityPerOrderIsUnreachable(): void
+    {
+        $itemId = 3152;
+        // $quantityInCart = 2;
+        $productId = 103; // quantity 2 Bild 2a, minQuantityPerOrder 3
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+
+        $expectedQuantityInCart = 2;
+
+        $parentProductId = 0; // no parent product
+        // expectedInventory_statusOfParentProduct not used here
+        // expectedInventory_statusOfSiblingProducts not used here
+
+        $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
+
+        // Test if Error with message 'makeModifications' is added to the cart
+        $this->assertSame($this->objTarget->hasErrors(), true);
+        $this->assertSame($this->objTarget->getErrors(), ['makeModifications']);
     }
 
     /**

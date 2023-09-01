@@ -324,14 +324,18 @@ class Helper
     /**
      * Fetch the quantity already in cart for the given product.
      *
-     * @param Standard          $objProduct // product
-     * @param ProductCollection $objCart    // cart
+     * @param Standard               $objProduct // product
+     * @param ProductCollection|null $objCart    // cart
      *
      * @return int // quantity already in cart
      */
     public function fetchQuantityInCart($objProduct, $objCart)
     {
         $quantityInCart = 0;
+
+        if (!$objCart) {
+            return $quantityInCart;
+        }
 
         foreach ($objCart->getItems() as $objCartItem) {
             /** @var Standard|null $objProductInCart */

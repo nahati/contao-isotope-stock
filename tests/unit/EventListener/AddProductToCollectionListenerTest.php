@@ -87,6 +87,10 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
             ->disableOriginalConstructor()
             ->getMock()
         ;
+        $this->objCart
+            ->method('getItems')
+            ->willReturn([])
+        ;
 
         $this->quantityRequestedForCart = 1;
 
@@ -117,6 +121,10 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
         $this->objCart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
             ->getMock()
+        ;
+        $this->objCart
+            ->method('getItems')
+            ->willReturn([])
         ;
 
         $this->quantityRequestedForCart = 1;

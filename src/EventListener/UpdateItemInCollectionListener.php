@@ -55,10 +55,8 @@ class UpdateItemInCollectionListener
      * @param array<mixed> $arrSet     // Properties of item in cart, esp. quantity in Cart
      *                                 // call by reference, giving the newly calculated quantity in cart
      * @param Cart         $objCart    // Cart
-     *
-     * @return mixed // $arrSet (changed or unchanged quantity)
      */
-    private function stockManagementA($objProduct, &$arrSet, $objCart)
+    private function stockManagementA($objProduct, &$arrSet, $objCart): void
     {
         // Get the return of the stock management for the product
         /** @var int $surplusProduct */
@@ -100,7 +98,7 @@ class UpdateItemInCollectionListener
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
             }
 
-            // When parent is still available, we do not know here what to do with the children.
+            // When parent is still AVAILABLE, we do not know here what to do with the children.
             // if (Helper::AVAILABLE === $setInventoryStatusTo) {
             //     $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
             // } elseif (Helper::RESERVED === $setInventoryStatusTo) {
@@ -116,8 +114,6 @@ class UpdateItemInCollectionListener
 
             $arrSet['quantity'] = $arrSet['quantity'] < 0 ? 0 : $arrSet['quantity']; // limit to zero
         }
-
-        return $arrSet;
     }
 
     /** Stock Management Type B.
@@ -128,10 +124,8 @@ class UpdateItemInCollectionListener
      * @param array<mixed> $arrSet     // Properties of item in cart, esp. quantity in Cart
      *                                 // call by reference, giving the newly calculated quantity in cart
      * @param Cart         $objCart    // Cart
-     *
-     * @return mixed // $arrSet (changed or unchanged quantity or false)
      */
-    private function stockManagementB($objProduct, &$arrSet, $objCart)
+    private function stockManagementB($objProduct, &$arrSet, $objCart): void
     {
         // Get the return of the stock management for the product
         $returnProduct = $this->helper->manageStockTypeBAndReturnDifferences($objProduct, $arrSet['quantity']);
@@ -197,8 +191,6 @@ class UpdateItemInCollectionListener
 
             $arrSet['quantity'] = $arrSet['quantity'] < 0 ? 0 : $arrSet['quantity']; // limit to zero
         }
-
-        return $arrSet;
     }
 
     /**

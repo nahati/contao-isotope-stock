@@ -22,7 +22,7 @@ Handle limited editions (for single products as well as for variants): Take `qua
 #### Cart
 
 - Updates quantity in cart according to the available quantity.
-- Sets inventory status to `available` or to `reserved` according to the available quantity left.
+- Sets inventory status to `reserved` if no available quantity left.
 - Adds a system message for each reserved product (issued at the backend dashboard).
 
 #### Checkout

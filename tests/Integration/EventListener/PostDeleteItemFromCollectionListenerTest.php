@@ -212,18 +212,14 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerSetsProductAvailableWhenProductIsNotAVariantProductQuantityIsGreaterThanZero(): void
+    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsNotAVariantProductQuantityIsGreaterThanZero(): void
     {
         $itemId = 3116;
         $productId = 89; // quantity 2, RESERVED, Bild 3
-        $inventoryStatusOfProduct = Helper::RESERVED;
         $parentProductId = 0; // no parent product
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
-
-        // Product initially has an inventory_status of AVAILABLE, so we change the inventory_status of the product to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfProduct, $parentProductId);
 
         $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
     }
@@ -253,10 +249,10 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsNotAVariantAndProductQuantityIsEmpty(): void
     {
         $itemId = 3116;
-        $productId = 89; // quantity 0, AVAILABLE, Bild 3
+        $productId = 89; // quantity 0, RESERVED, Bild 3
         $quantityOfProduct = '';
         $parentProductId = 0; // no parent product
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 
@@ -269,11 +265,11 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerSetsProductAvailableWhenProductIsAVariantAndProductHasQuantityGreaterThanZeroAndParentIsNotSoldout(): void
+    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsAVariantAndProductHasQuantityGreaterThanZeroAndParentIsNotSoldout(): void
     {
         $itemId = 3119;
         $productId = 44; // quantity 2 , RESERVED, Variante Kopie Skulptur 2
-        $inventoryStatusOfProduct = Helper::RESERVED;
+        $inventoryStatusOfProduct = Helper::AVAILABLE;
         $parentProductId = 32; //  quantity 4, RESERVED, Skulptur 2
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
 
