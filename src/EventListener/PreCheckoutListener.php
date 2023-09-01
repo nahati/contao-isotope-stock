@@ -18,6 +18,7 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection\Order;
+use Isotope\Model\ProductCollectionItem;
 use Isotope\Module\Checkout;
 use Isotope\ServiceAnnotation\IsotopeHook;
 use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
@@ -49,11 +50,121 @@ class PreCheckoutListener
         $this->framework = $framework;
     }
 
+    /** Stock Management Type A.
+     *
+     * Handles changes of products in order, e.g. concurring changes.
+     *
+     * @param Standard              $objProduct // Product
+     * @param ProductCollectionItem $objItem    // Item in Order
+     * @param Order                 $objOrder   // Order
+     */
+    private function stockManagementA($objProduct, $objItem, $objOrder): void
+    {
+        // Get the return of the stock management for the product
+        /** @var int $surplusProduct */
+        $surplusProduct = $this->helper->manageStockAndReturnSurplus($objProduct, $objItem->quantity);
+
+        // More in cart than the product can afford
+        if ($surplusProduct > 0 && Helper::SOLDOUT !== $objProduct->inventory_status) {
+            $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
+
+            $this->orderNeedsChanges = true;
+        }
+
+        // Variant product
+        if ($objProduct->isVariant()) {
+            //
+            // Get an adapter for the Standard class
+            /** @var Adapter<Standard> $adapter */
+            $adapter = $this->framework->getAdapter(Standard::class);
+
+            // Get the parent product
+            $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+
+            $setInventoryStatusTo = null;
+            $anzSiblingsInCollection = 0;
+
+            // Get the sum of the quantity of all siblings in collection (i.e. not including the current product) and add the quantity in collection of the current product.
+            /** @var int qtyFamily // overall quantity in collection for all the parent's childs */
+            $qtyFamily = $this->helper->sumSiblings($objProduct, $objOrder, $objProduct->pid, $anzSiblingsInCollection) + $objItem->quantity;
+
+            // Manage stock for parent product with overall quantity in collection for all it's childs
+            $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
+
+            // More in cart than the parent can afford
+            if ($surplusParent > 0) {
+                $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
+
+                $this->orderNeedsChanges = true;
+            }
+        }
+    }
+
+    /** Stock Management Type B.
+     *
+     *  Handling of stock management per order.
+     *
+     * @param Standard              $objProduct // Product
+     * @param ProductCollectionItem $objItem    // Item in Order
+     * @param Order                 $objOrder   // Order
+     */
+    private function stockManagementB($objProduct, $objItem, $objOrder): void
+    {
+        // Get the return of the stock management for the product
+        $returnProduct = $this->helper->manageStockTypeBAndReturnDifferences($objProduct, $objItem->quantity);
+
+        if ($returnProduct['surMinus'] > 0) {
+            $this->helper->issueErrorMessage('minQuantityPerOrderUnreached', $objProduct->getName(), $objProduct->minQuantityPerOrder);
+
+            $this->orderNeedsChanges = true;
+        }
+
+        if ($returnProduct['surPlus'] > 0) {
+            $this->helper->issueErrorMessage('maxQuantityPerOrderExceeded', $objProduct->getName(), $objProduct->maxQuantityPerOrder);
+
+            $this->orderNeedsChanges = true;
+        }
+
+        // Variant product
+        if ($objProduct->isVariant()) {
+            // Get an adapter for the Standard class
+            /** @var Adapter<Standard> $adapter */
+            $adapter = $this->framework->getAdapter(Standard::class);
+
+            // Get the parent product
+            $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+
+            $anzSiblingsInCart = 0;
+
+            // Get the sum of the quantity in cart of all siblings in cart (i.e. not including the current product) and add the quantity in cart of the current product.
+            /** @var int qtyFamily // overall quantity in cart for all the parent's childs */
+            $qtyFamily = $this->helper->sumSiblings($objProduct, $objOrder, $objProduct->pid, $anzSiblingsInCart) + $objItem->quantity;
+
+            // Get the return of the stock management for the parent product with overall quantity in cart for all it's childs
+            $returnParent = $this->helper->manageStockTypeBAndReturnDifferences($objParentProduct, $qtyFamily);
+
+            if ($returnParent['surMinus'] > 0) {
+                $this->helper->issueErrorMessage('minQuantityPerOrderUnreached', $objParentProduct->getName(), $objParentProduct->minQuantityPerOrder);
+
+                $this->orderNeedsChanges = true;
+            }
+
+            if ($returnParent['surPlus'] > 0) {
+                $this->helper->issueErrorMessage('maxQuantityPerOrderExceeded', $objParentProduct->getName(), $objParentProduct->maxQuantityPerOrder);
+
+                $this->orderNeedsChanges = true;
+            }
+        }
+    }
+
     /**
      * Invoked during checkout but before completion.
      *
      * Handles changes of products in order, e.g. concurring changes.
+     *
      * If order has to be modified, the checkout will be stopped and the user will be asked to return to the cart.
+     *
+     * Includes Stock Management Type A (regarding to quantity per product) and Type B (regarding to min and max quantity per order).
      *
      * @param Order    $objOrder    // ProductCollection in order, not empty
      * @param Checkout $objCheckout // Checkout object
@@ -81,68 +192,12 @@ class PreCheckoutListener
                 continue;
             }
 
-            // Stockmanagement: neither type A nor type B enabled.
-            // If not correctly configured, throw exception.
-            if (!$this->helper->checkStockmanagementTypeA($objProduct) && (!$this->helper->checkStockmanagementTypeB($objProduct))) {
-                continue; // no stock-management
-            }
+            // Stock Management Type B
+            $this->stockManagementB($objProduct, $objItem, $objOrder);
 
-            // Single product (not having any variants)
-            if (!$objProduct->isVariant()) {
-                /** @var int $surplus */
-                $surplus = $this->helper->manageStockAndReturnSurplus($objProduct, $objItem->quantity);
-
-                if ($surplus > 0) {
-                    $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
-
-                    $this->orderNeedsChanges = true;
-                }
-
-                continue;
-            }
-
-            // Variant product
-            else {
-                //
-                // Manage stock for variant product with quantity of this variant
-                $surplusVariant = $this->helper->manageStockAndReturnSurplus($objProduct, $objItem->quantity);
-
-                // Get an adapter for the Standard class
-                /** @var Adapter<Standard> $adapter */
-                $adapter = $this->framework->getAdapter(Standard::class);
-
-                // Get the parent product
-                $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
-
-                $setInventoryStatusTo = null;
-                $anzSiblingsInCollection = 0;
-
-                // Get the sum of the quantity of all siblings in collection (i.e. not including the current product) and add the quantity in collection of the current product.
-                /** @var int qtyFamily // overall quantity in collection for all the parent's childs */
-                $qtyFamily = $this->helper->sumSiblings($objProduct, $objOrder, $objProduct->pid, $anzSiblingsInCollection) + $objItem->quantity;
-
-                // Manage stock for parent product with overall quantity in collection for all it's childs
-                $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
-
-                // More in collection than the variant can afford
-                if ($surplusVariant > 0) {
-                    $this->helper->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
-                }
-
-                // More in collection than the parent can afford
-                if ($surplusParent > 0) {
-                    $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
-                }
-
-                $surplus = max($surplusVariant, $surplusParent);
-
-                if ($surplus > 0) {
-                    $this->orderNeedsChanges = true;
-                }
-
-                continue;
-            }
-        } // for each
+            // Stock Management Type A
+            $this->stockManagementA($objProduct, $objItem, $objOrder);
+        }
 
         if ($this->orderNeedsChanges) {
             // We could also just return false; but then the user would be redirected to the "failed" page with an incorrect message. So we go this way.

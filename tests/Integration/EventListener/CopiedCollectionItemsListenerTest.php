@@ -16,8 +16,8 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Contao\System;
-use Isotope\Model\Config;
 use Contao\TestCase\FunctionalTestCase;
+use Isotope\Model\Config;
 use Isotope\Model\Product;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
@@ -364,7 +364,6 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
 
         $this->doTest($itemId, $expectedQuantityInCart, $productId, $expectedInventory_statusOfProduct, $parentProductId, '', 0, '', 0, '');
     }
-
 
     /**
      * @group non-variant_products

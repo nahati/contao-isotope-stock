@@ -16,8 +16,8 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Contao\System;
-use Isotope\Model\Config;
 use Contao\TestCase\FunctionalTestCase;
+use Isotope\Model\Config;
 use Isotope\Model\Product;
 use Isotope\Model\Product\Standard;
 use Isotope\Model\ProductCollection;
@@ -384,7 +384,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
      */
     public function testAddProductToCollectionListenerReturnsChangedQuantityAndSetsProductReservedAndIssuesAMakeModificationsMessageWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantityAndMinQuantityPerOrderIsUnreachable(): void
     {
-        $itemId = 3152;
+        // $itemId = 3152;
         // $quantityInCart = 2;
         $productId = 103; // quantity 2 Bild 2a, minQuantityPerOrder 3
         $expectedInventory_statusOfProduct = Helper::RESERVED;

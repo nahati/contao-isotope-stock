@@ -74,7 +74,6 @@ class PreCheckoutListenerTest extends ContaoTestCase
         // Mock a product, inventory_status is not set, quantity is not set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
         $this->objProduct
-            ->expects($this->never())
             ->method('isVariant')
         ;
 
@@ -131,7 +130,6 @@ class PreCheckoutListenerTest extends ContaoTestCase
             ->willReturn('foo')
         ;
         $this->objProduct
-            ->expects($this->exactly(0))
             ->method('isVariant')
         ;
 

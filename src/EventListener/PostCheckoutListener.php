@@ -53,6 +53,10 @@ class PostCheckoutListener
      * Updates the quantity. Marks as SOLDOUT in all bought products/variants with no remaining quantity.
      * Also handles overbought situation
      *
+     * Handles stockmanagement type A
+     *
+     * Stockmanagement type B is irrelevant here (we tolerate unreached minQuantityPerOrder or exceeded maxQuantityPerOrder caused by concurring changes of product)
+     *
      * @param Order $objOrder // ProductCollection in order, not empty
      */
     public function __invoke($objOrder): void
@@ -78,9 +82,9 @@ class PostCheckoutListener
                 continue;
             }
 
-            // Stockmanagement: neither type A nor type B enabled.
+            // Stockmanagement type A not enabled.
             // If not correctly configured, throw exception.
-            if (!$this->helper->checkStockmanagementTypeA($objProduct) && (!$this->helper->checkStockmanagementTypeB($objProduct))) {
+            if (!$this->helper->checkStockmanagementTypeA($objProduct)) {
                 continue; // no stock-management
             }
 
