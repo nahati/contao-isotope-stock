@@ -265,7 +265,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3112; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
@@ -280,7 +280,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndKeepsInventoryStatusOfProductWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3115; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
@@ -295,7 +295,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndKeepsInventoryStatusOfProductWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3115; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
@@ -310,7 +310,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3115; // $quantityInCart = 2;
         $quantityInCart = 2;
@@ -329,7 +329,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantity(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3115; // $quantityInCart = 3;
         $quantityInCart = 3;
@@ -391,7 +391,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__unlimited
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3117; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
@@ -411,7 +411,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndMaxQuantityPerOrderIsUnreached(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndKeepsInventoryStatusOfProductWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndMaxQuantityPerOrderIsUnreached(): void
     {
         $itemId = 3119; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
@@ -437,7 +437,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
@@ -467,7 +467,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119; // $quantityInCart = 2;
         $expectedQuantityInCart = 1;
@@ -497,7 +497,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartButDoesNotReduceToZeroAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndQuantityInCartOfProductIsCalculatedToZero(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartButDoesNotReduceToZeroAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndQuantityInCartOfProductIsCalculatedToZeroAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         // $quantityInCart = 1;
@@ -533,7 +533,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
@@ -565,7 +565,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
@@ -599,7 +599,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
@@ -633,7 +633,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 3;
@@ -667,7 +667,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 3;
@@ -697,7 +697,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 3;
@@ -731,7 +731,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndKeepsInventoryStatusOfProductWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3130;
         $quantityInCart = 30;
@@ -756,7 +756,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3130;
         $quantityInCart = 99;
@@ -781,7 +781,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testCopiedCollectionItemsListenerReducesQuantityInCartAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3130; // $quantityInCart = 100;
         $expectedQuantityInCart = 99;
@@ -802,7 +802,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndKeepsInventoryStatusOfProductWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3124; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
@@ -827,7 +827,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3122;
         $expectedQuantityInCart = 1;
@@ -848,7 +848,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testCopiedCollectionItemsListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantity(): void
+    public function testCopiedCollectionItemsListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3122;
         $quantityInCart = 2;
@@ -873,7 +873,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__product_is_soldout
      */
-    public function testCopiedCollectionItemsListenerReturnsQuantityZeroWhenProductIsAVariantAndProductIsSoldout(): void
+    public function testCopiedCollectionItemsListenerReturnsQuantityZeroWhenProductIsAVariantAndProductIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3126; // $quantityInCart = 1;
         $expectedQuantityInCart = 0;
@@ -897,7 +897,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parentProduct_is_soldout
      */
-    public function testCopiedCollectionItemsListenerReturnsQuantityZeroWhenProductIsAVariantAndParentProductIsSoldout(): void
+    public function testCopiedCollectionItemsListenerReturnsQuantityZeroWhenProductIsAVariantAndParentProductIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3128; // $quantityInCart = 1;
         $expectedQuantityInCart = 0;

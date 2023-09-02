@@ -3,41 +3,41 @@ reset Database (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\
 
 Pre Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PreCheckoutListener)
  [x] Pre checkout listener returns true when product is not a variant and product has unlimited quantity
- [x] Pre checkout listener returns true when product is not a variant and quantity bought is less than product quantity
- [x] Pre checkout listener returns true when product is not a variant and quantity bought is equal to product quantity
+ [x] Pre checkout listener returns true when product is not a variant and quantity bought is less than product quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when product is not a variant and quantity bought is equal to product quantity and product has unlimited quantity per order
  [x] Pre checkout listener sends redirect response when product is not a variant and quantity of product exceeds product quantity
- [x] Pre checkout listener returns true when product is a variant and product and siblings and parent have unlimited quantity
- [x] Pre checkout listener returns true when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is less than parent quantity
- [x] Pre checkout listener returns true when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is equal to parent quantity
- [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is greater than parent quantity
- [x] Pre checkout listener returns true when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is less than parent quantity
- [x] Pre checkout listener returns true when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is equal to parent quantity
- [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is greater than parent quantity
- [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is greater than product quantity
- [x] Pre checkout listener returns true when product is a variant and quantity of product including all siblings is less than parent quantity
- [x] Pre checkout listener returns true when product is a variant and quantity of product including all siblings is equal to parent quantity
- [x] Pre checkout listener sends redirect response when product is a variant and quantity of product including all siblings is greater than parent quantity
- [x] Pre checkout listener returns true when parent product has unlimited quantity and product is a variant and quantity bought is less than product quantity
- [x] Pre checkout listener returns true when product has unlimited quantity and product is a variant and quantity bought is equal to product quantity
- [x] Pre checkout listener sends redirect response when parent product has unlimited quantity and product is a variant and quantity bought is greater than product quantity
+ [x] Pre checkout listener returns true when product is a variant and product and siblings and parent have unlimited quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is less than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is equal to parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is less than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is equal to parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener sends redirect response when product is a variant and quantity bought is greater than product quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when product is a variant and quantity of product including all siblings is less than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when product is a variant and quantity of product including all siblings is equal to parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener sends redirect response when product is a variant and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when parent product has unlimited quantity and product is a variant and quantity bought is less than product quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns true when product has unlimited quantity and product is a variant and quantity bought is equal to product quantity and product has unlimited quantity per order
+ [x] Pre checkout listener sends redirect response when parent product has unlimited quantity and product is a variant and quantity bought is greater than product quantity and product has unlimited quantity per order
 
 Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PostCheckoutListener)
  [x] True is true
- [x] Post checkout listener keeps product quantity and inventory status when product is not a variant and product has unlimited quantity
- [x] Post checkout listener reduces product quantity when product is not a variant and quantity bought is less than product quantity
- [x] Post checkout listener reduces quantity of product and sets product soldout when product is not a variant and quantity bought is equal to product quantity
- [x] Post checkout listener reduces quantity of product and sets product soldout when product is not a variant and quantity of product exceeds product quantity
- [x] Post checkout listener keeps quantity of product and inventory status when product is a variant and product and siblings and parent have unlimited quantity
- [x] Post checkout listener reduces quantity of product when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is less than parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is equal to parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is greater than parent quantity
- [x] Post checkout listener reduces quantity of product and sets product soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is less than parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is equal to parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is greater than parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is less than parent quantity and all child products are soldout
- [x] Post checkout listener reduces quantity of product and sets product and sibling in cart soldout and keeps parent available when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is less than parent quantity and there is a non soldout sibling
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is equal to parent quantity
- [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is greater than parent quantity
+ [x] Post checkout listener keeps product quantity and inventory status when product is not a variant and product has unlimited quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces product quantity when product is not a variant and quantity bought is less than product quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product soldout when product is not a variant and quantity bought is equal to product quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product soldout when product is not a variant and quantity of product exceeds product quantity and product has unlimited quantity per order
+ [x] Post checkout listener keeps quantity of product and inventory status when product is a variant and product and siblings and parent have unlimited quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is less than parent quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is equal to parent quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is less than parent quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is equal to parent quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is less than parent quantity and all child products are soldout and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product and sibling in cart soldout and keeps parent available when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is less than parent quantity and there is a non soldout sibling and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is equal to parent quantity and product has unlimited quantity per order
+ [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity bought is greater than product quantity and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
  [x] Post checkout listener reduces quantity of product when product is a variant and quantity of product including all siblings is less than parent quantity
  [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity of product including all siblings is equal to parent quantity
  [x] Post checkout listener reduces quantity of product and sets product and siblings and parent soldout when product is a variant and quantity of product including all siblings is greater than parent quantity

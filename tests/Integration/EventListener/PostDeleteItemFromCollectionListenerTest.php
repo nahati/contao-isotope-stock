@@ -212,7 +212,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsNotAVariantProductQuantityIsGreaterThanZero(): void
+    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsNotAVariantProductQuantityIsGreaterThanZeroAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3116;
         $productId = 89; // quantity 2, RESERVED, Bild 3
@@ -227,7 +227,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerSetsProductSoldoutWhenProductIsNotAVariantAndProductQuantityIsZero(): void
+    public function testPostDeleteItemFromCollectionListenerSetsProductSoldoutWhenProductIsNotAVariantAndProductQuantityIsZeroAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3116;
         $productId = 89; // quantity 0, AVAILABLE, Bild 3
@@ -265,7 +265,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsAVariantAndProductHasQuantityGreaterThanZeroAndParentIsNotSoldout(): void
+    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsAVariantAndProductHasQuantityGreaterThanZeroAndParentIsNotSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $productId = 44; // quantity 2 , RESERVED, Variante Kopie Skulptur 2
@@ -282,7 +282,7 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerSetsProductSoldoutWhenProductIsAVariantAndProductHasQuantityGreaterThanZeroAndParentIsSoldout(): void
+    public function testPostDeleteItemFromCollectionListenerSetsProductSoldoutWhenProductIsAVariantAndProductHasQuantityGreaterThanZeroAndParentIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2

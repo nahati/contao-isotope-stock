@@ -364,7 +364,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsNotAVariantAndQuantityBoughtIsLessThanProductQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsNotAVariantAndQuantityBoughtIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3318,  quantityBought = 1
         // $productId = 100; // quantity 2 , AVAILABLE, Bild 2
@@ -378,7 +378,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsNotAVariantAndQuantityBoughtIsEqualToProductQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsNotAVariantAndQuantityBoughtIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3318,  quantityBought = 1
         // $productId = 100; // AVAILABLE, Bild 2
@@ -429,7 +429,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__unlimited
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3320,  quantityBought = 1
 
@@ -449,7 +449,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3322,  quantityBought = 1
         // $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
@@ -471,7 +471,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3322,  quantityBought = 1
         // $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
@@ -496,7 +496,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3322,  quantityBought = 1
         // $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
@@ -533,7 +533,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3322,  quantityBought = 1
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
@@ -560,7 +560,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3322,  quantityBought = 1
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
@@ -589,7 +589,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3336,  quantityBought = 1
         $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
@@ -640,7 +640,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantity(): void
+    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3336,  quantityBought = 1
         $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
@@ -688,7 +688,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3330;
         $quantityBought = 30;
@@ -716,7 +716,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3330;
         // $quantityBought = 99;
@@ -739,7 +739,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3330;
         $quantityBought = 100;
@@ -786,7 +786,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testPreCheckoutListenerReturnsTrueWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsLessThanProductQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3327;
         // $quantityBought = 1;
@@ -816,7 +816,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsEqualToProductQuantity(): void
+    public function testPreCheckoutListenerReturnsTrueWhenProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3325;
         // $quantityBought = 1;
@@ -840,7 +840,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantity(): void
+    public function testPreCheckoutListenerSendsRedirectResponseWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3325;
         $quantityBought = 2;

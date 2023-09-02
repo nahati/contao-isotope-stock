@@ -1,12 +1,12 @@
 
 
 Code Coverage Report:      
-  2023-09-01 20:48:35      
+  2023-09-02 20:03:53      
                            
  Summary:                  
   Classes:  9.09% (1/11)   
-  Methods: 36.59% (15/41)  
-  Lines:   46.39% (225/485)
+  Methods: 35.71% (15/42)  
+  Lines:   46.65% (230/493)
 
 Nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle
   Methods:   0.00% ( 0/ 1)   Lines:   0.00% (  0/  1)
@@ -27,6 +27,6 @@ Nahati\ContaoIsotopeStockBundle\EventListener\PostDeleteItemFromCollectionListen
 Nahati\ContaoIsotopeStockBundle\EventListener\PreCheckoutListener
   Methods:  25.00% ( 1/ 4)   Lines:  30.91% ( 17/ 55)
 Nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener
-  Methods:  25.00% ( 1/ 4)   Lines:  39.13% ( 27/ 69)
+  Methods:  20.00% ( 1/ 5)   Lines:  41.56% ( 32/ 77)
 Nahati\ContaoIsotopeStockBundle\Helper\Helper
   Methods:  47.06% ( 8/17)   Lines:  75.51% (111/147)

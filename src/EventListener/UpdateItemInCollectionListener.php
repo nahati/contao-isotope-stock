@@ -33,10 +33,6 @@ class UpdateItemInCollectionListener
 {
     private ContaoFramework $framework;
 
-    private bool $itemIsModified = false;
-
-    private bool $cartNeedsModification = false;
-
     /**
      * @var Helper // make use of methods from the Helper class
      */
@@ -193,6 +189,56 @@ class UpdateItemInCollectionListener
         }
     }
 
+    /** Check if quantity in cart is in the allowed range.
+     *
+     * @param Standard     $objProduct // Product
+     * @param array<mixed> $arrSet     // Properties of item in cart, esp. quantity in Cart
+     *                                 // call by reference, giving the newly calculated quantity in cart
+     * @param Cart         $objCart    // Cart
+     *
+     * @return bool // true if quantity in cart is not in the allowed range
+     */
+    private function quantityIsNotInTheAllowedRange($objProduct, &$arrSet, $objCart)
+    {
+        $return = false;
+
+        // Get the return of the stock management for the product
+        $returnProduct = $this->helper->manageStockTypeBAndReturnDifferences($objProduct, $arrSet['quantity']);
+
+        if ($returnProduct['surMinus'] > 0) {
+            $this->helper->issueErrorMessage('productNotSellableAsMinQuantityPerOrderUnreached', $objProduct->getName(), $objProduct->minQuantityPerOrder);
+
+            $return = true;
+        }
+
+        // Variant product
+        if ($objProduct->isVariant()) {
+            // Get an adapter for the Standard class
+            /** @var Adapter<Standard> $adapter */
+            $adapter = $this->framework->getAdapter(Standard::class);
+
+            // Get the parent product
+            $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+
+            $anzSiblingsInCart = 0;
+
+            // Get the sum of the quantity in cart of all siblings in cart (i.e. not including the current product) and add the quantity in cart of the current product.
+            /** @var int qtyFamily // overall quantity in cart for all the parent's childs */
+            $qtyFamily = $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'];
+
+            // Get the return of the stock management for the parent product with overall quantity in cart for all it's childs
+            $returnParent = $this->helper->manageStockTypeBAndReturnDifferences($objParentProduct, $qtyFamily);
+
+            if ($returnParent['surMinus'] > 0) {
+                $this->helper->issueErrorMessage('productNotSellableAsMinQuantityPerOrderUnreached', $objParentProduct->getName(), $objParentProduct->minQuantityPerOrder);
+
+                $return = true;
+            }
+        }
+
+        return $return;
+    }
+
     /**
      * Invoked when cart is refreshed and when cart is checked out.
      *
@@ -233,45 +279,29 @@ class UpdateItemInCollectionListener
         /** @var int $qtyInCartBefore */
         $qtyInCartBefore = (int) ($arrSet['quantity']);
 
-        // Stock Management Type B, which might change the quantity in cart ($arrSet is newly calculated - call by reference).
+        // Stock Management Type B Step 1, which might change the quantity in cart ($arrSet is newly calculated - call by reference).
         $this->stockManagementB($objProduct, $arrSet, $objCart);
 
         // Stock Management Type A, which might decrease the quantity in cart ($arrSet is newly calculated - call by reference).
         $this->stockManagementA($objProduct, $arrSet, $objCart);
 
-        $this->itemIsModified = ($arrSet['quantity'] !== $qtyInCartBefore);
+        // Check if any user actions are asked for.
 
-        // Check if the quantity in cart is within the allowed range.
+        $message = '';
 
-        // minQuantityPerOrder is set
-        if ($this->helper->checkStockmanagementTypeB($objProduct)['min']) {
-            // Check if the new quantity in cart reaches the minQuantityPerOrder
-            if ($arrSet['quantity'] < $objProduct->minQuantityPerOrder) {
-                $this->helper->issueErrorMessage('productNotSellableAsMinQuantityPerOrderUnreached', $objProduct->getName(), $objProduct->minQuantityPerOrder);
-
-                $this->cartNeedsModification = true;
-            }
+        // quantity in cart has been changed.
+        if (($arrSet['quantity'] !== $qtyInCartBefore)) {
+            $message = 'confirmCheckout';
         }
 
-        // maxQuantityPerOrder is set
-        if ($this->helper->checkStockmanagementTypeB($objProduct)['max']) {
-            // Check if the new quantity in cart does not exceed the maxQuantityPerOrder
-            if ($arrSet['quantity'] > $objProduct->maxQuantityPerOrder) {
-                $this->helper->issueErrorMessage('productNotSellableAsMaxQuantityPerOrderExceeded', $objProduct->getName(), $objProduct->maxQuantityPerOrder);
-
-                $this->cartNeedsModification = true;
-            }
+        // Quantity in cart is not within the allowed range.
+        if ($this->quantityIsNotInTheAllowedRange($objProduct, $arrSet, $objCart)) {
+            // This error overwrites the previous one (if exists) as it is more severe
+            $message = 'makeModifications';
         }
 
-        // Ask for user action if item has been modified or cart needs modification
-
-        if ($this->itemIsModified || $this->cartNeedsModification) {
-            if ($this->itemIsModified) {
-                $message = 'confirmCheckout';
-            } else {
-                $message = 'makeModifications';
-            }
-
+        // Ask for user action if a message has been set before
+        if ($message) {
             // issue message here "manually" as the message given to addError() might not be used furthermore
             $this->helper->issueErrorMessage($message);
 

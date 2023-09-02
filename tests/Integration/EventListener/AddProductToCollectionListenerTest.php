@@ -250,7 +250,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $productId = 88; // unlimited quantity, AVAILABLE, Bild 1
         $parentProductId = 0; // no parent product
@@ -266,7 +266,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantity(): void
     {
         // Product is already in cart with quantity 1
 
@@ -291,7 +291,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -316,7 +316,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -338,7 +338,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantity(): void
+    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -360,7 +360,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testAddProductToCollectionListenerReturnsChangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndProductHasLimitedQuantityPerOrder(): void
+    public function testAddProductToCollectionListenerReturnsChangedQuantityWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndProductHasLimitedQuantityPerOrderAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $productId = 102; // unlimited quantity, AVAILABLE, Bild 1a
         // Product is already in cart with quantity 1
@@ -402,7 +402,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__unlimited
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -426,7 +426,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -454,7 +454,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -485,7 +485,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -516,7 +516,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsReducedQuantityToZeroAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsReducedQuantityToZeroAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -547,7 +547,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group  variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -573,7 +573,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group  variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -602,7 +602,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group  variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -631,7 +631,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group  variant_products__quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -660,7 +660,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group  variant_products__quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -687,7 +687,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group  variant_products__quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -716,7 +716,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product (Item 3130) is already in cart with quantity 100, we reduce that to 30:
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute(30, 3130);
@@ -742,7 +742,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product (Item 3130) is already in cart with quantity 100, we reduce that to 98:
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute(98, 3130);
@@ -768,7 +768,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testAddProductToCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product (Item 3130) is already in cart with quantity 100, we reduce that to 98:
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute(98, 3130);
@@ -794,7 +794,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -822,7 +822,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -850,7 +850,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testAddProductToCollectionListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantity(): void
+    public function testAddProductToCollectionListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -878,7 +878,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__product_is_soldout
      */
-    public function testAddProductToCollectionListenerReturnsQuantityZeroWhenProductIsAVariantAndProductIsSoldout(): void
+    public function testAddProductToCollectionListenerReturnsQuantityZeroWhenProductIsAVariantAndProductIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 
@@ -907,7 +907,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parentProduct_is_soldout
      */
-    public function testAddProductToCollectionListenerReturnsQuantityZeroAndSetsProductAndSiblingsSoldoutWhenProductIsAVariantAndParentProductIsSoldout(): void
+    public function testAddProductToCollectionListenerReturnsQuantityZeroAndSetsProductAndSiblingsSoldoutWhenProductIsAVariantAndParentProductIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 

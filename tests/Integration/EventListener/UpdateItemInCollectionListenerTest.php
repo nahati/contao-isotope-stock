@@ -293,7 +293,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3115;
         $quantityInCart = 1;
@@ -310,7 +310,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsNotAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3116;
         $quantityInCart = 1;
@@ -327,7 +327,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsNotAVariantAndQuantityInCartIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3115;
         $quantityInCart = 2;
@@ -344,7 +344,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductReservedAndIssuesAConfirmCheckoutMessageWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductReservedAndIssuesAConfirmCheckoutMessageWhenProductIsNotAVariantAndQuantityInCartExceedsProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3115;
         $quantityInCart = 3;
@@ -386,7 +386,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__unlimited
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3117;
         $quantityInCart = 1;
@@ -409,7 +409,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 1;
@@ -439,7 +439,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 1;
@@ -471,7 +471,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
@@ -501,7 +501,42 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndCalculatedQuantityInCartOfProductIsZero(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedAndIssuesAMakeModificationsMessageWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnreachableMinQuantityPerOrder(): void
+    {
+        $itemId = 3119;
+        $quantityInCart = 2;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        $parentProductId = 32; //  AVAILABLE, Skulptur 2
+        $minQuantityPerOrder = '3';
+        $quantityOfParentProduct = '2';
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+
+        // Parent product initially has a quantity of 4 and empty minQuantityPerOrder, so we change this to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=?, minQuantityPerOrder=? WHERE id=?')->execute($quantityOfParentProduct, $minQuantityPerOrder, $parentProductId);
+
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // quantity in Cart 1
+        $sibling1Id = 45;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
+
+        // Test if Error with message 'makeModifications' is added to the cart
+        $this->assertSame($this->objCart->hasErrors(), true);
+        $this->assertSame($this->objCart->getErrors(), ['makeModifications']);
+    }
+
+    /**
+     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
+     */
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndCalculatedQuantityInCartOfProductIsZeroAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 1;
@@ -535,7 +570,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
@@ -566,7 +601,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
@@ -600,7 +635,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
@@ -634,7 +669,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 3;
@@ -669,7 +704,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 3;
@@ -699,7 +734,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 3;
@@ -730,7 +765,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3130;
         $quantityInCart = 30;
@@ -755,7 +790,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3130;
         $quantityInCart = 99;
@@ -777,7 +812,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3130;
         $quantityInCart = 100;
@@ -799,7 +834,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAvailableWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndProductIsReservedAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3122;
         $quantityInCart = 1;
@@ -825,7 +860,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsEqualToProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3122;
         $quantityInCart = 1;
@@ -847,7 +882,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testUpdateItemInCollectionListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantity(): void
+    public function testUpdateItemInCollectionListenerReturnsRecducedQuantityAndSetsProductReservedWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityInCartIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3122;
         $quantityInCart = 2;
@@ -869,7 +904,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__product_is_soldout
      */
-    public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductIsAVariantAndProductIsSoldout(): void
+    public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductIsAVariantAndProductIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3126;
         $quantityInCart = 1;
@@ -894,7 +929,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parentProduct_is_soldout
      */
-    public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductIsAVariantAndParentProductIsSoldout(): void
+    public function testUpdateItemInCollectionListenerReturnsQuantityZeroWhenProductIsAVariantAndParentProductIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3128;
         $quantityInCart = 1;
