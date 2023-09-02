@@ -317,7 +317,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $expectedReturn = ['quantity' => 1];
         $productId = 89; // quantity 2, RESERVED, Bild 3
         $parentProductId = 0; // no parent product
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 

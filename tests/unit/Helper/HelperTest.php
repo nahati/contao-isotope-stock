@@ -1017,7 +1017,7 @@ class HelperTest extends ContaoTestCase
         $this->assertSame(0, $this->helper->manageStockAndReturnSurplus($product, 1));
     }
 
-    public function testManageStockAndReturnSurplusReturnsZeroAndSetsInventoryStatusAvailableAndSetsSetInventoryStatusToAvailableWhenQuantityInCartIsLessThanProductQuantity(): void
+    public function testManageStockAndReturnSurplusReturnsZeroWhenQuantityInCartIsLessThanProductQuantity(): void
     {
         // Mock a product, quantity 5, inventory_status AVAILABLE
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '5', 'inventory_status' => Helper::AVAILABLE]);
@@ -1032,13 +1032,13 @@ class HelperTest extends ContaoTestCase
             ->willReturnSelf()
         ;
         $databaseAdapterMock
-            ->expects($this->exactly(1))
+            ->expects($this->exactly(0))
             ->method('prepare')
             ->willReturnSelf()
         ;
         $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
         $databaseAdapterMock
-            ->expects($this->exactly(1))
+            ->expects($this->exactly(0))
             ->method('execute')
             ->willReturn($statementMock)
         ;
@@ -1060,9 +1060,6 @@ class HelperTest extends ContaoTestCase
 
         // Test if the method manageStockAndReturnSurplus returns 0 when quantityInCart = 2 (that is < 5 )
         $this->assertSame(0, $this->helper->manageStockAndReturnSurplus($product, 2, $this->setInventoryStatusTo));
-
-        // Assert that product is not to be reserved
-        $this->assertSame(Helper::AVAILABLE, $this->setInventoryStatusTo);
     }
 
     public function testManageStockAndReturnSurplusReturnsZeroAndSetsInventoryStatusReservedAndSetssetInventoryStatusToReservedWhenQuantityInCartIsEqualToProductQuantity(): void

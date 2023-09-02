@@ -86,7 +86,7 @@ class UpdateItemInCollectionListener
             /** @var int qtyFamily // overall quantity in cart for all the parent's childs */
             $qtyFamily = $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'];
 
-            // Manage stock for parent product with overall quantity in cart for all it's childs
+            // Get the return of the stock management for the parent product
             $surplusParent = $this->helper->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
 
             // More in cart than the parent can afford
@@ -94,17 +94,13 @@ class UpdateItemInCollectionListener
                 $this->helper->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
             }
 
-            // When parent is still AVAILABLE, we do not know here what to do with the children.
-            // if (Helper::AVAILABLE === $setInventoryStatusTo) {
-            //     $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objProduct->id);
-            // } elseif (Helper::RESERVED === $setInventoryStatusTo) {
-
+            // Set the inventory Status of the parent and all it's children to RESERVED or SOLDOUT according to the parent.
             if (Helper::RESERVED === $setInventoryStatusTo) {
                 $this->helper->setParentAndChildProductsReserved($objParentProduct);
             } elseif (Helper::SOLDOUT === $setInventoryStatusTo) {
                 $this->helper->setParentAndChildProductsSoldout($objParentProduct);
             }
-            // do nothing if $setInventoryStatusTo = \null or AVAILABLE
+            // We do nothing if $setInventoryStatusTo = \null
 
             $arrSet['quantity'] -= max($surplusProduct, $surplusParent); // decrease by max surplus quantity
 
@@ -160,7 +156,7 @@ class UpdateItemInCollectionListener
             /** @var int qtyFamily // overall quantity in cart for all the parent's childs */
             $qtyFamily = $this->helper->sumSiblings($objProduct, $objCart, $objProduct->pid, $anzSiblingsInCart) + $arrSet['quantity'];
 
-            // Get the return of the stock management for the parent product with overall quantity in cart for all it's childs
+            // Get the return of the stock management for the parent product
             $returnParent = $this->helper->manageStockTypeBAndReturnDifferences($objParentProduct, $qtyFamily);
 
             if ($returnParent['surMinus'] > 0) {

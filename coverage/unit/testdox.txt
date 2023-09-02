@@ -65,7 +65,7 @@ Helper (Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper\Helper)
  [x] Fetch quantity in cart when product is in cart and also other products and also items without product
  [x] Manage stock and return surplus zero when quantity is null
  [x] Manage stock and return surplus zero when quantity is empty
- [x] Manage stock and return surplus returns zero and sets inventory status available and sets set inventory status to available when quantity in cart is less than product quantity
+ [x] Manage stock and return surplus returns zero when quantity in cart is less than product quantity
  [x] Manage stock and return surplus returns zero and sets inventory status reserved and setsset inventory status to reserved when quantity in cart is equal to product quantity
  [x] Manage stock and return a non zero surplus and set inventory status reserved and sets set inventory status to reserved when quantity in cart is greater than product quantity
  [x] Manage stock after checkout does no database updates and returns false and not overbought when quantity is null

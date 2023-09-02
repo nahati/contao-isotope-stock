@@ -387,9 +387,7 @@ class Helper
 
         // Quantity in Collection < Product quantity
         if ((int) $qtyInCollection < (int) $objProduct->quantity) {
-            $this->updateInventory($objProduct, self::AVAILABLE);
-
-            $setInventoryStatusTo = self::AVAILABLE;
+            // In this case we do not change the inventory status of the product as concurring processes might have changed it in the meantime and we do not want to overwrite it.
 
             return 0; // no surplus quantity
         }

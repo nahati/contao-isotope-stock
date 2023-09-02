@@ -306,7 +306,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $quantityRequestedForCart = 1;
         $expectedReturn = 1;
 
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         // expectedInventory_statusOfParentProduct not used here
         // expectedInventory_statusOfSiblingProducts not used here
 

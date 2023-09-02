@@ -300,7 +300,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         $itemId = 3115; // $quantityInCart = 1;
         $expectedQuantityInCart = 1;
         $productId = 89; // quantity 2, RESERVED, Bild 3
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         $parentProductId = 0; // no parent product
         // expectedInventory_statusOfParentProduct not used here
 
@@ -675,7 +675,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
         $expectedInventory_statusOfProduct = Helper::RESERVED;
-        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
 
         // Item 3119 initially has a quantity in cart of 1, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityInCart, $itemId);
@@ -809,7 +809,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         $productId = 38; // Reserved, Variante Original von Skulptur 4
         $quantityOfProduct = 2;
         $parentProductId = 34; // unlimited quantity, Skulptur 4
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
 
         // Product initially has a quantity of 1, so we change the quantity of the product to match the testcase
