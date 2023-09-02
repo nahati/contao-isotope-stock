@@ -244,7 +244,7 @@ class UpdateItemInCollectionListener
      *
      * If the quantity in cart has been modified, the user is asked for confirmation.
      *
-     * If the product can not be bought in the newly calculated quantity, the user is asked for action. This might happen if the min and max quantities of variant and parent product are not in line with each other.
+     * If the product can not be bought in the newly calculated quantity, the user is asked to make changes to the cart. This might happen if the min quantity per order and the quantity are not in line with each other.
      *
      * Restriction: As the given cart is updated item by item, checks will be done item by item also (i.e. the lower part of the cart appears as it was before user changes).
      *
