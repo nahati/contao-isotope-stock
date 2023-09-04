@@ -35,8 +35,8 @@ class PostCheckoutListenerTest extends ContaoTestCase
     {
         parent::setUpBeforeClass();
 
-        // Do needed Isotope initializations
-        self::DoSomeIsotopeInitializations();
+        // Do Needed Initializations
+        self::DoNeededInitializations();
     }
 
     /**
@@ -57,9 +57,9 @@ class PostCheckoutListenerTest extends ContaoTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private static function DoSomeIsotopeInitializations(): void
+    private static function DoNeededInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'] = 'inventory_status not activated for product %s';
@@ -76,28 +76,23 @@ class PostCheckoutListenerTest extends ContaoTestCase
     {
         $this->objOrder = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objOrder
             ->expects($this->once())
             ->method('getItems')
-            ->willReturn([])
-        ;
+            ->willReturn([]);
 
         // Mock an Item with method getProduct()
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objItem
             ->expects($this->never())
-            ->method('getProduct')
-        ;
+            ->method('getProduct');
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
 
         // Mock the adapters for the framework
         $adapters = [
@@ -114,28 +109,23 @@ class PostCheckoutListenerTest extends ContaoTestCase
         // Mock an Item with method getProduct() returning null
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objItem
             ->expects($this->never())
             ->method('getProduct')
-            ->willReturn(null)
-        ;
+            ->willReturn(null);
 
         $this->objOrder = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objOrder
             ->expects($this->exactly(2))
             ->method('getItems')
-            ->willReturn($this->objItem)
-        ;
+            ->willReturn($this->objItem);
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
 
         // Mock the adapters for the framework
         $adapters = [
@@ -147,44 +137,37 @@ class PostCheckoutListenerTest extends ContaoTestCase
         $listener($this->objOrder);
     }
 
-    public function testPostCheckoutListenerDoesNothingWhenStockmanagementIsNotConfigured(): void
+    public function testPostCheckoutListenerDoesNothingWhenLimitedEditionsAreNotConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is not set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
         $this->objProduct
             ->expects($this->never())
-            ->method('isVariant')
-        ;
+            ->method('isVariant');
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn($this->objProduct)
-        ;
+            ->willReturn($this->objProduct);
 
         $this->objOrder = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
 
         $this->objOrder = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objOrder
             ->expects($this->exactly(2))
             ->method('getItems')
-            ->willReturn([$this->objItem])
-        ;
+            ->willReturn([$this->objItem]);
 
         $messageAdapterMock = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
 
         // Mock the adapters for the framework
         $adapters = [
@@ -195,43 +178,36 @@ class PostCheckoutListenerTest extends ContaoTestCase
         $listener($this->objOrder);
     }
 
-    public function testPostCheckoutListenerThrowsInvalidArgumentExceptionWhenStockmanagementIsBadlyConfigured(): void
+    public function testPostCheckoutListenerThrowsInvalidArgumentExceptionWhenLimitedEditionsAreBadlyConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
         $this->objProduct
             ->method('getName')
-            ->willReturn('foo')
-        ;
+            ->willReturn('foo');
         $this->objProduct
             ->expects($this->exactly(0))
-            ->method('isVariant')
-        ;
+            ->method('isVariant');
 
         $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
-            ->willReturn($this->objProduct)
-        ;
+            ->willReturn($this->objProduct);
 
         $this->objOrder = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
 
         $this->objOrder = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->objOrder
             ->expects($this->exactly(2))
             ->method('getItems')
-            ->willReturn([$this->objItem])
-        ;
+            ->willReturn([$this->objItem]);
 
         // Test if an InvalidArgumentException is thrown
         $this->expectException(\InvalidArgumentException::class);
@@ -244,6 +220,4 @@ class PostCheckoutListenerTest extends ContaoTestCase
 
         $listener($this->objOrder);
     }
-
-    // Further tests can be found in the integration testcases
 }

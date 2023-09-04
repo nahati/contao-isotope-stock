@@ -85,7 +85,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // We reset these database tables BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
         // Do needed Isotope and Notification Center initializations
-        $this->doSomeIsotopeAndNcInitializations();
+        $this->doNeededInitializations();
 
         // Instantiate an order object with given id
         $this->objOrder = Order::class::findByPk('268', ['return' => 'Model']);
@@ -156,7 +156,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * Do needed Isotope and Notification Center initializations.
      */
-    private function doSomeIsotopeAndNcInitializations(): void
+    private function doNeededInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'] = 'The maximum available quantity for "%s" is %s items';

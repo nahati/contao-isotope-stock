@@ -2,40 +2,39 @@ Contao Isotope Stock Bundle (Nahati\ContaoIsotopeStockBundle\Tests\ContaoIsotope
  [x] Bundle can be instantiated
 
 Add Product To Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\AddProductToCollectionListener)
- [x] True is true
- [x] Add product to collection listener returns unchanged quantity requested for cart when stockmanagement is not configured
- [x] Add product to collection listener throws invalid argument exception when stockmanagement is badly configured
+ [x] Add product to collection listener returns unchanged quantity requested for cart when limited editions are not configured
+ [x] Add product to collection listener throws invalid argument exception when limited editions are badly configured
 
 Copied Collection Items Listener (Nahati\ContaoIsotopeStockBundle\Tests\CopiedCollectionItemsListener)
  [x] Copied collection items listener does nothing when source is not a cart
  [x] Copied collection items listener does nothing when target is not a cart
  [x] Copied collection items listener does nothing when target is empty
  [x] Copied collection items listener does nothing when item without product
- [x] Copied collection items listener throws invalid argument exception when stockmanagement type a is badly configured
- [x] Copied collection items listener throws invalid argument exception when stockmanagement type b is badly configured
+ [x] Copied collection items listener throws invalid argument exception when limited editions are badly configured
+ [x] Copied collection items listener throws invalid argument exception when limited orders are badly configured
 
 Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\PostCheckoutListener)
  [x] Post checkout listener does nothing when no items in order
  [x] Post checkout listener does nothing when item without product
- [x] Post checkout listener does nothing when stockmanagement is not configured
- [x] Post checkout listener throws invalid argument exception when stockmanagement is badly configured
+ [x] Post checkout listener does nothing when limited editions are not configured
+ [x] Post checkout listener throws invalid argument exception when limited editions are badly configured
 
 Post Delete Item From Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\PostDeleteItemFromCollectionListener)
  [x] Post delete item from collection listener does nothing when item without product
- [x] Post delete item from collection listener does nothing when stockmanagement type a is not configured
- [x] Post delete item from collection listener throws invalid argument exception when stockmanagement type a is badly configured
+ [x] Post delete item from collection listener does nothing when handle limited editions type a is not configured
+ [x] Post delete item from collection listener throws invalid argument exception when handle limited editions type a is badly configured
  [x] Post delete item from collection listener sets inventory status when product is not a variant
  [x] Post delete item from collection listener sets inventory status when product is a variant
 
 Pre Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\PreCheckoutListener)
- [x] Pre checkout listener does nothing when stockmanagement is not configured
- [x] Pre checkout listener throws invalid argument exception when stockmanagement is badly configured
+ [x] Pre checkout listener does nothing when limited editions are not configured
+ [x] Pre checkout listener throws invalid argument exception when limited editions are badly configured
 
 Update Item In Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\UpdateItemInCollectionListener)
  [x] True is true
  [x] Update item in collection listener returns false when item without product
- [x] Update item in collection listener returns unchanged arr set when stockmanagement is not configured
- [x] Update item in collection listener throws invalid argument exception when stockmanagement is badly configured
+ [x] Update item in collection listener returns unchanged arr set when limited editions are not configured
+ [x] Update item in collection listener throws invalid argument exception when limited editions are badly configured
  [x] Update item in collection listener returns false when arr set not contains key quantity
  [x] Update item in collection listener returns false when arr set key quantity has empty value
 
@@ -48,16 +47,16 @@ Helper (Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper\Helper)
  [x] Update inventory status does execute d b queries when inventory status and quantity were changed meanwhile but strict mode
  [x] Set parent and child products reserved
  [x] Set parent and child products soldout
- [x] Check stockmanagement type a returns false when inventory status is not set and quantity is not set
- [x] Check stockmanagement type a throws invalid argument exception when inventory status is not set but quantity is set
- [x] Check stockmanagement type a returns true when inventory status is set
- [x] Check stockmanagement type b returns max true when max quantity per order is enabled
- [x] Check stockmanagement type b returns min and max false when neither max quantity per order nor min quantity per order is enabled
- [x] Check stockmanagement type b returns min true and max false when max quantity per order is equal to zero and min quantity per order is equal to two
- [x] Check stockmanagement type b returns min false and max true when max quantity per order is equal to two and min quantity per order is equal to one
- [x] Check stockmanagement type b returns min and max false when max quantity per order is equal to zero and min quantity per order is equal to one
- [x] Check stockmanagement type b throws an exception when min quantity per order is greater than max quantity per order
- [x] Check stockmanagement type b returns min true when min quantity per order is enabled
+ [x] Check configuration for limited editions returns false when inventory status is not set and quantity is not set
+ [x] Check configuration for limited editions throws invalid argument exception when inventory status is not set but quantity is set
+ [x] Check configuration for limited editions returns true when inventory status is set
+ [x] Check configuration for order limits returns max true when max quantity per order is enabled
+ [x] Check configuration for order limits returns min and max false when neither max quantity per order nor min quantity per order is enabled
+ [x] Check configuration for order limits returns min true and max false when max quantity per order is equal to zero and min quantity per order is equal to two
+ [x] Check configuration for order limits returns min false and max true when max quantity per order is equal to two and min quantity per order is equal to one
+ [x] Check configuration for order limits returns min and max false when max quantity per order is equal to zero and min quantity per order is equal to one
+ [x] Check configuration for order limits throws an exception when min quantity per order is greater than max quantity per order
+ [x] Check configuration for order limits returns min true when min quantity per order is enabled
  [x] Is soldout returns true and sets inventory status soldout when quantity is zero
  [x] Is soldout returns true and sets quantity zero when inventory status is soldout
  [x] Is soldout returns false when quantity is not zero and inventory status is not soldout

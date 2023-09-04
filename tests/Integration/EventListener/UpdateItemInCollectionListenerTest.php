@@ -66,8 +66,8 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->resetRelevantDatabaseTables();
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
-        // Do needed Isotope initializations
-        $this->doSomeIsotopeInitializations();
+        // Do Needed Initializations
+        $this->doNeededInitializations();
 
         // Instantiate a Cart object with given id
         // This cart is of logged-in member test@test.de
@@ -120,9 +120,9 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private static function doSomeIsotopeInitializations(): void
+    private static function doNeededInitializations(): void
     {
         // These assignments link the tables with the model classes. Now you can use the model classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_producttype'] = ProductType::class;
@@ -214,7 +214,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
 
         $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
 
-        // Asserts only for variant products
+        // More asserts for variant products
         if ($parentProductId > 0) {
             if ($sibling1Id) {
                 // Test if the inventory_status of sibling1 is as expected

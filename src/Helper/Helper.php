@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Nahati\ContaoIsotopeStockBundle\Helper;
 
+use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Isotope\Message;
@@ -23,8 +24,11 @@ use Isotope\Model\ProductCollection;
 use Isotope\Model\ProductCollection\Order;
 
 /**
- * Reuseable small services for stockmanagement.
- * By using adapters we can 1. decouple the dependencies on external classes and 2. we can make use of adapter mocks in the Unit tests.
+ * Reuseable small services for Stock Management.
+ *
+ * By using adapters we can
+ *  1. decouple the dependencies on external classes
+ *  2. make use of adapter mocks in the Unit tests.
  */
 class Helper
 {
@@ -63,6 +67,7 @@ class Helper
 
     /**
      * Update quantity / inventory_status of a product.
+     *
      * If strict is set to true, the update is done even if the product has changed in the meantime.
      *
      * @param Standard $objProduct
@@ -117,8 +122,10 @@ class Helper
 
     /**
      * Set parent product and all available child products RESERVED.
+     *
+     * @param Standard $parentProduct
      */
-    public function setParentAndChildProductsReserved(Standard $parentProduct): void
+    public function setParentAndChildProductsReserved($parentProduct): void
     {
         // Get an adapter for the Standard class
         $standardAdapter = $this->framework->getAdapter(Standard::class);
@@ -145,8 +152,10 @@ class Helper
 
     /**
      * Set parent product and all available child products SOLDOUT.
+     *
+     * @param Standard $objParentProduct
      */
-    public function setParentAndChildProductsSoldout(Standard $objParentProduct): void
+    public function setParentAndChildProductsSoldout($objParentProduct): void
     {
         // Get an adapter for the Standard class
         $standardAdapter = $this->framework->getAdapter(Standard::class);
@@ -163,45 +172,16 @@ class Helper
         }
     }
 
-    // We do not use this method, as it might result in wrong constellations!
-    // /**
-    //  * Set parent product and all reserved siblings products AVAILABLE.
-    //  *
-    //  * @param int $objProduct of the product to be excluded
-    //  */
-    // public function setParentAndSiblingsProductsAvailable(Standard $objParentProduct, int $id): void
-    // {
-    //     // Get an adapter for the Standard class
-    //     $standardAdapter = $this->framework->getAdapter(Standard::class);
-
-    //     // Get all children of the parent product (variants) except the product with the given id
-    //     $objVariants = $standardAdapter->findPublishedBy('pid', $objParentProduct->id, ['exclude' => $id]);
-
-    //     // TODO: This does not exclude $id; fix that!
-
-    //     // Set parent product AVAILABLE
-    //     $this->updateInventory($objParentProduct, self::AVAILABLE);
-
-    //     // Set all RESERVED variants AVAILABLE
-
-    //     // TODO: This is wrong! The sibling should be kept reserved in case its limit is reached
-    //     foreach ($objVariants as $variant) {
-    //         if (self::RESERVED === $variant->inventory_status) {
-    //             $this->updateInventory($variant, self::AVAILABLE);
-    //         }
-    //     }
-    // }
-
     /**
-     * Check configuration of stockmanagement type A.
+     * Check configuration for limited editions.
      *
      * @param Standard $objProduct
      *
      * @throws \InvalidArgumentException // if configuration is falsy
      *
-     * @return bool // true if stockmanagement is enabled
+     * @return bool // true if HandleLimitedEditions is enabled
      */
-    public function checkStockmanagementTypeA($objProduct)
+    public function checkConfigurationForLimitedEditions($objProduct)
     {
         // inventory_status not activated
         if (!isset($objProduct->inventory_status)) {
@@ -219,7 +199,7 @@ class Helper
     }
 
     /**
-     * Check configuration of stockmanagement type B.
+     * Check configuration for order limits.
      *
      * @param Standard $objProduct
      *
@@ -229,7 +209,7 @@ class Helper
      *                              min is true if minQuantityPerOrder is set and > '1'
      *                              max is true if maxQuantityPerOrder is set and > '0'
      */
-    public function checkStockmanagementTypeB($objProduct): array
+    public function checkConfigurationForOrderLimits($objProduct): array
     {
         $min = false;
         $max = false;
@@ -324,22 +304,22 @@ class Helper
     /**
      * Fetch the quantity already in cart for the given product.
      *
-     * @param Standard               $objProduct // product
-     * @param ProductCollection|null $objCart    // cart
+     * @param Standard               $objProduct    // product
+     * @param ProductCollection|null $objCollection // cart
      *
      * @return int // quantity already in cart
      */
-    public function fetchQuantityInCart($objProduct, $objCart)
+    public function fetchQuantityInCart($objProduct, $objCollection)
     {
         $quantityInCart = 0;
 
-        if (!$objCart) {
+        if (!$objCollection) {
             return $quantityInCart;
         }
 
-        foreach ($objCart->getItems() as $objCartItem) {
+        foreach ($objCollection->getItems() as $objCollectionItem) {
             /** @var Standard|null $objProductInCart */
-            $objProductInCart = $objCartItem->getProduct() ?? null;
+            $objProductInCart = $objCollectionItem->getProduct() ?? null;
 
             // No product
             if (!$objProductInCart) {
@@ -351,7 +331,7 @@ class Helper
                 continue;
             }
 
-            $quantityInCart += $objCartItem->quantity;
+            $quantityInCart += $objCollectionItem->quantity;
         }
 
         return $quantityInCart;
@@ -368,12 +348,12 @@ class Helper
      */
     public function manageStockAndReturnSurplus($objProduct, $qtyInCollection, &$setInventoryStatusTo = null)
     {
-        // Stockmanagement not enabled or not correctly configured
-        if (!$this->checkStockmanagementTypeA($objProduct)) {
+        // HandleLimitedEditions not enabled or not correctly configured
+        if (!$this->checkConfigurationForLimitedEditions($objProduct)) {
             return 0; // no surplus quantity
         }
 
-        // Unlimited quantity: no stockmanagement, no surplus quantity
+        // Unlimited quantity: no HandleLimitedEditions, no surplus quantity
         if (null === $objProduct->quantity || '' === $objProduct->quantity) {
             return 0; // no surplus quantity
         }
@@ -411,7 +391,7 @@ class Helper
     }
 
     /**
-     * Manage Stock Type B for a given product and a given quantity in Collection and return the surPlus and surMinus.
+     * Get the deviations from the allowed quantity range for a given product and a given quantity in collection and return the surPlus and surMinus.
      *
      * @param Standard $objProduct
      * @param int      $qtyInCollection // quantity in Collection (product retr. all siblings)
@@ -419,17 +399,17 @@ class Helper
      * @return array <string, int> ['surMinus' => <int>, 'surPlus' => <int>]
      *                             $surMinus is the quantity that is missing to reach MinQuantityPerOrder (>= 0)
      *               $surplus is the quantity that exceeds MaxQuantityPerOrder (>= 0)*/
-    public function manageStockTypeBAndReturnDifferences($objProduct, $qtyInCollection): array
+    public function getDeviationsFromAllowedRange($objProduct, $qtyInCollection): array
     {
         $return = ['surMinus' => 0, 'surPlus' => 0];
 
         // minQuantityPerOrder is set
-        if ($this->checkStockmanagementTypeB($objProduct)['min']) {
+        if ($this->checkConfigurationForOrderLimits($objProduct)['min']) {
             // return quantity below minQuantityPerOrder if any; otherwise return 0
             $return['surMinus'] = $objProduct->minQuantityPerOrder - $qtyInCollection > 0 ? $objProduct->minQuantityPerOrder - $qtyInCollection : 0;
         }
         // maxQuantityPerOrder is set
-        if ($this->checkStockmanagementTypeB($objProduct)['max']) {
+        if ($this->checkConfigurationForOrderLimits($objProduct)['max']) {
             // return quantity above maxQuantityPerOrder if any; otherwise return 0
             $return['surPlus'] = $qtyInCollection - $objProduct->maxQuantityPerOrder > 0 ? $qtyInCollection - $objProduct->maxQuantityPerOrder : 0;
         }
@@ -448,7 +428,7 @@ class Helper
      */
     public function manageStockAfterCheckout($objProduct, $qtyBought, &$overbought = 0)
     {
-        // Unlimited quantity: no stockmanagement
+        // Unlimited quantity: no stock management
 
         // Models take quantity from parent
         // if (null === $objProduct->quantity || '' === $objProduct->quantity) {
@@ -550,7 +530,8 @@ class Helper
     }
 
     /**
-     *  Handle overbought order
+     *  Handle overbought order.
+     *
      *  Issue an error message
      *  Update order status to overbought.
      *
@@ -571,7 +552,8 @@ class Helper
     }
 
     /**
-     * Update orderstatus
+     * Update orderstatus.
+     *
      * If the order or the orderstatus is not found, ignore and do nothing.
      *
      * @param int    $orderId     the order id
@@ -598,5 +580,202 @@ class Helper
 
         // Set the orderstatus
         $objOrder->updateOrderstatus(['order_status' => $objOrderStatus->id]);
+    }
+
+    /** Handling of limited editions.
+     *
+     * @param Standard          $objProduct        // Product
+     * @param int               $quantityRequested // Quantity requested for collection
+     *                                             // call by reference, giving the newly calculated quantity in collection
+     * @param ProductCollection $objCollection     // collection
+     *
+     * @return bool // true if parent product exists and is is soldout
+     */
+    public function handleLimitedEditions($objProduct, &$quantityRequested, $objCollection)
+    {
+        $return = false;
+
+        // Manage limited editions and get the surplus quantity for the product
+        /** @var int $surplusProduct */
+        $surplusProduct = $this->manageStockAndReturnSurplus($objProduct, $quantityRequested);
+
+        // More in collection than the product can afford
+        if ($surplusProduct > 0 && self::SOLDOUT !== $objProduct->inventory_status) {
+            $this->issueErrorMessage('quantityNotAvailable', $objProduct->getName(), $objProduct->quantity);
+        }
+
+        // Single product (not having any variants)
+        if (!$objProduct->isVariant()) {
+            $quantityRequested -= $surplusProduct; // decrease by surplus quantity
+
+            $quantityRequested = $quantityRequested < 0 ? 0 : $quantityRequested; // limit to zero
+        }
+
+        // Variant product
+        else {
+            // Get an adapter for the Standard class
+            /** @var Adapter<Standard> $adapter */
+            $adapter = $this->framework->getAdapter(Standard::class);
+
+            // Get the parent product
+            $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+
+            $setInventoryStatusTo = null;
+            $anzSiblingsIncollection = 0;
+
+            // Get the sum of the quantity of all siblings in collection (i.e. not including the current product) and add the quantity in collection of the current product.
+            /** @var int qtyFamily // overall quantity in collection for all the parent's childs */
+            $qtyFamily = $this->sumSiblings($objProduct, $objCollection, $objProduct->pid, $anzSiblingsIncollection) + $quantityRequested;
+
+            // Manage limited editions and get the surplus quantity for the parent product
+            $surplusParent = $this->manageStockAndReturnSurplus($objParentProduct, $qtyFamily, $setInventoryStatusTo);
+
+            // More in collection than the parent can afford
+            if ($surplusParent > 0 && self::SOLDOUT !== $objParentProduct->inventory_status) {
+                $this->issueErrorMessage('quantityNotAvailable', $objParentProduct->getName(), $objParentProduct->quantity);
+            }
+
+            // Set the inventory Status of the parent and all it's children to RESERVED or SOLDOUT according to the parent.
+            if (self::RESERVED === $setInventoryStatusTo) {
+                $this->setParentAndChildProductsReserved($objParentProduct);
+            } elseif (self::SOLDOUT === $setInventoryStatusTo) {
+                $this->setParentAndChildProductsSoldout($objParentProduct);
+            }
+            // We do nothing if $setInventoryStatusTo = \null
+
+            $quantityRequested -= max($surplusProduct, $surplusParent); // decrease by max surplus quantity
+
+            $quantityRequested = $quantityRequested < 0 ? 0 : $quantityRequested; // limit to zero
+
+            // $return becomes true if parent product is soldout, otherwise false
+            $return = self::SOLDOUT === $objParentProduct->inventory_status;
+        }
+
+        return $return;
+    }
+
+    /** Correct any deviations from the allowed range.
+     *
+     * @param Standard          $objProduct        // Product
+     * @param int               $quantityRequested // Quantity requested for collection or quantity in order
+     *                                             // call by reference, giving the newly calculated quantity
+     * @param ProductCollection $objCollection     // collection or Order
+     */
+    public function handleOrderLimits($objProduct, &$quantityRequested, $objCollection): void
+    {
+        // Get the deviations from the allowed range for the product
+        $deviationsOfProduct = $this->getDeviationsFromAllowedRange($objProduct, $quantityRequested);
+
+        if ($deviationsOfProduct['surMinus'] > 0) {
+            $this->issueErrorMessage('minQuantityPerOrderUnreached', $objProduct->getName(), $objProduct->minQuantityPerOrder);
+        }
+
+        if ($deviationsOfProduct['surPlus'] > 0) {
+            $this->issueErrorMessage('maxQuantityPerOrderExceeded', $objProduct->getName(), $objProduct->maxQuantityPerOrder);
+        }
+
+        // Single product (not having any variants)
+        if (!$objProduct->isVariant()) {
+            // Increase quantity in collection by the quantity below minQuantityPerOrder
+            $quantityRequested += $deviationsOfProduct['surMinus'];
+
+            // Decrease quantity in collection by the quantity above maxQuantityPerOrder
+            $quantityRequested -= $deviationsOfProduct['surPlus'];
+
+            $quantityRequested = $quantityRequested < 0 ? 0 : $quantityRequested; // limit to zero
+        }
+
+        // Variant product
+        else {
+            // Get an adapter for the Standard class
+            /** @var Adapter<Standard> $adapter */
+            $adapter = $this->framework->getAdapter(Standard::class);
+
+            // Get the parent product
+            $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+
+            $anzSiblingsIncollection = 0;
+
+            // Get the sum of the quantity in collection of all siblings in collection (i.e. not including the current product) and add the quantity for collection of the current product.
+            /** @var int qtyFamily // overall quantity in collection for all the parent's childs */
+            $qtyFamily = $this->sumSiblings($objProduct, $objCollection, $objProduct->pid, $anzSiblingsIncollection) + $quantityRequested;
+
+            // Get the deviations from the allowed range for the parent product
+            $returnParent = $this->getDeviationsFromAllowedRange($objParentProduct, $qtyFamily);
+
+            if ($returnParent['surMinus'] > 0) {
+                $this->issueErrorMessage('minQuantityPerOrderUnreached', $objParentProduct->getName(), $objParentProduct->minQuantityPerOrder);
+            }
+
+            if ($returnParent['surPlus'] > 0) {
+                $this->issueErrorMessage('maxQuantityPerOrderExceeded', $objParentProduct->getName(), $objParentProduct->maxQuantityPerOrder);
+            }
+
+            // Now we do the changes with $quantityRequested
+
+            // Min quantity unreached
+            if ($deviationsOfProduct['surMinus'] > 0 || $returnParent['surMinus'] > 0) {
+                // Increase quantity for collection by the max of variant and parent quantity below minQuantityPerOrder
+                $quantityRequested += max($deviationsOfProduct['surMinus'], $returnParent['surMinus']);
+            }
+
+            // Max quantity exceeded
+            if ($deviationsOfProduct['surPlus'] > 0 || $returnParent['surPlus'] > 0) {
+                // Decrease quantity for collection by the max of variant and parent quantity above maxQuantityPerOrder
+                $quantityRequested -= max($deviationsOfProduct['surPlus'], $returnParent['surPlus']);
+            }
+
+            $quantityRequested = $quantityRequested < 0 ? 0 : $quantityRequested; // limit to zero
+        }
+    }
+
+    /** Check if quantity in collection is in the allowed range.
+     *
+     * @param Standard          $objProduct        // Product
+     * @param int               $quantityRequested // Quantity requested for collection
+     *                                             // call by reference, giving the newly calculated quantity in collection
+     * @param ProductCollection $objCollection     // collection or order
+     *
+     * @return bool // true if quantity in collection is not in the allowed range
+     */
+    public function quantityIsNotInTheAllowedRange($objProduct, &$quantityRequested, $objCollection)
+    {
+        $return = false;
+
+        // Get the deviations from the allowed range for the product
+        $deviationsOfProduct = $this->getDeviationsFromAllowedRange($objProduct, $quantityRequested);
+
+        if ($deviationsOfProduct['surMinus'] > 0) {
+            $this->issueErrorMessage('productNotSellableAsMinQuantityPerOrderUnreached', $objProduct->getName(), $objProduct->minQuantityPerOrder);
+
+            $return = true;
+        }
+
+        // Variant product
+        if ($objProduct->isVariant()) {
+            // Get an adapter for the Standard class
+            /** @var Adapter<Standard> $adapter */
+            $adapter = $this->framework->getAdapter(Standard::class);
+
+            // Get the parent product
+            $objParentProduct = $adapter->findPublishedByPk($objProduct->pid);
+
+            $anzSiblingsIncollection = 0;
+
+            // Get the sum of the quantity in collection of all siblings in collection (i.e. not including the current product) and add the quantity in collection of the current product.
+            /** @var int qtyFamily // overall quantity in collection for all the parent's childs */
+            $qtyFamily = $this->sumSiblings($objProduct, $objCollection, $objProduct->pid, $anzSiblingsIncollection) + $quantityRequested;
+
+            // Get the deviations from the allowed range for the parent product
+            $returnParent = $this->getDeviationsFromAllowedRange($objParentProduct, $qtyFamily);
+
+            if ($returnParent['surMinus'] > 0) {
+                $this->issueErrorMessage('productNotSellableAsMinQuantityPerOrderUnreached', $objParentProduct->getName(), $objParentProduct->minQuantityPerOrder);
+
+                $return = true;
+            }
+        }
+
+        return $return;
     }
 }

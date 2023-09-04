@@ -40,7 +40,6 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     private $databaseAdapter;
 
     private ProductCollectionItem $objItem;
-
     private ProductCollection $objSource; // source collection, not used here
     private ProductCollection $objTarget; // target collection, after copying
     /**
@@ -70,8 +69,8 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
         $this->resetRelevantDatabaseTables();
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
-        // Do needed Isotope initializations
-        $this->DoSomeIsotopeInitializations();
+        // Do Needed Initializations
+        $this->DoNeededInitializations();
 
         // Instantiate a Cart object with given id
         // This cart is of a guest
@@ -95,7 +94,6 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     {
         parent::tearDown();
 
-        // unset($this->stcFramework, $this->objOrder, $this->oldOrderStatus, $this->objResult);
         unset($this->databaseAdapter, $this->framework, $this->objTarget, $this->objSource, $this->arrIds);
     }
 
@@ -132,9 +130,9 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private function DoSomeIsotopeInitializations(): void
+    private function DoNeededInitializations(): void
     {
         // These assignments link the tables with the model classes. Now you can use the model classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_producttype'] = ProductType::class;
@@ -222,7 +220,7 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
 
         $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
 
-        // Asserts only for variant products
+        // More asserts for variant products
         if ($parentProductId > 0) {
             if ($sibling1Id) {
                 // Test if the inventory_status of sibling1 is as expected

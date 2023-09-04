@@ -39,8 +39,8 @@ class PreCheckoutListenerTest extends ContaoTestCase
     {
         parent::setUp();
 
-        // Do needed Isotope initializations
-        $this->doSomeIsotopeInitializations();
+        // Do Needed Initializations
+        $this->doNeededInitializations();
     }
 
     /**
@@ -54,12 +54,14 @@ class PreCheckoutListenerTest extends ContaoTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private function doSomeIsotopeInitializations(): void
+    private function doNeededInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'] = 'inventory_status not activated for product %s';
+        // Declare additional messages that are declared in the extension
+        $GLOBALS['TL_LANG']['ERR']['orderNotPossible'] = 'Your order needs to be changed. Please go to cart and refresh it.';
     }
 
     // Dummy Test
@@ -69,7 +71,7 @@ class PreCheckoutListenerTest extends ContaoTestCase
     //     $this->assertTrue($foo);
     // }
 
-    public function testPreCheckoutListenerDoesNothingWhenStockmanagementIsNotConfigured(): void
+    public function testPreCheckoutListenerDoesNothingWhenLimitedEditionsAreNotConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is not set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
@@ -115,13 +117,14 @@ class PreCheckoutListenerTest extends ContaoTestCase
         // Mock the adapters for the framework
         $adapters = [
             Message::class => $this->mockConfiguredAdapter(['addError' => $messageAdapterMock]),
+            Checkout::class => $this->mockConfiguredAdapter(['generateUrlForStep' => '']),
         ];
         $listener = new PreCheckoutListener($this->mockContaoFramework($adapters));
 
         $listener($this->objOrder, $this->objCheckout);
     }
 
-    public function testPreCheckoutListenerThrowsInvalidArgumentExceptionWhenStockmanagementIsBadlyConfigured(): void
+    public function testPreCheckoutListenerThrowsInvalidArgumentExceptionWhenLimitedEditionsAreBadlyConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
@@ -174,6 +177,4 @@ class PreCheckoutListenerTest extends ContaoTestCase
 
         $listener($this->objOrder, $this->objCheckout);
     }
-
-    // Further tests can be found in the integration testcases
 }

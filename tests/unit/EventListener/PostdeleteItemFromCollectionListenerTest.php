@@ -37,8 +37,8 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     {
         parent::setUpBeforeClass();
 
-        // Do needed Isotope initializations
-        self::DoSomeIsotopeInitializations();
+        // Do Needed Initializations
+        self::DoNeededInitializations();
     }
 
     /**
@@ -59,9 +59,9 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private static function DoSomeIsotopeInitializations(): void
+    private static function DoNeededInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['productOutOfStock'] = 'The product "%s" is currently out of stock';
@@ -107,7 +107,7 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         // Nothing left to test here
     }
 
-    public function testPostDeleteItemFromCollectionListenerDoesNothingWhenStockmanagementTypeAIsNotConfigured(): void
+    public function testPostDeleteItemFromCollectionListenerDoesNothingWhenHandleLimitedEditionsTypeAIsNotConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is not set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
@@ -141,7 +141,7 @@ class PostDeleteItemFromCollectionListenerTest extends ContaoTestCase
         // Nothing left to test here
     }
 
-    public function testPostDeleteItemFromCollectionListenerThrowsInvalidArgumentExceptionWhenStockmanagementTypeAIsBadlyConfigured(): void
+    public function testPostDeleteItemFromCollectionListenerThrowsInvalidArgumentExceptionWhenHandleLimitedEditionsTypeAIsBadlyConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);

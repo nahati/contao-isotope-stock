@@ -22,7 +22,6 @@ Pre Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventLi
  [x] Pre checkout listener sends redirect response when parent product has unlimited quantity and product is a variant and quantity bought is greater than product quantity and product has unlimited quantity per order
 
 Post Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PostCheckoutListener)
- [x] True is true
  [x] Post checkout listener keeps product quantity and inventory status when product is not a variant and product has unlimited quantity and product has unlimited quantity per order
  [x] Post checkout listener reduces product quantity when product is not a variant and quantity bought is less than product quantity and product has unlimited quantity per order
  [x] Post checkout listener reduces quantity of product and sets product soldout when product is not a variant and quantity bought is equal to product quantity and product has unlimited quantity per order

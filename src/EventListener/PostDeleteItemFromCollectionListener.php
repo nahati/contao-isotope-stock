@@ -65,9 +65,9 @@ class PostDeleteItemFromCollectionListener
             return;
         }
 
-        // Stockmanagement: type A not enabled.
+        // HandleLimitedEditions: type A not enabled.
         // If not correctly configured, throw exception.
-        if (!$this->helper->checkStockmanagementTypeA($objProduct)) {
+        if (!$this->helper->checkConfigurationForLimitedEditions($objProduct)) {
             return; // no stock-management
         }
 

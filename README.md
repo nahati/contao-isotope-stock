@@ -1,5 +1,3 @@
-# THIS IS A DRAFT VERSION - NOT YET READY FOR PRODUCTION
-
 # Contao Isotope Stock
 
 This bundle adds a stock-management and a gallery feature to Isotope.
@@ -7,17 +5,30 @@ This bundle adds a stock-management and a gallery feature to Isotope.
 ## Last changes
 
 - Limited orders are handled now as well
+- Limits are shown in product list and details view
 
 ## Possibel future features
 
-- Show the available quantity per product in the backend product list.
-- Show the available quantity per product in the frontend (product list, product view, cart).
+- Display the available quantity per product in the backend product list.
 
 ## Features
 
-### Stockmanagement type A: Handle limited editions
+### A) Handle limited editions
 
 Handle limited editions (for single products as well as for variants): Take `quantity` and `inventory_status` of a product into account.
+
+#### Usecases:
+
+- Add product to cart
+- Update item in cart
+- Delete item from cart
+- Merge carts (guest cart and member cart)
+- Checkout
+
+Does not (yet) handle these usecases ([see here](https://github.com/isotope/core/issues/2432))
+
+- Delete old carts
+- Delete old orders
 
 #### Cart
 
@@ -32,11 +43,23 @@ Handle limited editions (for single products as well as for variants): Take `qua
 
 #### Product list
 
-- Show inventory status
+- Display inventory status and available quantity
 
 #### Product View
 
-- Show add to cart button according to the inventory status
+- Display inventory status and available quantity
+- Display add to cart button according to the inventory status
+
+#### Some features in detail:
+
+- On page Cart: Display message if cart was changed / user is asked to confirm.
+- On page checkout: Display message if cart was changed / user is asked to confirm.
+- On page Checkout: Display message if product quantity has changed during the checkout process (by concurring updates) / user is asked to go back to cart.
+- On page Order completed: Display message if product quantity has changed in the last step of the checkout process (by simultaneously concurring updates) / order status is set to `Overbought`, a notification is send.
+
+### B) Handle order limits
+
+- Take `minQuantityPerOrder` and `maxQuantityPerOrder` of a product into account.
 
 #### Handles these usecases:
 
@@ -44,53 +67,21 @@ Handle limited editions (for single products as well as for variants): Take `qua
 - Update item in cart
 - Delete item from cart
 - Merge carts (guest cart and member cart)
-- Checkout
-
-Does not (yet) handle these usecases ([see here](https://github.com/isotope/core/issues/2432))
-
-- Delete old carts
-- Delete old orders
-
-An Exception is thrown if
-
-- Stock management is not properly configured ([see here](#stockmanagement))
-
-#### Some features in detail:
-
-- On page Cart: Show message if cart was changed.
-- On page checkout: Show message if cart was changed / user is asked to confirm.
-- On page Checkout: Show message if product quantity has changed during the checkout process (by concurring updates) / user is asked to go back to cart.
-- On page Order completed: Show message if product quantity has changed in the last step of the checkout process (by simultaneously concurring updates) / order status is set to `Overbought`, a notification is send.
-
-### Stockmanagement type B: Handle limited orders
-
-- Handle order limits: take `minQuantityPerOrder` and `maxQuantityPerOrder` of a product into account.
 
 #### Cart
 
 - Updates quantity in cart according to `minQuantityPerOrder` and `maxQuantityPerOrder`.
 
-#### Product list
+#### Product list and product view
 
-- Show `minQuantityPerOrder` and `maxQuantityPerOrder`.
-
-#### Product View
-
-- Show `minQuantityPerOrder` and `maxQuantityPerOrder`.
-
-#### Handles these usecases:
-
-- Add product to cart
-- Update item in cart
-- Delete item from cart
-- Merge carts (guest cart and member cart)
+- Display `minQuantityPerOrder` and `maxQuantityPerOrder`.
 
 #### Some features in detail:
 
-- On page Cart: Show message if cart was changed.
-- On page checkout: Show message if cart was changed / user is asked to confirm.
+- On page Cart: Display message if cart was changed.
+- On page Checkout: Display message if cart was changed / user is asked to confirm.
 
-### Gallery feature
+### C) Gallery feature
 
 Additionally you get the opportunity to handle all products in just one product list:
 
@@ -111,7 +102,7 @@ Your settings can be individual per product-type and per product. In backend's s
   <tr>
     <td></td>
     <td>available</td>
-    <td>system set; default</td>
+    <td>default</td>
   </tr>
   <tr>
     <td></td>
@@ -130,46 +121,42 @@ Your settings can be individual per product-type and per product. In backend's s
   </tr>
   <tr>
     <td>minQuantityPerOrder</td>
-    <td>minimum number of items allowed for an order</td>
+    <td>minimum number of product items allowed for an order</td>
     <td>set by backend user</td>
   </tr>
   <tr>
     <td>maxQuantityPerOrder</td>
-    <td>maximum number of items allowed for an order</td>
+    <td>maximum number of product items allowed for an order</td>
     <td>set by backend user</td>
   </tr>
 </table>
 
-These attributes can also be changed by a backend user.
+All attributes can be changed by a backend user.
 
-**Gallery feature without stockmanagement**
+**Configuring just the gallery feature (without HandleLimitedEditions)**
 
 You may activate only `inventory_status`. Then only the options `not for sale` and `available` are used and there will not be any further stock-management for this product-type.
 Use this, if you just want to want to combine shop and gallery.
 
-**Stock management type A**
+**Configuring limited editions**
 
-If you have limited editions, activate `quantity` to enable stock-management for this product-type. <a id="stockmanagement"> Then you MUST activate `inventory_status`, too.</a>
+If you have limited editions, activate `quantity` to enable stock-management for this product-type. Then you MUST activate `inventory_status`, too. (Othwerwise an exception will be thrown).
 
 For products with no limit keep the `quantity` field empty. Then there will be no stock-management for this product.
 
-**Recommended additional configuration for stock management type A**
+**Recommended additional configuration for limited editions**
 
 You may want to receive a notification when a product is overbought (this can happen if there are concurring updates simultaneously, e.g. another order by another user).
 Then you need to do this as well:
 
-Add a notification of type `change order status`. Under shop configuration add an order status `Overbought` (mind the exact spelling!) and link this notification to it.
+Add a notification of type `change order status`. Under _shop configuration_ add an order status `Overbought` (mind the exact spelling!) and link this notification to it.
 
-**Stock management type B**
+**Configuring limited orders**
 
 If you want to limit the quantity per order, activate `minQuantityPerOrder` and/or `maxQuantityPerOrder` for this product-type.
-Make sure to set the maximum equal to or greater than the minimum!
+Make sure to set the maximum equal to or greater than the minimum! (Othwerwise an exception will be thrown).
 
 For products with no such limit keep the respective field(s) empty.
-
-**Possible conflicts between both types of stock management**
-
-`minQuantityPerOrder` may not be reachable if `quantity` is not sufficient. Then this product can not be bought.
 
 ## Minimum requirements
 

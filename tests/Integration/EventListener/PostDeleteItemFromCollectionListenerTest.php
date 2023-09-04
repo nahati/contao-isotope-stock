@@ -64,8 +64,8 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $this->resetRelevantDatabaseTables();
         // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
 
-        // Do needed Isotope initializations
-        $this->doSomeIsotopeInitializations();
+        // Do Needed Initializations
+        $this->doNeededInitializations();
 
         // Instantiate a Cart object with given id
         // This cart is of logged-in member test@test.de
@@ -118,9 +118,9 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private function doSomeIsotopeInitializations(): void
+    private function doNeededInitializations(): void
     {
         // These assignments link the tables with the model classes. Now you can use the model classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_producttype'] = ProductType::class;
@@ -180,12 +180,9 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     /**
      * @param int    $itemId
      * @param int    $productId
-     * @param int    $parentProductId                           // optional
      * @param string $expectedInventory_statusOfProduct
-     * @param string $expectedInventory_statusOfParentProduct   // optional
-     * @param string $expectedInventory_statusOfSiblingProducts // optional
      */
-    private function doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct = '', $expectedInventory_statusOfSiblingProducts = ''): void
+    private function doTest($itemId, $productId, $expectedInventory_statusOfProduct): void
     {
         // Instantiate the Item with given id of this Cart
         $this->objItem = ProductCollectionItem::findByPk($itemId, ['return' => 'Model']);
@@ -216,12 +213,9 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
     {
         $itemId = 3116;
         $productId = 89; // quantity 2, RESERVED, Bild 3
-        $parentProductId = 0; // no parent product
         $expectedInventory_statusOfProduct = Helper::RESERVED;
-        // expectedInventory_statusOfParentProduct not used here
-        // expectedInventory_statusOfSiblingProducts not used here
 
-        $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
+        $this->doTest($itemId, $productId, $expectedInventory_statusOfProduct);
     }
 
     /**
@@ -232,15 +226,12 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $itemId = 3116;
         $productId = 89; // quantity 0, AVAILABLE, Bild 3
         $quantityOfProduct = '0';
-        $parentProductId = 0; // no parent product
         $expectedInventory_statusOfProduct = Helper::SOLDOUT;
-        // expectedInventory_statusOfParentProduct not used here
-        // expectedInventory_statusOfSiblingProducts not used here
 
         // Product initially has a quantity of 2, so we change the quantity of the product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
-        $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
+        $this->doTest($itemId, $productId, $expectedInventory_statusOfProduct);
     }
 
     /**
@@ -251,38 +242,34 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         $itemId = 3116;
         $productId = 89; // quantity 0, RESERVED, Bild 3
         $quantityOfProduct = '';
-        $parentProductId = 0; // no parent product
         $expectedInventory_statusOfProduct = Helper::RESERVED;
-        // expectedInventory_statusOfParentProduct not used here
-        // expectedInventory_statusOfSiblingProducts not used here
 
         // Product initially has a quantity of 2, so we change the quantity of the product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
 
-        $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
+        $this->doTest($itemId, $productId, $expectedInventory_statusOfProduct);
     }
 
     /**
      * @group variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsAVariantAndProductHasQuantityGreaterThanZeroAndParentIsNotSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testPostDeleteItemFromCollectionListenerDoesNotChangeInventoryStatusWhenProductIsAVariantAndProductQuantityIsGreaterThanZeroAndParentIsNotSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $productId = 44; // quantity 2 , RESERVED, Variante Kopie Skulptur 2
         $inventoryStatusOfProduct = Helper::AVAILABLE;
-        $parentProductId = 32; //  quantity 4, RESERVED, Skulptur 2
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
 
         // Product initially has an inventory_status of AVAILABLE, so we change the inventory_status of the product to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfProduct, $parentProductId);
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfProduct, $productId);
 
-        $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
+        $this->doTest($itemId, $productId, $expectedInventory_statusOfProduct);
     }
 
     /**
      * @group variant_products
      */
-    public function testPostDeleteItemFromCollectionListenerSetsProductSoldoutWhenProductIsAVariantAndProductHasQuantityGreaterThanZeroAndParentIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testPostDeleteItemFromCollectionListenerSetsProductSoldoutWhenProductIsAVariantAndProductQuantityIsGreaterThanZeroAndParentIsSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
@@ -293,6 +280,6 @@ class PostDeleteItemFromCollectionListenerTest extends FunctionalTestCase
         // Parent product initially has an inventory_status of AVAILABLE, so we change the inventory_status of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute($inventoryStatusOfParentProduct, $parentProductId);
 
-        $this->doTest($itemId, $productId, $parentProductId, $expectedInventory_statusOfProduct);
+        $this->doTest($itemId, $productId, $expectedInventory_statusOfProduct);
     }
 }

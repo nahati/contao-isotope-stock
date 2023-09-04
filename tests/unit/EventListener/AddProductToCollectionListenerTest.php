@@ -33,8 +33,7 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
     {
         parent::setUpBeforeClass();
 
-        // Do needed Isotope initializations
-        self::DoSomeIsotopeInitializations();
+        self::DoNeededInitializations();
     }
 
     /**
@@ -63,22 +62,22 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private static function DoSomeIsotopeInitializations(): void
+    private static function DoNeededInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'] = 'inventory_status not activated for product %s';
     }
 
-    // Dummy Test
-    public function testTrueIsTrue(): void
-    {
-        $foo = true;
-        $this->assertTrue($foo);
-    }
+    // // Dummy Test
+    // public function testTrueIsTrue(): void
+    // {
+    //     $foo = true;
+    //     $this->assertTrue($foo);
+    // }
 
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityRequestedForCartWhenStockmanagementIsNotConfigured(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityRequestedForCartWhenLimitedEditionsAreNotConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is not set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
@@ -104,7 +103,7 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
         $this->assertSame($return, $this->quantityRequestedForCart);
     }
 
-    public function testAddProductToCollectionListenerThrowsInvalidArgumentExceptionWhenStockmanagementIsBadlyConfigured(): void
+    public function testAddProductToCollectionListenerThrowsInvalidArgumentExceptionWhenLimitedEditionsAreBadlyConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
@@ -143,6 +142,4 @@ class AddProductToCollectionListenerTest extends ContaoTestCase
         // Test that result is unchanged
         $this->assertSame($return, $this->quantityRequestedForCart);
     }
-
-    // Further tests can be found in the integration testcases
 }

@@ -42,8 +42,8 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
     {
         parent::setUpBeforeClass();
 
-        // Do needed Isotope initializations
-        self::DoSomeIsotopeInitializations();
+        // Do Needed Initializations
+        self::DoNeededInitializations();
     }
 
     /**
@@ -88,9 +88,9 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private static function DoSomeIsotopeInitializations(): void
+    private static function DoNeededInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'] = 'inventory_status not activated for product %s';
@@ -215,7 +215,7 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         $listener($this->objSource, $this->objTarget, $this->arrIds);
     }
 
-    public function testCopiedCollectionItemsListenerThrowsInvalidArgumentExceptionWhenStockmanagementTypeAIsBadlyConfigured(): void
+    public function testCopiedCollectionItemsListenerThrowsInvalidArgumentExceptionWhenLimitedEditionsAreBadlyConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
@@ -227,10 +227,9 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
             ->method('isVariant')
         ;
 
-        $this->objItem = $this->getMockBuilder(ProductCollectionItem::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        // Mock an item, quantity = 1
+        $this->objItem = $this->mockClassWithProperties(ProductCollectionItem::class, ['id' => 1, 'quantity' => '1']);
+
         $this->objItem
             ->expects($this->once())
             ->method('getProduct')
@@ -264,7 +263,7 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
         $listener($this->objSource, $this->objTarget, $this->arrIds);
     }
 
-    public function testCopiedCollectionItemsListenerThrowsInvalidArgumentExceptionWhenStockmanagementTypeBIsBadlyConfigured(): void
+    public function testCopiedCollectionItemsListenerThrowsInvalidArgumentExceptionWhenLimitedOrdersAreBadlyConfigured(): void
     {
         // Mock a product, min > max
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'minQuantityPerOrder' => '5', 'maxQuantityPerOrder' => '4']);
@@ -309,6 +308,4 @@ class CopiedCollectionItemsListenerTest extends ContaoTestCase
 
         $listener($this->objSource, $this->objTarget, $this->arrIds);
     }
-
-    // Further tests can be found in the integration testcases
 }

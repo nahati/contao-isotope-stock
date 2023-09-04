@@ -61,8 +61,8 @@ Post Delete Item From Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests
  [x] Post delete item from collection listener does not change inventory status when product is not a variant product quantity is greater than zero and product has unlimited quantity per order
  [x] Post delete item from collection listener sets product soldout when product is not a variant and product quantity is zero and product has unlimited quantity per order
  [x] Post delete item from collection listener does not change inventory status when product is not a variant and product quantity is empty
- [x] Post delete item from collection listener does not change inventory status when product is a variant and product has quantity greater than zero and parent is not soldout and product has unlimited quantity per order
- [x] Post delete item from collection listener sets product soldout when product is a variant and product has quantity greater than zero and parent is soldout and product has unlimited quantity per order
+ [x] Post delete item from collection listener does not change inventory status when product is a variant and product quantity is greater than zero and parent is not soldout and product has unlimited quantity per order
+ [x] Post delete item from collection listener sets product soldout when product is a variant and product quantity is greater than zero and parent is soldout and product has unlimited quantity per order
 
 Update Item In Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\UpdateItemInCollectionListener)
  [x] Update item in collection listener returns unchanged quantity when product is not a variant and product has unlimited quantity and product has unlimited quantity per order

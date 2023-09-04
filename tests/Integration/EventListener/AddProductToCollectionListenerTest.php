@@ -62,10 +62,10 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         $this->databaseAdapter = $this->framework->getAdapter(Database::class);
 
         $this->resetRelevantDatabaseTables();
-        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup from outside after a single test has run to check the database tables.
+        // We reset these table BEFORE each test to ensure that each test starts with the same relevant initial state and to enable a database lookup after a single test has run to check the database tables.
 
-        // Do needed Isotope initializations
-        $this->doSomeIsotopeInitializations();
+        // Do Needed Initializations
+        $this->doNeededInitializations();
 
         // Instantiate a Cart object with given id
         // This cart is of logged-in member test@test.de
@@ -118,9 +118,9 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private function doSomeIsotopeInitializations(): void
+    private function doNeededInitializations(): void
     {
         // These assignments link the tables with the model classes. Now you can use the model classes to access and manipulate the data in the tables.
         $GLOBALS['TL_MODELS']['tl_iso_producttype'] = ProductType::class;
@@ -194,9 +194,6 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
         /** @var Standard $objProduct */
         $objProduct = Standard::findByPk($productId);
 
-        // Fetch the product with given $productId
-        $objProduct = Standard::findByPk($productId);
-
         // Test that $objProduct is of type Standard
         $this->assertInstanceOf('Isotope\Model\Product\Standard', $objProduct);
 
@@ -213,7 +210,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
 
         $this->assertSame($objResult->inventory_status, $expectedInventory_statusOfProduct);
 
-        // Asserts only for variant products
+        // More asserts for variant products
         if ($parentProductId > 0) {
             // Test if inventory_status of all siblings (excluding the given product) is as expected
             $objResult = $this->databaseAdapter->getInstance()->prepare('SELECT * FROM tl_iso_product WHERE pid=? AND id!=?')->execute($parentProductId, $objProduct->id);

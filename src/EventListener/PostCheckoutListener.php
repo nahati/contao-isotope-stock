@@ -50,12 +50,13 @@ class PostCheckoutListener
     /**
      * Invoked after the checkout process has been completed.
      *
+     * Includes handling of limited editions (regarding to quantity per product).
+     *
+     * Does not include handling of order limits (regarding to min and max quantity per order), as we tolerate unreached minQuantityPerOrder or exceeded maxQuantityPerOrder caused by concurring changes of product
+     *
      * Updates the quantity. Marks as SOLDOUT in all bought products/variants with no remaining quantity.
+     *
      * Also handles overbought situation
-     *
-     * Handles stockmanagement type A
-     *
-     * Stockmanagement type B is irrelevant here (we tolerate unreached minQuantityPerOrder or exceeded maxQuantityPerOrder caused by concurring changes of product)
      *
      * @param Order $objOrder // ProductCollection in order, not empty
      */
@@ -82,44 +83,26 @@ class PostCheckoutListener
                 continue;
             }
 
-            // Stockmanagement type A not enabled.
             // If not correctly configured, throw exception.
-            if (!$this->helper->checkStockmanagementTypeA($objProduct)) {
+            if (!$this->helper->checkConfigurationForLimitedEditions($objProduct)) {
                 continue; // no stock-management
             }
 
-            // Single product (not having any variants)
-            if (!$objProduct->isVariant()) {
-                $overbought = 0;
+            $overbought = 0;
 
-                $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
+            $soldoutProduct = $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
 
-                if ($overbought) {
-                    $this->overboughtProducts[] = [
-                        'productId' => $objProduct->id,
-                        'itemId' => $objItem->id,
-                        'productName' => $objProduct->name,
-                        'overbought' => $overbought,
-                    ];
-                }
+            if ($overbought) {
+                $this->overboughtProducts[] = [
+                    'productId' => $objProduct->id,
+                    'itemId' => $objItem->id,
+                    'productName' => $objProduct->name,
+                    'overbought' => $overbought,
+                ];
             }
 
-            // product is a variant
-            else {
-                // Manage stock for variant product with quantity of this variant
-                $overbought = 0;
-
-                $soldoutVariant = $this->helper->manageStockAfterCheckout($objProduct, $objItem->quantity, $overbought);
-
-                if ($overbought) {
-                    $this->overboughtProducts[] = [
-                        'productId' => $objProduct->id,
-                        'itemId' => $objItem->id,
-                        'productName' => $objProduct->name,
-                        'overbought' => $overbought,
-                    ];
-                }
-
+            // Product is a variant
+            if ($objProduct->isVariant()) {
                 // Get an adapter for the Standard class
                 /** @var Adapter<Standard> $adapter */
                 $adapter = $this->framework->getAdapter(Standard::class);
@@ -150,7 +133,7 @@ class PostCheckoutListener
                     }
                 } else {
                     // Parent product is not soldout, but variant product is
-                    if ($soldoutVariant) {
+                    if ($soldoutProduct) {
                         if (!$this->helper->existsAnyAvailableChild($objParentProduct->id)) {
                             // No child product is available, so we set parent product to SOLDOUT
                             $this->helper->updateInventory($objParentProduct, Helper::SOLDOUT, '0', true);

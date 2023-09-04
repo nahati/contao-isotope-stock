@@ -1,6 +1,6 @@
 {
     "name": "nahati/contao-isotope-stock",
-    "description": "A stock management for Contao / Isotope",
+    "description": "A Handling of limited editions for Contao / Isotope",
     "license": "LGPL-3.0-or-later",
     "type": "contao-bundle",
     "authors": [

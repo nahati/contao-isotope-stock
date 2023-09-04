@@ -36,8 +36,8 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
     {
         parent::setUpBeforeClass();
 
-        // Do needed Isotope initializations
-        self::DoSomeIsotopeInitializations();
+        // Do Needed Initializations
+        self::DoNeededInitializations();
     }
 
     /**
@@ -94,9 +94,9 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private static function DoSomeIsotopeInitializations(): void
+    private static function DoNeededInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['inventoryStatusInactive'] = 'inventory_status not activated for product %s';
@@ -131,7 +131,7 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
         $this->assertFalse($return);
     }
 
-    public function testUpdateItemInCollectionListenerReturnsUnchangedArrSetWhenStockmanagementIsNotConfigured(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedArrSetWhenLimitedEditionsAreNotConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is not set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
@@ -157,7 +157,7 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
         $this->assertSame($return, $this->arrSet);
     }
 
-    public function testUpdateItemInCollectionListenerThrowsInvalidArgumentExceptionWhenStockmanagementIsBadlyConfigured(): void
+    public function testUpdateItemInCollectionListenerThrowsInvalidArgumentExceptionWhenLimitedEditionsAreBadlyConfigured(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $this->objProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
@@ -226,6 +226,4 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
         // Test if Listener returns false
         $this->assertFalse($return);
     }
-
-    // Further tests can be found in the integration testcases
 }

@@ -37,8 +37,8 @@ class HelperTest extends ContaoTestCase
     {
         parent::setUpBeforeClass();
 
-        // Do needed Isotope initializations
-        self::doSomeIsotopeInitializations();
+        // Do Needed Initializations
+        self::doNeededInitializations();
     }
 
     protected function setUp(): void
@@ -55,9 +55,9 @@ class HelperTest extends ContaoTestCase
     }
 
     /**
-     * Do needed Isotope initializations.
+     * Do Needed Initializations.
      */
-    private static function doSomeIsotopeInitializations(): void
+    private static function doNeededInitializations(): void
     {
         // Declare additional messages that are declared in the extension
         $GLOBALS['TL_LANG']['ERR']['quantityNotAvailable'] = 'The maximum available quantity for "%s" is %s items';
@@ -78,13 +78,6 @@ class HelperTest extends ContaoTestCase
     // {
     //     $foo = true;
     //     $this->assertTrue($foo);
-    // }
-
-    // // issueErrorMessage(): Did not find a way to test this method
-    // public function testIssueErrorMessage(): void
-    // {
-    //     $this->assertTrue(true);
-    //     // TODO: Implement testIssueErrorMessage() method.
     // }
 
     public function testIssueErrorMessage(): void
@@ -415,76 +408,6 @@ class HelperTest extends ContaoTestCase
         $this->helper->setParentAndChildProductsReserved($objParentProduct);
     }
 
-    // public function testSetParentAndSiblingsProductsAvailable(): void
-    // {
-    //     //We have 1 parent product and 3 variants with inventory-status RESERVED; also 1 variant with inventory-status AVAILABLE and 1 variant with inventory-status SOLDOUT; lastnotleast 1 product with inventory-status RESERVED but not child of the parent product
-
-    //     // We test if the Database queries have been executed by mocking the Database adapter and expecting the execute() and the prepare() method to be each called 6 times, once for the parent product and once for each RESERVED variant - not including variant1 which is the product in charge.
-
-    //     // Create a mock parent product
-    //     $objParentProduct = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'pid' => 0, 'inventory_status' => Helper::RESERVED, 'quantity' => '1', 'name' => 'parentProduct']);
-
-    //     // Create a mock variant product, child of the parent product
-    //     $objVariant2a = $this->mockClassWithProperties(Standard::class, ['id' => 1021, 'pid' => 1, 'name' => 'variant2a', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
-
-    //     // Create a mock variant product, child of the parent product
-    //     $objVariant2b = $this->mockClassWithProperties(Standard::class, ['id' => 1022, 'pid' => 1, 'name' => 'variant2b', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
-
-    //     // Create a mock variant product, child of the parent product
-    //     $objVariant2c = $this->mockClassWithProperties(Standard::class, ['id' => 1023, 'pid' => 1, 'name' => 'variant2c', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
-
-    //     // Create a mock variant product, child of the parent product
-    //     $objVariant3 = $this->mockClassWithProperties(Standard::class, ['id' => 103, 'pid' => 1, 'name' => 'variant3', 'inventory_status' => Helper::AVAILABLE, 'quantity' => '1']);
-
-    //     // Create a mock variant product, child of the parent product
-    //     $objVariant4 = $this->mockClassWithProperties(Standard::class, ['id' => 104, 'pid' => 1, 'name' => 'variant4', 'inventory_status' => Helper::SOLDOUT, 'quantity' => '0']);
-
-    //     // Create a mock product, not a child of the parent product
-    //     $objProduct5 = $this->mockClassWithProperties(Standard::class, ['id' => 105, 'pid' => 2, 'name' => 'product5', 'inventory_status' => Helper::RESERVED, 'quantity' => '1']);
-
-    //     // Mock the adapters for the framework
-
-    //     $databaseAdapterMock = $this->getMockBuilder(Database::class)
-    //         ->disableOriginalConstructor()
-    //         ->getMock()
-    //     ;
-    //     $databaseAdapterMock
-    //         ->method('getInstance')
-    //         ->willReturnSelf()
-    //     ;
-    //     $databaseAdapterMock
-    //         ->expects($this->exactly(3))
-    //         ->method('prepare')
-    //         ->willReturnSelf()
-    //     ;
-    //     $statementMock = $this->mockClassWithProperties(Standard::class, ['quantity' => '10']);
-    //     $databaseAdapterMock
-    //         ->expects($this->exactly(3))
-    //         ->method('execute')
-    //         ->willReturn($statementMock)
-    //     ;
-
-    //     $adapters = [
-    //         Standard::class => $this->mockConfiguredAdapter([
-    //             'findPublishedBy' => [$objVariant2b, $objVariant2c, $objVariant3, $objVariant4],
-    //             'findPublishedByPk' => $this->returnValueMap([
-    //                 [1, $objParentProduct],
-    //                 [1021, $objVariant2a],
-    //                 [1022, $objVariant2b],
-    //                 [1023, $objVariant2c],
-    //                 [103, $objVariant3],
-    //                 [104, $objVariant4],
-    //                 [105, $objProduct5],
-    //             ]),
-    //         ]),
-    //         Database::class => $this->mockConfiguredAdapter(['getInstance' => $databaseAdapterMock]),
-    //     ];
-
-    //     $this->helper = new Helper($this->mockContaoFramework($adapters));
-
-    //     $this->helper->setParentAndSiblingsProductsAvailable($objParentProduct, $objVariant2a->id);
-    // }
-
     public function testSetParentAndChildProductsSoldout(): void
     {
         //We have 1 parent product and 3 variants with inventory-status RESERVED; also 1 variant with inventory-status AVAILABLE and 1 variant with inventory-status SOLDOUT; lastnotleast 1 product with inventory-status AVAILABLE but not child of the parent product
@@ -555,7 +478,7 @@ class HelperTest extends ContaoTestCase
         $this->helper->setParentAndChildProductsSoldout($objParentProduct);
     }
 
-    public function testCheckStockmanagementTypeAReturnsFalseWhenInventoryStatusIsNotSetAndQuantityIsNotSet(): void
+    public function testCheckConfigurationForLimitedEditionsReturnsFalseWhenInventoryStatusIsNotSetAndQuantityIsNotSet(): void
     {
         // Mock a product, inventory_status is not set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
@@ -563,11 +486,11 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework());
 
-        // Test if the method checkStockmanagementTypeA returns false
-        $this->assertFalse($this->helper->checkStockmanagementTypeA($product));
+        // Test if the method checkConfigurationForLimitedEditions returns false
+        $this->assertFalse($this->helper->checkConfigurationForLimitedEditions($product));
     }
 
-    public function testCheckStockmanagementTypeAThrowsInvalidArgumentExceptionWhenInventoryStatusIsNotSetButQuantityIsSet(): void
+    public function testCheckConfigurationForLimitedEditionsThrowsInvalidArgumentExceptionWhenInventoryStatusIsNotSetButQuantityIsSet(): void
     {
         // Mock a product, inventory_status is not set, quantity is set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'quantity' => '1']);
@@ -583,10 +506,10 @@ class HelperTest extends ContaoTestCase
         // Test if an InvalidArgumentException is thrown
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('inventory_status not activated for product foo');
-        $this->helper->checkStockmanagementTypeA($product);
+        $this->helper->checkConfigurationForLimitedEditions($product);
     }
 
-    public function testCheckStockmanagementTypeAReturnsTrueWhenInventoryStatusIsSet(): void
+    public function testCheckConfigurationForLimitedEditionsReturnsTrueWhenInventoryStatusIsSet(): void
     {
         // Mock a product, inventory_status is set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'inventory_status' => '1']);
@@ -594,11 +517,11 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework());
 
-        // Test if the method checkStockmanagementTypeA returns true
-        $this->assertTrue($this->helper->checkStockmanagementTypeA($product));
+        // Test if the method checkConfigurationForLimitedEditions returns true
+        $this->assertTrue($this->helper->checkConfigurationForLimitedEditions($product));
     }
 
-    public function testCheckStockmanagementTypeBReturnsMaxTrueWhenMaxQuantityPerOrderIsEnabled(): void
+    public function testCheckConfigurationForOrderLimitsReturnsMaxTrueWhenMaxQuantityPerOrderIsEnabled(): void
     {
         // Mock a product, maxQuantityPerOrder is set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '2']);
@@ -607,10 +530,10 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework());
 
         // Test the return
-        $this->assertTrue($this->helper->checkStockmanagementTypeB($product)['max']);
+        $this->assertTrue($this->helper->checkConfigurationForOrderLimits($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBReturnsMinAndMaxFalseWhenNeitherMaxQuantityPerOrderNorMinQuantityPerOrderIsEnabled(): void
+    public function testCheckConfigurationForOrderLimitsReturnsMinAndMaxFalseWhenNeitherMaxQuantityPerOrderNorMinQuantityPerOrderIsEnabled(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are not set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo']);
@@ -619,11 +542,11 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework());
 
         // Test the return
-        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['min']);
-        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['max']);
+        $this->assertFalse($this->helper->checkConfigurationForOrderLimits($product)['min']);
+        $this->assertFalse($this->helper->checkConfigurationForOrderLimits($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBReturnsMinTrueAndMaxFalseWhenMaxQuantityPerOrderIsEqualToZeroAndMinQuantityPerOrderIsEqualToTwo(): void
+    public function testCheckConfigurationForOrderLimitsReturnsMinTrueAndMaxFalseWhenMaxQuantityPerOrderIsEqualToZeroAndMinQuantityPerOrderIsEqualToTwo(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '0', 'minQuantityPerOrder' => '2']);
@@ -632,11 +555,11 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework());
 
         // Test the return
-        $this->assertTrue($this->helper->checkStockmanagementTypeB($product)['min']);
-        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['max']);
+        $this->assertTrue($this->helper->checkConfigurationForOrderLimits($product)['min']);
+        $this->assertFalse($this->helper->checkConfigurationForOrderLimits($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBReturnsMinFalseAndMaxTrueWhenMaxQuantityPerOrderIsEqualToTwoAndMinQuantityPerOrderIsEqualToOne(): void
+    public function testCheckConfigurationForOrderLimitsReturnsMinFalseAndMaxTrueWhenMaxQuantityPerOrderIsEqualToTwoAndMinQuantityPerOrderIsEqualToOne(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '2', 'minQuantityPerOrder' => '1']);
@@ -645,11 +568,11 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework());
 
         // Test the return
-        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['min']);
-        $this->assertTrue($this->helper->checkStockmanagementTypeB($product)['max']);
+        $this->assertFalse($this->helper->checkConfigurationForOrderLimits($product)['min']);
+        $this->assertTrue($this->helper->checkConfigurationForOrderLimits($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBReturnsMinAndMaxFalseWhenMaxQuantityPerOrderIsEqualToZeroAndMinQuantityPerOrderIsEqualToOne(): void
+    public function testCheckConfigurationForOrderLimitsReturnsMinAndMaxFalseWhenMaxQuantityPerOrderIsEqualToZeroAndMinQuantityPerOrderIsEqualToOne(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '0', 'minQuantityPerOrder' => '1']);
@@ -658,11 +581,11 @@ class HelperTest extends ContaoTestCase
         $this->helper = new Helper($this->mockContaoFramework());
 
         // Test the return
-        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['min']);
-        $this->assertFalse($this->helper->checkStockmanagementTypeB($product)['max']);
+        $this->assertFalse($this->helper->checkConfigurationForOrderLimits($product)['min']);
+        $this->assertFalse($this->helper->checkConfigurationForOrderLimits($product)['max']);
     }
 
-    public function testCheckStockmanagementTypeBThrowsAnExceptionWhenMinQuantityPerOrderIsGreaterThanMaxQuantityPerOrder(): void
+    public function testCheckConfigurationForOrderLimitsThrowsAnExceptionWhenMinQuantityPerOrderIsGreaterThanMaxQuantityPerOrder(): void
     {
         // Mock a product, maxQuantityPerOrder and minQuantityPerOrder are set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'maxQuantityPerOrder' => '2', 'minQuantityPerOrder' => '3']);
@@ -673,10 +596,10 @@ class HelperTest extends ContaoTestCase
         $this->expectExceptionMessage('This is not allowed: The minimum quantity per Order is greater than the maximum quantity per Order!');
 
         $this->helper = new Helper($this->mockContaoFramework());
-        $this->helper->checkStockmanagementTypeB($product);
+        $this->helper->checkConfigurationForOrderLimits($product);
     }
 
-    public function testCheckStockmanagementTypeBReturnsMinTrueWhenMinQuantityPerOrderIsEnabled(): void
+    public function testCheckConfigurationForOrderLimitsReturnsMinTrueWhenMinQuantityPerOrderIsEnabled(): void
     {
         // Mock a product, minQuantityPerOrder is set
         $product = $this->mockClassWithProperties(Standard::class, ['id' => 1, 'name' => 'foo', 'minQuantityPerOrder' => '2']);
@@ -684,8 +607,8 @@ class HelperTest extends ContaoTestCase
 
         $this->helper = new Helper($this->mockContaoFramework());
 
-        // Test if the method checkStockmanagementTypeA returns true
-        $this->assertTrue($this->helper->checkStockmanagementTypeB($product)['min']);
+        // Test if the method checkConfigurationForLimitedEditions returns true
+        $this->assertTrue($this->helper->checkConfigurationForOrderLimits($product)['min']);
     }
 
     public function testIsSoldoutReturnsTrueAndSetsInventoryStatusSoldoutWhenQuantityIsZero(): void
