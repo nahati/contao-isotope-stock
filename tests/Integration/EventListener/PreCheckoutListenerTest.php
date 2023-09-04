@@ -88,7 +88,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         $this->doNeededInitializations();
 
         // Instantiate an order object with given id
-        $this->objOrder = Order::class::findByPk('268', ['return' => 'Model']);
+        $this->objOrder = Order::class::findByPk('270', ['return' => 'Model']);
 
         // Check if order object exists
         $this->assertNotNull($this->objOrder);
@@ -103,8 +103,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
             $objPage = $this->databaseAdapter->getInstance()
                 ->prepare('SELECT * FROM tl_page WHERE id=?')
                 ->execute(18)
-                ->fetchAssoc()
-            ;
+                ->fetchAssoc();
 
             // Create a new instance of the PageModel class using the database result
             $GLOBALS['objPage'] = new PageModel($objPage);
@@ -348,45 +347,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsNotAVariantAndProductHasUnlimitedQuantity(): void
+    public function testPreCheckoutListenerReturnsFalseWhenMinQuantityPerOrderIsUnreachable(): void
     {
-        // $itemId = 3317;
-        // $quantityBought = 1;
-
-        // $productId = 88; // unlimited quantity, AVAILABLE, Bild 1
+        // $productId = 103; // Bild 2a, minQuantityPerOrder 3 but quantity 2 -> unreachable!
         // $parentProductId = 0; // no parent product
 
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
-    }
-
-    /**
-     * @group non-variant_products
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsNotAVariantAndQuantityBoughtIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3318,  quantityBought = 1
-        // $productId = 100; // quantity 2 , AVAILABLE, Bild 2
-        // $parentProductId = 0; // no parent product
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
-    }
-
-    /**
-     * @group non-variant_products
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsNotAVariantAndQuantityBoughtIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3318,  quantityBought = 1
-        // $productId = 100; // AVAILABLE, Bild 2
-
-        // $quantityOfProduct = '1';
-        // $parentProductId = 0; // no parent product
-
-        $expectedReturn = true;
+        $expectedReturn = false;
 
         $this->doTest($expectedReturn);
     }

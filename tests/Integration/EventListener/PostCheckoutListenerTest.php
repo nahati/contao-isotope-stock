@@ -80,7 +80,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $this->doNeededInitializations();
 
         // Instantiate an order object with given id
-        $this->objOrder = Order::class::findByPk('268', ['return' => 'Model']);
+        $this->objOrder = Order::class::findByPk('270', ['return' => 'Model']);
 
         // Check if order object exists
         $this->assertNotNull($this->objOrder);

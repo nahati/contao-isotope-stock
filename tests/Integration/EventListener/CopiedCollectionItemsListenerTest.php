@@ -412,10 +412,10 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
     public function testCopiedCollectionItemsListenerKeepsQuantityInCartUnchangedAndKeepsInventoryStatusOfProductWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndMaxQuantityPerOrderIsUnreached(): void
     {
         $itemId = 3119; // $quantityInCart = 1;
-        $expectedQuantityInCart = 1;
+        $expectedQuantityInCart = 2;
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2, maxQuantityPerOrder 2
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
 
         // Item 3120
@@ -505,6 +505,8 @@ class CopiedCollectionItemsListenerTest extends FunctionalTestCase
 
         $parentProductId = 32; //  AVAILABLE, Skulptur 2
         $quantityOfParentProduct = 1;
+        // Parent product initially has a minQuantityPerOrder of 3, so we change the quantity of parent product to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET minQuantityPerOrder=? WHERE id=?')->execute('', $parentProductId);
 
         $expectedQuantityInCart = 1; // calculated to 0; but not reduced to 0. See: See: https://github.com/nahati/contao-isotope-stock/blob/2.0.1-dev/src/EventListener/CopiedCollectionItemsListener.php#L157
 

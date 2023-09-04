@@ -409,20 +409,21 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsLessThanParentQuantityAndProductHasLimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
-        $quantityInCart = 1;
-        $expectedReturn = ['quantity' => 1];
+        $quantityInCart = 2;
+        $expectedReturn = ['quantity' => 2];
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-        $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+
+        $parentProductId = 32; //  AVAILABLE, Skulptur 2, minQuantityPerOrder 3, maxQuantityPerOrder 4
+        // $quantityOfParentProduct = 4;
+
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         $expectedInventory_statusOfParentProduct = Helper::AVAILABLE; // unchanged
 
-        // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
-
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         // As the given cart is updated item by item, checks will be done item by item also (i.e. the lower part of the cart appears as it was before user changes) Therefore the inventory_status of this sibling products is still AVAILABLE here.
@@ -439,23 +440,23 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testUpdateItemInCollectionListenerReturnschangedQuantityInOrderToReachTheMinQuantityPerOrderAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndProductHasLimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 1;
-        $expectedReturn = ['quantity' => 1];
+        $expectedReturn = ['quantity' => 2];
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-        $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
-        $quantityOfParentProduct = 2;
-        $expectedInventory_statusOfProduct = Helper::RESERVED;
-        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
 
-        // Parent product 32, quantity 4, AVAILABLE, Skulptur 2
+        $parentProductId = 32; //  AVAILABLE, Skulptur 2, minQuantityPerOrder 3, maxQuantityPerOrder 4
+        $quantityOfParentProduct = 3;
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         $expectedInventory_statusOfSibling1 = Helper::RESERVED;
@@ -471,7 +472,79 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testUpdateItemInCollectionListenerReturnsUnchangedQuantityAndSetsProductAndSiblingsAndParentReservedAndIssuesAMakeModificationsErrorWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndMinQuantityPerOrderIsUnreachable(): void
+    {
+        $itemId = 3119;
+        $quantityInCart = 1;
+        $expectedReturn = ['quantity' => 1];
+        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+
+        $parentProductId = 32; //  AVAILABLE, Skulptur 2, minQuantityPerOrder 3, maxQuantityPerOrder 4
+        $quantityOfParentProduct = 2;
+        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
+        $expectedInventory_statusOfParentProduct = Helper::RESERVED;
+
+        // Item 3120
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // quantity in Cart 1
+        $sibling1Id = 45;
+        $expectedInventory_statusOfSibling1 = Helper::RESERVED;
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::RESERVED;
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
+
+        // Test if Error with message 'makeModifications' is added to the cart
+        $this->assertSame($this->objCart->hasErrors(), true);
+        $this->assertSame($this->objCart->getErrors(), ['makeModifications']);
+    }
+
+    /**
+     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
+     */
+    public function testUpdateItemInCollectionListenerReducesQuantityWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsEqualToParentQuantityAndMaxQuantityPerOrderIsExceeded(): void
+    {
+        $itemId = 3119;
+        $quantityInCart = 4;
+        $expectedReturn = ['quantity' => 3];
+
+        $productId = 44; // AVAILABLE, Variante Kopie Skulptur 2
+        $quantityOfProduct = 4;
+        // Product initially has a quantity of 2, so we change the quantity of the product to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
+
+        $parentProductId = 32; //  AVAILABLE, Skulptur 2, minQuantityPerOrder 3, maxQuantityPerOrder 4
+        $quantityOfParentProduct = 5;
+        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+
+        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfParentProduct = Helper::AVAILABLE;
+
+        // Item 3120
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
+        // quantity in Cart 1
+        $sibling1Id = 45;
+        $expectedInventory_statusOfSibling1 = Helper::AVAILABLE; // unchanged as not yet processed
+
+        // product 101: quantity 1 , AVAILABLE, weitere Variante Kopie Skulptur 2
+        // not in cart
+        $sibling2Id = 101;
+        $expectedInventory_statusOfSibling2 = Helper::AVAILABLE;
+
+        $this->doTest($itemId, $quantityInCart, $expectedReturn, $productId, $parentProductId, $expectedInventory_statusOfProduct, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSibling1, $sibling2Id, $expectedInventory_statusOfSibling2);
+    }
+
+    /**
+     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
+     */
+    public function testUpdateItemInCollectionListenerReturnsReducedQuantityAndSetsProductAndSiblingsAndParentReservedWhenProductIsAVariantAndQuantityInCartIsLessThanProductQuantityAndQuantityInCartIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasLimitedQuantityPerOrder(): void
     {
         $itemId = 3119;
         $quantityInCart = 2;
@@ -485,7 +558,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         $expectedInventory_statusOfSibling1 = Helper::RESERVED;
@@ -516,7 +589,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4 and empty minQuantityPerOrder, so we change this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=?, minQuantityPerOrder=? WHERE id=?')->execute($quantityOfParentProduct, $minQuantityPerOrder, $parentProductId);
 
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         $expectedInventory_statusOfSibling1 = Helper::RESERVED;
@@ -551,7 +624,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         $expectedInventory_statusOfSibling1 = Helper::RESERVED;
@@ -581,7 +654,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = Helper::AVAILABLE;
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         // As the given cart is updated item by item, checks will be done item by item also (i.e. the lower part of the cart appears as it was before user changes) Therefore the inventory_status of this sibling products is still AVAILABLE here.
@@ -616,7 +689,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         $expectedInventory_statusOfSibling1 = Helper::RESERVED;
@@ -650,7 +723,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         $expectedInventory_statusOfSibling1 = Helper::RESERVED;
@@ -684,7 +757,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         // As the given cart is updated item by item, checks will be done item by item also (i.e. the lower part of the cart appears as it was before user changes) Therefore the inventory_status of this sibling products is still AVAILABLE here.
@@ -715,7 +788,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $expectedInventory_statusOfParentProduct = Helper::RESERVED;
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         $expectedInventory_statusOfSibling1 = Helper::RESERVED;
@@ -749,7 +822,7 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
         // Item 3120
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2, maxQuantityPerOrder 1
+        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // quantity in Cart 1
         $sibling1Id = 45;
         $expectedInventory_statusOfSibling1 = Helper::RESERVED;
