@@ -58,12 +58,19 @@
       <file>./tests/Integration/EventListener/UpdateItemInCollectionListenerTest.php</file>
     </testsuite>
 
+    <testsuite name="resetDBToCheckoutState">
+      <file>./tests/reset/resetDBToCheckoutState.php</file>
+    </testsuite>
+    <testsuite name="integrationCheckout">
+      <file>./tests/reset/resetDBToCheckoutState.php</file>
+      <file>./tests/Integration/EventListener/PreCheckoutListenerTest.php</file>
+    </testsuite>
+
     <testsuite name="resetDBToAfterCheckoutState">
       <file>./tests/reset/resetDBToAfterCheckoutState.php</file>
     </testsuite>
-    <testsuite name="integrationOrder">
+    <testsuite name="integrationAfterCheckout">
       <file>./tests/reset/resetDBToAfterCheckoutState.php</file>
-      <file>./tests/Integration/EventListener/PreCheckoutListenerTest.php</file>
       <file>./tests/Integration/EventListener/PostCheckoutListenerTest.php</file>
     </testsuite>
 

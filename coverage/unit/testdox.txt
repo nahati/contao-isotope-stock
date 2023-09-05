@@ -35,8 +35,6 @@ Update Item In Collection Listener (Nahati\ContaoIsotopeStockBundle\Tests\Update
  [x] Update item in collection listener returns false when item without product
  [x] Update item in collection listener returns unchanged arr set when limited editions are not configured
  [x] Update item in collection listener throws invalid argument exception when limited editions are badly configured
- [x] Update item in collection listener returns false when arr set not contains key quantity
- [x] Update item in collection listener returns false when arr set key quantity has empty value
 
 Helper (Nahati\ContaoIsotopeStockBundle\Tests\Unit\Helper\Helper)
  [x] Issue error message

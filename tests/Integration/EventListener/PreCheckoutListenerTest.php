@@ -31,7 +31,6 @@ use Isotope\Model\ProductCollectionSurcharge;
 use Isotope\Model\ProductType;
 use Isotope\Module\Checkout;
 use Nahati\ContaoIsotopeStockBundle\EventListener\PreCheckoutListener;
-use Nahati\ContaoIsotopeStockBundle\Helper\Helper;
 use NotificationCenter\Model\Gateway;
 use NotificationCenter\Model\Language;
 use NotificationCenter\Model\Message;
@@ -103,7 +102,8 @@ class PreCheckoutListenerTest extends FunctionalTestCase
             $objPage = $this->databaseAdapter->getInstance()
                 ->prepare('SELECT * FROM tl_page WHERE id=?')
                 ->execute(18)
-                ->fetchAssoc();
+                ->fetchAssoc()
+            ;
 
             // Create a new instance of the PageModel class using the database result
             $GLOBALS['objPage'] = new PageModel($objPage);
@@ -121,29 +121,29 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     }
 
     /**
-     * Reset relevant tables of the database to the AfterCheckout state.
+     * Reset relevant tables of the database to the Checkout state.
      */
     private function resetRelevantDatabaseTables(): void
     {
-        // Reset ProductCollectionItem-table to AfterCheckout state
+        // Reset ProductCollectionItem-table to Checkout state
         $sql = 'DROP TABLE ' . 'tl_iso_product_collection_item';
         $this->databaseAdapter->getInstance()->execute($sql);
-        $this->loadFixture('tl_iso_product_collection_item-AfterCheckout.sql');
+        $this->loadFixture('tl_iso_product_collection_item-Checkout.sql');
 
-        // Reset Product-table to AfterCheckout state
+        // Reset Product-table to Checkout state
         $sql = 'DROP TABLE ' . 'tl_iso_product';
         $this->databaseAdapter->getInstance()->execute($sql);
-        $this->loadFixture('tl_iso_product-AfterCheckout.sql');
+        $this->loadFixture('tl_iso_product-Checkout.sql');
 
-        // Reset ProductCollection-table to AfterCheckout state
+        // Reset ProductCollection-table to Checkout state
         $sql = 'DROP TABLE ' . 'tl_iso_product_collection';
         $this->databaseAdapter->getInstance()->execute($sql);
-        $this->loadFixture('tl_iso_product_collection-AfterCheckout.sql');
+        $this->loadFixture('tl_iso_product_collection-Checkout.sql');
     }
 
     /**
      * Builds an sql query to load the database tables into the database
-     * Files are located in the Fixtures folder and have been exported from the AfterCheckout database.
+     * Files are located in the Fixtures folder and have been exported from the Checkout database.
      */
     private function loadFixture(string $fileName): void
     {
@@ -347,14 +347,22 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
+    public function testPreCheckoutListenerReturnsTrueWhenEverythingIsRight(): void
+    {
+        $this->doTest(true);
+    }
+
+    /**
+     * @group non-variant_products
+     */
     public function testPreCheckoutListenerReturnsFalseWhenMinQuantityPerOrderIsUnreachable(): void
     {
-        // $productId = 103; // Bild 2a, minQuantityPerOrder 3 but quantity 2 -> unreachable!
-        // $parentProductId = 0; // no parent product
+        $productId = 103; // Bild 2a, minQuantityPerOrder 3 but quantity 2 -> unreachable!
+        $minQuantityPerOrderOfProduct = 3;
+        // Product initially has a minQuantityPerOrder of 2, so we change the quantity of parent product to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET minQuantityPerOrder=? WHERE id=?')->execute($minQuantityPerOrderOfProduct, $productId);
 
-        $expectedReturn = false;
-
-        $this->doTest($expectedReturn);
+        $this->doTest(false);
     }
 
     /**
@@ -377,10 +385,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         $this->framework = static::getContainer()->get('contao.framework');
         $this->framework->initialize();
 
-        // Instantiate a listener
-        $listener = new PreCheckoutListener($this->framework);
-
-        $this->return = $listener($this->objOrder, $this->objCheckout);
+        $this->doTest(false);
 
         // Get the response from the client
         $response = self::$client->getResponse();
@@ -388,75 +393,6 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
-
-        unset($this->listener);
-    }
-
-    /**
-     * @group variant_products__unlimited
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3320,  quantityBought = 1
-
-        // $productId = 47; // unlimited quantity, AVAILABLE, Variante Original von Skulptur 1
-
-        // $parentProductId = 31; // unlimited quantity, AVAILABLE, Skulptur 1
-
-        // item 3321, quantityBought 1
-        // product 46, unlimited, AVAILABLE, Variante Original von Skulptur 1
-        // $sibling1Id = 46;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
-    }
-
-    /**
-     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3322,  quantityBought = 1
-        // $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-
-        // $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
-
-        // Item 3323, quantityBought 1
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-        // $sibling1Id = 45;
-
-        // Another child product, not in cart, available
-        // $sibling2Id = 101;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
-    }
-
-    /**
-     * @group variant_products__quantity_in_cart_is_less_than_product_quantity
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3322,  quantityBought = 1
-        // $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-
-        $parentProductId = 32; // AVAILABLE, Skulptur 2
-        $quantityOfParentProduct = '2';
-        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
-
-        // Item 3323, quantityBought 1
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-        // $sibling1Id = 45;
-
-        // Another child product, not in cart, available
-        // $sibling2Id = 101;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
     }
 
     /**
@@ -481,10 +417,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         self::$client->request('GET', '/');
 
-        // Instantiate a listener
-        $listener = new PreCheckoutListener($this->framework);
-
-        $this->return = $listener($this->objOrder, $this->objCheckout);
+        $this->doTest(false);
 
         // Get the response from the lient
         $response = self::$client->getResponse();
@@ -492,64 +425,6 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
-
-        unset($this->listener);
-    }
-
-    /**
-     * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3322,  quantityBought = 1
-        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-
-        $quantityOfProduct = '1';
-        // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
-
-        // $parentProductId = 32; // AVAILABLE, Skulptur 2
-        // $quantityOfParentProduct = 4;
-
-        // Item 3323, quantityBought 1
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-        // $sibling1Id = 45;
-
-        // Another child product, not in cart, available
-        // $sibling2Id = 101;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
-    }
-
-    /**
-     * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3322,  quantityBought = 1
-        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
-
-        $quantityOfProduct = '1';
-        // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
-
-        $parentProductId = 32; // AVAILABLE, Skulptur 2
-        $quantityOfParentProduct = '2';
-        // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
-
-        // Item 3323, quantityBought 1
-        // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
-        // $sibling1Id = 45;
-
-        // Another child product, not in cart, available
-        // $sibling2Id = 101;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
     }
 
     /**
@@ -586,12 +461,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // // Create a new instance of the PageModel class using the database result
         // $GLOBALS['objPage'] = new PageModel($objPage);
 
-        // Instantiate a listener
-        $listener = new PreCheckoutListener($this->framework);
-
         self::$client->request('GET', '/');
 
-        $this->return = $listener($this->objOrder, $this->objCheckout);
+        $this->doTest(false);
 
         // Get the response from the lient
         $response = self::$client->getResponse();
@@ -599,8 +471,6 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
-
-        unset($listener);
     }
 
     /**
@@ -634,12 +504,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // // Create a new instance of the PageModel class using the database result
         // $GLOBALS['objPage'] = new PageModel($objPage);
 
-        // Instantiate a listener
-        $listener = new PreCheckoutListener($this->framework);
-
         self::$client->request('GET', '/');
 
-        $this->return = $listener($this->objOrder, $this->objCheckout);
+        $this->doTest(false);
 
         // Get the response from the lient
         $response = self::$client->getResponse();
@@ -647,59 +514,6 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
-
-        unset($listener);
-    }
-
-    /**
-     * @group variant_products__inherited_quantity
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        $itemId = 3330;
-        $quantityBought = 30;
-
-        // Item initially has a quantity in cart of 99, so we change the this to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
-
-        // $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
-
-        $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
-
-        // Parent product initially is RESERVED, so we change the this to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute(Helper::AVAILABLE, $parentProductId);
-        // Item 3329
-        // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
-        // quantityBought 1
-
-        // $sibling1Id = 96;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
-    }
-
-    /**
-     * @group variant_products__inherited_quantity
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3330;
-        // $quantityBought = 99;
-
-        // $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
-
-        // $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
-
-        // Item 3329
-        // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
-        // quantityBought 1
-
-        // $sibling1Id = 96;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
     }
 
     /**
@@ -732,12 +546,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // // Create a new instance of the PageModel class using the database result
         // $GLOBALS['objPage'] = new PageModel($objPage);
 
-        // Instantiate a listener
-        $listener = new PreCheckoutListener($this->framework);
-
         self::$client->request('GET', '/');
 
-        $this->return = $listener($this->objOrder, $this->objCheckout);
+        $this->doTest(false);
 
         // Get the response from the lient
         $response = self::$client->getResponse();
@@ -745,62 +556,6 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
-
-        unset($listener);
-    }
-
-    /**
-     * @group variant_products__parent_quantity_is_unlimited
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3327;
-        // $quantityBought = 1;
-
-        $productId = 38; // Available, Variante Original von Skulptur 4
-
-        // Product iinitially is RESERVED, so we change the status to AVAILABLE to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute(Helper::AVAILABLE, $productId);
-        $quantityOfProduct = 2;
-
-        // Product initially has a quantity of 1, so we change the quantity of the product to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfProduct, $productId);
-
-        // $parentProductId = 34; // unlimited quantity, Skulptur 4
-
-        // Item 3326
-        // product 39: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 4
-        // quantityBought 1
-
-        // $sibling1Id = 39;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
-    }
-
-    /**
-     * @group variant_products__parent_quantity_is_unlimited
-     */
-    public function testPreCheckoutListenerReturnsTrueWhenProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
-    {
-        // $itemId = 3325;
-        // $quantityBought = 1;
-
-        // $productId = 40; // AVAILABLE, Variante Original von Skulptur 3
-        // $quantityOfProduct = 1;
-
-        // $parentProductId = 33; // unlimited quantity, Skulptur 3
-
-        // Item 3324
-        // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
-        // quantityBought 1
-
-        // $sibling1Id = 42;
-
-        $expectedReturn = true;
-
-        $this->doTest($expectedReturn);
     }
 
     /**
@@ -835,12 +590,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // // Create a new instance of the PageModel class using the database result
         // $GLOBALS['objPage'] = new PageModel($objPage);
 
-        // Instantiate a listener
-        $listener = new PreCheckoutListener($this->framework);
-
         self::$client->request('GET', '/');
 
-        $this->return = $listener($this->objOrder, $this->objCheckout);
+        $this->doTest(false);
 
         // Get the response from the lient
         $response = self::$client->getResponse();
@@ -848,7 +600,5 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Assert that a redirect response (HTTP_FOUND) has been sent
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
-
-        unset($listener);
     }
 }

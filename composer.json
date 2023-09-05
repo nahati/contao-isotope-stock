@@ -87,7 +87,16 @@
             "mysql -u root -h 127.0.0.1 -P 3306 ContaoIsotopeStockBundleTest < tests/Integration/Fixtures/ContaoIsotopeStockBundleTest-initial.sql"
         ],
         "integrationCart-tests": "@php vendor/bin/phpunit  --colors=always --testsuite=integrationCart  --coverage-text=coverage/integrationCart/coverage.txt --testdox-text=coverage/integrationCart/testdox.txt",
-        "prepare-test-database-order": [
+        "prepare-test-database-Checkout": [
+            "echo Dropping existing test database...",
+            "mysql -u root -h 127.0.0.1 -P 3306 -e \"DROP DATABASE IF EXISTS ContaoIsotopeStockBundleTest\"",
+            "echo Creating test database...",
+            "mysql -u root -h 127.0.0.1 -P 3306 -e \"CREATE DATABASE ContaoIsotopeStockBundleTest\"",
+            "echo Loading fixtures...",
+            "mysql -u root -h 127.0.0.1 -P 3306 ContaoIsotopeStockBundleTest < tests/Integration/Fixtures/ContaoIsotopeStockBundleTest-Checkout.sql"
+        ],
+        "integrationCheckout-tests": "@php vendor/bin/phpunit  --colors=always --testsuite=integrationCheckout  --coverage-text=coverage/integrationCheckout/coverage.txt --testdox-text=coverage/integrationCheckout/testdox.txt",
+        "prepare-test-database-AfterCheckout": [
             "echo Dropping existing test database...",
             "mysql -u root -h 127.0.0.1 -P 3306 -e \"DROP DATABASE IF EXISTS ContaoIsotopeStockBundleTest\"",
             "echo Creating test database...",
@@ -95,6 +104,6 @@
             "echo Loading fixtures...",
             "mysql -u root -h 127.0.0.1 -P 3306 ContaoIsotopeStockBundleTest < tests/Integration/Fixtures/ContaoIsotopeStockBundleTest-AfterCheckout.sql"
         ],
-        "integrationOrder-tests": "@php vendor/bin/phpunit  --colors=always --testsuite=integrationOrder  --coverage-text=coverage/integrationOrder/coverage.txt --testdox-text=coverage/integrationOrder/testdox.txt"
+        "integrationAfterCheckout-tests": "@php vendor/bin/phpunit  --colors=always --testsuite=integrationAfterCheckout  --coverage-text=coverage/integrationAfterCheckout/coverage.txt --testdox-text=coverage/integrationAfterCheckout/testdox.txt"
     }
 }

@@ -194,36 +194,4 @@ class UpdateItemInCollectionListenerTest extends ContaoTestCase
         // Test that result is unchanged
         $this->assertSame($return, $this->arrSet);
     }
-
-    public function testUpdateItemInCollectionListenerReturnsFalseWhenArrSetNotContainsKeyQuantity(): void
-    {
-        $this->arrSet = [];
-
-        // Mock the adpaters for the framework, we don't need them here
-        $adapters = [];
-
-        $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
-
-        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
-
-        // Test if Listener returns false
-        $this->assertFalse($return);
-    }
-
-    public function testUpdateItemInCollectionListenerReturnsFalseWhenArrSetKeyQuantityHasEmptyValue(): void
-    {
-        $this->arrSet = [
-            'quantity' => '',
-        ];
-
-        // Mock the adpaters for the framework, we don't need them here
-        $adapters = [];
-
-        $listener = new UpdateItemInCollectionListener($this->mockContaoFramework($adapters));
-
-        $return = $listener($this->objItem, $this->arrSet, $this->objCart);
-
-        // Test if Listener returns false
-        $this->assertFalse($return);
-    }
 }

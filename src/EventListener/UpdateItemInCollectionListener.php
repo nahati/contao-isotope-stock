@@ -72,10 +72,11 @@ class UpdateItemInCollectionListener
             return false;
         }
 
-        // none or invalid quantity in Cart
-        if (!(\array_key_exists('quantity', $arrSet) && $arrSet['quantity'])) {
-            return false;
-        }
+        // This would prevent items with quantity zero being deleted from cart
+        // // none or invalid quantity in Cart
+        // if (!(\array_key_exists('quantity', $arrSet) && $arrSet['quantity'])) {
+        //     return false;
+        // }
 
         /** @var int $qtyInCartBefore */
         $qtyInCartBefore = (int) ($arrSet['quantity']);
