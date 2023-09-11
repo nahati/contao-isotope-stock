@@ -263,7 +263,7 @@ class AddProductToCollectionListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantity(): void
+    public function testAddProductToCollectionListenerReturnsUnchangedQuantityAndKeepsInventoryStatusOfProductWhenProductIsNotAVariantAndQuantityInCartIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // Product is already in cart with quantity 1
 

@@ -174,6 +174,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         $GLOBALS['TL_LANG']['ERR']['orderNotPossible'] = 'Your order needs to be changed. Please go to cart and refresh it.';
 
+        $GLOBALS['TL_LANG']['ERR']['minQuantityPerOrderUnreached'] = 'The minimum quantity per order for "%s" is %d items';
+
+        $GLOBALS['TL_LANG']['ERR']['productNotSellableAsMinQuantityPerOrderUnreached'] = 'product "%s" can not be bought in this quantity as the minimum quantity per
+        order is not
+        reached';
+
         /*
         * Number formatting
         */
@@ -355,20 +361,60 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group non-variant_products
      */
-    public function testPreCheckoutListenerReturnsFalseWhenMinQuantityPerOrderIsUnreachable(): void
+    public function testPreCheckoutListenerReturnsFalseAndSendsRedirectResponseWhenMinQuantityPerOrderIsUnreached(): void
     {
-        $productId = 103; // Bild 2a, minQuantityPerOrder 3 but quantity 2 -> unreachable!
-        $minQuantityPerOrderOfProduct = 3;
-        // Product initially has a minQuantityPerOrder of 2, so we change the quantity of parent product to match the testcase
-        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET minQuantityPerOrder=? WHERE id=?')->execute($minQuantityPerOrderOfProduct, $productId);
+        // $productId = 103; // Bild 2a, minQuantityPerOrder 2, quantity 2
+
+        // Item 3329 of the order initially has a quantity of 2, so we change this to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute(1, 3329);
+        // quantity in order = 1 -> minQuantityPerOrder is unreached
+
+        self::$client->request('GET', '/shop/warenkorb/kasse/review.html');
+
+        // Before each request, the client reboots the kernel, recreating the container from scratch. Therefore we need to reinitialize the Contao Framework.
+        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework->initialize();
 
         $this->doTest(false);
+
+        // Get the response from the client
+        $response = self::$client->getResponse();
+
+        // Assert that a redirect response (HTTP_FOUND) has been sent
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
     }
 
     /**
      * @group non-variant_products
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsNotAVariantAndQuantityOfProductExceedsProductQuantity(): void
+    public function testPreCheckoutListenerReturnsFalseWhenMinQuantityPerOrderIsUnreachable(): void
+    {
+        $productId = 103; // Bild 2a, minQuantityPerOrder 3 but quantity 2 -> unreachable!
+        $minQuantityPerOrderAndProduct = 3;
+        // Product initially has a minQuantityPerOrder of 2, so we change the quantity of parent product to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET minQuantityPerOrder=? WHERE id=?')->execute($minQuantityPerOrderAndProduct, $productId);
+
+        self::$client->request('GET', '/shop/warenkorb/kasse/review.html');
+
+        // Before each request, the client reboots the kernel, recreating the container from scratch. Therefore we need to reinitialize the Contao Framework.
+        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework->initialize();
+
+        $this->doTest(false);
+
+        // Get the response from the client
+        $response = self::$client->getResponse();
+
+        // Assert that a redirect response (HTTP_FOUND) has been sent
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
+    }
+
+    /**
+     * @group non-variant_products
+     */
+    public function testPreCheckoutListenerReturnsFalseAndSendsRedirectResponseWhenProductIsNotAVariantAndQuantityOfProductExceedsProductQuantity(): void
     {
         // $itemId = 3318,  quantityBought = 1
 
