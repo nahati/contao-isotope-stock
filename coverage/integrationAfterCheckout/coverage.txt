@@ -1,12 +1,12 @@
 
 
-Code Coverage Report:      
-  2023-09-11 17:20:12      
-                           
- Summary:                  
-  Classes:  9.09% (1/11)   
-  Methods: 41.67% (15/36)  
-  Lines:   59.22% (212/358)
+Code Coverage Report:     
+  2023-09-11 17:23:05     
+                          
+ Summary:                 
+  Classes:  0.00% (0/11)  
+  Methods:  2.78% (1/36)  
+  Lines:   10.89% (39/358)
 
 Nahati\ContaoIsotopeStockBundle\ContaoIsotopeStockBundle
   Methods:   0.00% ( 0/ 1)   Lines:   0.00% (  0/  1)
@@ -15,18 +15,18 @@ Nahati\ContaoIsotopeStockBundle\ContaoManager\Plugin
 Nahati\ContaoIsotopeStockBundle\DependencyInjection\ContaoIsotopeStockExtension
   Methods:   0.00% ( 0/ 1)   Lines:   0.00% (  0/  5)
 Nahati\ContaoIsotopeStockBundle\EventListener\AddProductToCollectionListener
-  Methods:  50.00% ( 1/ 2)   Lines:  88.89% (  8/  9)
+  Methods:   0.00% ( 0/ 2)   Lines:   0.00% (  0/  9)
 Nahati\ContaoIsotopeStockBundle\EventListener\CopiedCollectionItemsListener
-  Methods:  50.00% ( 1/ 2)   Lines:  58.33% ( 14/ 24)
+  Methods:   0.00% ( 0/ 2)   Lines:   0.00% (  0/ 24)
 Nahati\ContaoIsotopeStockBundle\EventListener\GetSystemMessagesListener
   Methods:   0.00% ( 0/ 1)   Lines:   0.00% (  0/  9)
 Nahati\ContaoIsotopeStockBundle\EventListener\PostCheckoutListener
-  Methods:  50.00% ( 1/ 2)   Lines:  27.91% ( 12/ 43)
+  Methods:  50.00% ( 1/ 2)   Lines:  90.70% ( 39/ 43)
 Nahati\ContaoIsotopeStockBundle\EventListener\PostDeleteItemFromCollectionListener
-  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 15/ 15)
+  Methods:   0.00% ( 0/ 2)   Lines:   0.00% (  0/ 15)
 Nahati\ContaoIsotopeStockBundle\EventListener\PreCheckoutListener
-  Methods:  50.00% ( 1/ 2)   Lines:  88.00% ( 22/ 25)
+  Methods:   0.00% ( 0/ 2)   Lines:   0.00% (  0/ 25)
 Nahati\ContaoIsotopeStockBundle\EventListener\UpdateItemInCollectionListener
-  Methods:  50.00% ( 1/ 2)   Lines:  76.47% ( 13/ 17)
+  Methods:   0.00% ( 0/ 2)   Lines:   0.00% (  0/ 17)
 Nahati\ContaoIsotopeStockBundle\Helper\Helper
-  Methods:  40.00% ( 8/20)   Lines:  62.14% (128/206)
+  Methods:   0.00% ( 0/20)   Lines:   0.00% (  0/206)

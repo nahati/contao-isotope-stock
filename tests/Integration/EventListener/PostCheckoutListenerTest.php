@@ -358,7 +358,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerKeepsProductQuantityAndInventoryStatusWhenProductIsNotAVariantAndProductHasUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // ItemId = 3317, quantityBought = 1
+        // ItemId = 3346, quantityBought = 1
         $productId = 88; // unlimited quantity, AVAILABLE, Bild 1
         $expectedQuantityOfProduct = '';
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
@@ -374,7 +374,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesProductQuantityWhenProductIsNotAVariantAndQuantityBoughtIsLessThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3318,  quantityBought = 1
+        // $itemId = 3347,  quantityBought = 1
         $productId = 100; // quantity 2 , AVAILABLE, Bild 2
         $expectedQuantityOfProduct = '1';
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
@@ -390,7 +390,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenProductIsNotAVariantAndQuantityBoughtIsEqualToProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3318,  quantityBought = 1
+        // $itemId = 3347,  quantityBought = 1
         $productId = 100; // AVAILABLE, Bild 2
 
         $quantityOfProduct = '1';
@@ -411,7 +411,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenProductIsNotAVariantAndQuantityOfProductExceedsProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3318,  quantityBought = 1
+        // $itemId = 3347,  quantityBought = 1
         $productId = 100; // AVAILABLE, Bild 2
         $quantityOfProduct = '0';
         // Product initially has a quantity of 2, so we change the quantity of parent product to match the testcase
@@ -431,13 +431,13 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerKeepsQuantityOfProductAndInventoryStatusWhenProductIsAVariantAndProductAndSiblingsAndParentHaveUnlimitedQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3320,  quantityBought = 1
+        // $itemId = 3349,  quantityBought = 1
 
         $productId = 47; // unlimited quantity, AVAILABLE, Variante Original von Skulptur 1
 
         $parentProductId = 31; // unlimited quantity, AVAILABLE, Skulptur 1
 
-        // item 3321, quantityBought 1
+        // item 3350, quantityBought 1
         // product 46, unlimited, AVAILABLE, Variante Original von Skulptur 1
         $sibling1Id = 46;
 
@@ -453,12 +453,12 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3322,  quantityBought = 1
+        // $itemId = 3351,  quantityBought = 1
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -478,7 +478,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3322,  quantityBought = 1
+        // $itemId = 3351,  quantityBought = 1
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
         $parentProductId = 32; // AVAILABLE, Skulptur 2
@@ -486,7 +486,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -507,7 +507,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3322,  quantityBought = 1
+        // $itemId = 3351,  quantityBought = 1
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
         $parentProductId = 32; // AVAILABLE, Skulptur 2
@@ -515,7 +515,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -536,7 +536,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3322,  quantityBought = 1
+        // $itemId = 3351,  quantityBought = 1
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
         $quantityOfProduct = '1';
@@ -546,7 +546,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $parentProductId = 32; // AVAILABLE, Skulptur 2
         // $quantityOfParentProduct = 4;
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -566,7 +566,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3322,  quantityBought = 1
+        // $itemId = 3351,  quantityBought = 1
         $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
         $quantityOfProduct = '1';
@@ -578,7 +578,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -599,7 +599,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3336,  quantityBought = 1
+        // $itemId = 3351,  quantityBought = 1
         $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
 
         $quantityOfProduct = '1';
@@ -611,7 +611,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -632,7 +632,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndAllChildProductsAreSoldoutAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3336,  quantityBought = 1
+        // $itemId = 3351,  quantityBought = 1
         $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
 
         $quantityOfProduct = '0';
@@ -641,7 +641,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $parentProductId = 32; // Quantity 4, AVAILABLE, Skulptur 2
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -661,7 +661,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingInCartSoldoutAndKeepsParentAvailableWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndThereIsANonSoldoutSiblingAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3336,  quantityBought = 1
+        // $itemId = 3351,  quantityBought = 1
         $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
 
         $quantityOfProduct = '0';
@@ -670,7 +670,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $parentProductId = 32; // Quantity 4, AVAILABLE, Skulptur 2
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -690,7 +690,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        $itemId = 3322;
+        $itemId = 3351;
         $quantityBought = 3;
 
         // Item initially has a quantity in cart of 1, so we change the this to match the testcase
@@ -702,7 +702,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $parentProductId = 32; // AVAILABLE, Skulptur 2
         // $quantityOfParentProduct = '4';
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -723,7 +723,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        $itemId = 3322;
+        $itemId = 3351;
         $quantityBought = 4;
 
         // Item initially has a quantity in cart of 1, so we change the this to match the testcase
@@ -735,7 +735,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $parentProductId = 32; // AVAILABLE, Skulptur 2
         // $quantityOfParentProduct = '4';
 
-        // Item 3323, quantityBought 1
+        // Item 3352, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         $sibling1Id = 45;
 
@@ -756,7 +756,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
     {
-        $itemId = 3330;
+        $itemId = 3353;
         $quantityBought = 30;
 
         // Item initially has a quantity in cart of 99, so we change the this to match the testcase
@@ -768,7 +768,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         // Parent product initially is RESERVED, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute(Helper::AVAILABLE, $parentProductId);
-        // Item 3329
+        // Item 3358
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
         // quantityBought 1
 
@@ -786,14 +786,14 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsEqualToParentQuantity(): void
     {
-        // $itemId = 3330;
+        // $itemId = 3353;
         // $quantityBought = 99;
 
         $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
 
         $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
 
-        // Item 3329
+        // Item 3358
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
         // quantityBought 1
 
@@ -812,7 +812,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductAndSiblingsAndParentSoldoutWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantity(): void
     {
-        $itemId = 3330;
+        $itemId = 3353;
         $quantityBought = 100;
         // Item initially has a quantityBought of 99, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
@@ -821,7 +821,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
 
-        // Item 3329
+        // Item 3358
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
         // quantityBought 1
 
@@ -840,7 +840,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsLessThanProductQuantity(): void
     {
-        // $itemId = 3327;
+        // $itemId = 3353;
         // $quantityBought = 1;
 
         $productId = 38; // Available, Variante Original von Skulptur 4
@@ -854,7 +854,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $parentProductId = 34; // unlimited quantity, Skulptur 4
 
-        // Item 3326
+        // Item 3358
         // product 39: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 4
         // quantityBought 1
 
@@ -872,7 +872,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductAndSetsProductSoldoutWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsEqualToProductQuantity(): void
     {
-        // $itemId = 3325;
+        // $itemId = 3354;
         // $quantityBought = 1;
 
         $productId = 40; // AVAILABLE, Variante Original von Skulptur 3
@@ -880,7 +880,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $parentProductId = 33; // unlimited quantity, Skulptur 3
 
-        // Item 3324
+        // Item 3353
         // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
         // quantityBought 1
 
@@ -898,7 +898,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerRecducesQuantityAndSetsProductSoldoutWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantity(): void
     {
-        $itemId = 3325;
+        $itemId = 3354;
         $quantityBought = 2;
 
         // Item 3122 initially has a quantityBought of 1, so we change the this to match the testcase
@@ -909,7 +909,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
 
         $parentProductId = 33; // unlimited quantity, Skulptur 3
 
-        // Item 3324
+        // Item 3353
         // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
         // quantityBought 1
 
@@ -943,7 +943,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerSetsOrderStatusOverboughtWhenOrderContainsOverboughtProducts(): void
     {
-        $itemId = 3325;
+        $itemId = 3354;
         $quantityBought = 2;
 
         // Item initially has a quantityBought of 1, so we change the this to match the testcase

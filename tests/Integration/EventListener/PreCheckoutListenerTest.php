@@ -355,6 +355,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPreCheckoutListenerReturnsTrueWhenEverythingIsRight(): void
     {
+        self::$client->request('GET', '/shop/warenkorb/kasse/review.html');
+
+        // Before each request, the client reboots the kernel, recreating the container from scratch. Therefore we need to reinitialize the Contao Framework.
+        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework->initialize();
+
         $this->doTest(true);
     }
 
@@ -416,7 +422,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPreCheckoutListenerReturnsFalseAndSendsRedirectResponseWhenProductIsNotAVariantAndQuantityOfProductExceedsProductQuantity(): void
     {
-        // $itemId = 3318,  quantityBought = 1
+        // $itemId = 3315,  quantityBought = 1
 
         $productId = 100; // AVAILABLE, Bild 2
         $quantityOfProduct = '0';
@@ -444,9 +450,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_less_than_product_quantity
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testPreCheckoutListenerReturnsFalseAndSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3322,  quantityBought = 1
+        // $itemId = 3319,  quantityBought = 1
         // $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
 
         $parentProductId = 32; // AVAILABLE, Skulptur 2
@@ -454,14 +460,18 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        // Item 3323, quantityBought 1
+        // Item 3320, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // $sibling1Id = 45;
 
         // Another child product with id 101 exist, which is Available
         // $sibling2Id = 101;
 
-        self::$client->request('GET', '/');
+        self::$client->request('GET', '/shop/warenkorb/kasse/review.html');
+
+        // Before each request, the client reboots the kernel, recreating the container from scratch. Therefore we need to reinitialize the Contao Framework.
+        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework->initialize();
 
         $this->doTest(false);
 
@@ -476,9 +486,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_equal_to_product_quantity
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testPreCheckoutListenerReturnsFalseAndSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsEqualToProductQuantityAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3336,  quantityBought = 1
+        // $itemId = 3319,  quantityBought = 1
         $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
 
         $quantityOfProduct = '1';
@@ -490,7 +500,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
-        // Item 3323, quantityBought 1
+        // Item 3320, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // $sibling1Id = 45;
 
@@ -507,7 +517,11 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // // Create a new instance of the PageModel class using the database result
         // $GLOBALS['objPage'] = new PageModel($objPage);
 
-        self::$client->request('GET', '/');
+        self::$client->request('GET', '/shop/warenkorb/kasse/review.html');
+
+        // Before each request, the client reboots the kernel, recreating the container from scratch. Therefore we need to reinitialize the Contao Framework.
+        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework->initialize();
 
         $this->doTest(false);
 
@@ -522,9 +536,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__quantity_in_cart_is_greater_than_product_quantity
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testPreCheckoutListenerReturnsFalseAndSendsRedirectResponseWhenProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        // $itemId = 3336,  quantityBought = 1
+        // $itemId = 3319,  quantityBought = 1
         $productId = 44; //  AVAILABLE, Variante Kopie Skulptur 2
 
         $quantityOfProduct = '0';
@@ -533,7 +547,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         // $parentProductId = 32; // Quantity 4, AVAILABLE, Skulptur 2
 
-        // Item 3323, quantityBought 1
+        // Item 3320, quantityBought 1
         // product 45: quantity 1 , AVAILABLE, Variante Original Skulptur 2
         // $sibling1Id = 45;
 
@@ -550,7 +564,11 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // // Create a new instance of the PageModel class using the database result
         // $GLOBALS['objPage'] = new PageModel($objPage);
 
-        self::$client->request('GET', '/');
+        self::$client->request('GET', '/shop/warenkorb/kasse/review.html');
+
+        // Before each request, the client reboots the kernel, recreating the container from scratch. Therefore we need to reinitialize the Contao Framework.
+        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework->initialize();
 
         $this->doTest(false);
 
@@ -565,9 +583,9 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__inherited_quantity
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testPreCheckoutListenerReturnsFalseAndSendsRedirectResponseWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsGreaterThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        $itemId = 3330;
+        $itemId = 3327;
         $quantityBought = 100;
         // Item initially has a quantityBought of 99, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
@@ -576,7 +594,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         // $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
 
-        // Item 3329
+        // Item 3326
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
         // quantityBought 1
 
@@ -592,7 +610,11 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // // Create a new instance of the PageModel class using the database result
         // $GLOBALS['objPage'] = new PageModel($objPage);
 
-        self::$client->request('GET', '/');
+        self::$client->request('GET', '/shop/warenkorb/kasse/review.html');
+
+        // Before each request, the client reboots the kernel, recreating the container from scratch. Therefore we need to reinitialize the Contao Framework.
+        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework->initialize();
 
         $this->doTest(false);
 
@@ -607,12 +629,12 @@ class PreCheckoutListenerTest extends FunctionalTestCase
     /**
      * @group variant_products__parent_quantity_is_unlimited
      */
-    public function testPreCheckoutListenerSendsRedirectResponseWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
+    public function testPreCheckoutListenerReturnsFalseAndSendsRedirectResponseWhenParentProductHasUnlimitedQuantityAndProductIsAVariantAndQuantityBoughtIsGreaterThanProductQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
-        $itemId = 3325;
+        $itemId = 3322;
         $quantityBought = 2;
 
-        // Item 3122 initially has a quantityBought of 1, so we change the this to match the testcase
+        // Item initially has a quantityBought of 1, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
 
         // $productId = 40; // AVAILABLE, Variante Original von Skulptur 3
@@ -620,7 +642,7 @@ class PreCheckoutListenerTest extends FunctionalTestCase
 
         // $parentProductId = 33; // unlimited quantity, Skulptur 3
 
-        // Item 3324
+        // Item 3321
         // product 42: unlimited quantity , AVAILABLE, Variante Kopie Skulptur 3
         // quantityBought 1
 
@@ -636,7 +658,11 @@ class PreCheckoutListenerTest extends FunctionalTestCase
         // // Create a new instance of the PageModel class using the database result
         // $GLOBALS['objPage'] = new PageModel($objPage);
 
-        self::$client->request('GET', '/');
+        self::$client->request('GET', '/shop/warenkorb/kasse/review.html');
+
+        // Before each request, the client reboots the kernel, recreating the container from scratch. Therefore we need to reinitialize the Contao Framework.
+        $this->framework = static::getContainer()->get('contao.framework');
+        $this->framework->initialize();
 
         $this->doTest(false);
 

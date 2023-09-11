@@ -1,0 +1,14 @@
+reset Database (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\resetDatabase)
+ [x] Reset database
+
+Pre Checkout Listener (Nahati\ContaoIsotopeStockBundle\Tests\Integration\EventListener\PreCheckoutListener)
+ [x] Pre checkout listener returns true when everything is right
+ [x] Pre checkout listener returns false and sends redirect response when min quantity per order is unreached
+ [x] Pre checkout listener returns false when min quantity per order is unreachable
+ [x] Pre checkout listener returns false and sends redirect response when product is not a variant and quantity of product exceeds product quantity
+ [x] Pre checkout listener returns false and sends redirect response when product is a variant and quantity bought is less than product quantity and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns false and sends redirect response when product is a variant and quantity bought is equal to product quantity and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns false and sends redirect response when product is a variant and quantity bought is greater than product quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns false and sends redirect response when product is a variant and quantity of product including all siblings is greater than parent quantity and product has unlimited quantity per order
+ [x] Pre checkout listener returns false and sends redirect response when parent product has unlimited quantity and product is a variant and quantity bought is greater than product quantity and product has unlimited quantity per order
+
