@@ -17,6 +17,7 @@ $GLOBALS['TL_DCA']['tl_iso_product']['fields']['quantity'] = [
     'inputType' => 'text',
     'eval' => ['mandatory' => false, 'doNotShow' => false, 'tl_class' => 'w50'],
     'attributes' => ['legend' => 'general_legend', 'multilingual' => false, 'fe_sorting' => true],
+    'default' => '',
     'sql' => "varchar(255) default ''",
 ];
 
