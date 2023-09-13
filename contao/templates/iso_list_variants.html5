@@ -15,7 +15,7 @@
     <input type="hidden" name="AJAX_MODULE" value="<?= $this->module_id ?>">
 
     <?php if ($this->hasOptions) : foreach ($this->raw_options as $name => $option) : ?>
-        <input type="hidden" name="<?= $name ?>" value="<?= $option['value'] ?>">
+    <input type="hidden" name="<?= $name ?>" value="<?= $option['value'] ?>">
     <?php endforeach;
     endif; ?>
     <h3 itemprop="name">
@@ -23,7 +23,7 @@
         <?php endif; ?>
         <?= $this->generateAttribute('name') ?>
         <?php if ($this->href) : ?>
-        </a>
+      </a>
       <?php endif; ?>
     </h3>
 
@@ -32,23 +32,26 @@
     <div class="inventory_status" itemprop="inventory_status">
       <?= $this->generateAttribute('inventory_status'); ?>
     </div>
-    <? if ($this->generateAttribute('quantity')) : ?>
-      <div class="quantity" itemprop="quantity">
-        <?= $GLOBALS['TL_LANG']['tl_iso_product']['quantity'][0]; ?>
-        <?= $this->generateAttribute('quantity'); ?>
-      </div>
+    <?php if ($this->generateAttribute('quantity')) : ?>
+
+    <div class="quantity" itemprop="quantity">
+      <?= $GLOBALS['TL_LANG']['tl_iso_product']['quantity'][0]; ?>
+      <?= $this->generateAttribute('quantity'); ?>
+    </div>
     <?php endif; ?>
-    <? if ($this->generateAttribute('minQuantityPerOrder')) : ?>
-      <div class="minQuantityPerOrder" itemprop="minQuantityPerOrder">
-        <?= $GLOBALS['TL_LANG']['tl_iso_product']['minQuantityPerOrder'][0]; ?>
-        <?= $this->generateAttribute('minQuantityPerOrder'); ?>
-      </div>
+    <?php if ($this->generateAttribute('minQuantityPerOrder')) : ?>
+
+    <div class="minQuantityPerOrder" itemprop="minQuantityPerOrder">
+      <?= $GLOBALS['TL_LANG']['tl_iso_product']['minQuantityPerOrder'][0]; ?>
+      <?= $this->generateAttribute('minQuantityPerOrder'); ?>
+    </div>
     <?php endif; ?>
-    <? if ($this->generateAttribute('maxQuantityPerOrder')) : ?>
-      <div class="maxQuantityPerOrder" itemprop="maxQuantityPerOrder">
-        <?= $GLOBALS['TL_LANG']['tl_iso_product']['maxQuantityPerOrder'][0]; ?>
-        <?= $this->generateAttribute('maxQuantityPerOrder'); ?>
-      </div>
+    <?php if ($this->generateAttribute('maxQuantityPerOrder')) : ?>
+
+    <div class="maxQuantityPerOrder" itemprop="maxQuantityPerOrder">
+      <?= $GLOBALS['TL_LANG']['tl_iso_product']['maxQuantityPerOrder'][0]; ?>
+      <?= $this->generateAttribute('maxQuantityPerOrder'); ?>
+    </div>
     <?php endif; ?>
 
 
@@ -61,61 +64,63 @@
 
     <?php if ($this->sku) : ?>
 
-      <div class="sku" itemprop="sku">
-        <?= $this->generateAttribute('sku') ?>
-      </div>
+    <div class="sku" itemprop="sku">
+      <?= $this->generateAttribute('sku') ?>
+    </div>
     <?php endif;
     if ($this->teaser) : ?>
 
-      <div class="teaser">
-        <?= $this->generateAttribute('teaser') ?>
-      </div>
+    <div class="teaser">
+      <?= $this->generateAttribute('teaser') ?>
+    </div>
     <?php endif; ?>
 
     <?php /* @var \Isotope\Interfaces\IsotopePrice $price */ if ($price = $this->product->getPrice()) : ?>
 
-      <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-        <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
+    <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+      <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
 
-        <div class="price" itemprop="price" content="<?= \Isotope\Isotope::roundPrice($price->getAmount(1, $this->product->getOptions())) ?>">
-          <?= $this->generatePrice() ?>
-        </div>
-        <?php if ($this->baseprice) : ?>
-
-          <div class="baseprice">
-            <?= $this->generateAttribute('baseprice') ?>
-          </div>
-        <?php endif; ?>
+      <div class="price" itemprop="price"
+        content="<?= \Isotope\Isotope::roundPrice($price->getAmount(1, $this->product->getOptions())) ?>">
+        <?= $this->generatePrice() ?>
       </div>
+      <?php if ($this->baseprice) : ?>
+
+      <div class="baseprice">
+        <?= $this->generateAttribute('baseprice') ?>
+      </div>
+      <?php endif; ?>
+    </div>
     <?php endif; ?>
 
     <?php if ($this->href) : ?>
 
-      <div class="details"><a href="<?= $this->href ?>" title="<?= $this->label_detail ?>">
-          <?= $this->label_detail ?>
-        </a></div>
+    <div class="details"><a href="<?= $this->href ?>" title="<?= $this->label_detail ?>">
+        <?= $this->label_detail ?>
+      </a></div>
     <?php endif; ?>
 
     <?php if ($this->actions) : ?>
 
-      <div class="submit_container">
-        <?php if ($this->hasOptions) : ?>
+    <div class="submit_container">
+      <?php if ($this->hasOptions) : ?>
 
-          <div class="options">
-            <?php foreach ($this->options as $arrOption) : if (!$arrOption['attributes']['variant_option']) echo $arrOption['html'];
+      <div class="options">
+        <?php foreach ($this->options as $arrOption) : if (!$arrOption['attributes']['variant_option']) echo $arrOption['html'];
             endforeach; ?>
-          </div>
-        <?php endif; ?>
-        <?php if ($this->useQuantity) : ?>
-
-          <div class="quantity_container">
-            <label for="quantity_requested_<?= $this->raw['id'] ?>">
-              <?= $GLOBALS['TL_LANG']['MSC']['quantity'] ?>:
-            </label> <input type="text" class="text" id="quantity_requested_<?= $this->raw['id'] ?>" name="quantity_requested" placeholder="<?= $this->minimum_quantity ?>" maxlength="10">
-          </div>
-        <?php endif; ?>
-        <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
       </div>
+      <?php endif; ?>
+      <?php if ($this->useQuantity) : ?>
+
+      <div class="quantity_container">
+        <label for="quantity_requested_<?= $this->raw['id'] ?>">
+          <?= $GLOBALS['TL_LANG']['MSC']['quantity'] ?>:
+        </label> <input type="text" class="text" id="quantity_requested_<?= $this->raw['id'] ?>"
+          name="quantity_requested" placeholder="<?= $this->minimum_quantity ?>" maxlength="10">
+      </div>
+      <?php endif; ?>
+      <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
+    </div>
     <?php endif; ?>
 
   </div>
