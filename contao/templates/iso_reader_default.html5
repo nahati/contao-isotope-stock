@@ -22,10 +22,10 @@
     <?= $this->getGallery('images')->generateMainImage() ?>
     <?php if ($this->hasOptions) : ?>
 
-      <div class="options">
-        <?php foreach ($this->options as $arrOption) : echo $arrOption['html'];
+    <div class="options">
+      <?php foreach ($this->options as $arrOption) : echo $arrOption['html'];
         endforeach; ?>
-      </div>
+    </div>
     <?php endif; ?>
 
     <?= $this->getGallery('images')->generateGallery() ?>
@@ -33,23 +33,26 @@
     <div class="inventory_status" itemprop="inventory_status">
       <?= $this->generateAttribute('inventory_status'); ?>
     </div>
-    <? if ($this->generateAttribute('quantity')) : ?>
-      <div class="quantity" itemprop="quantity">
-        <?= $GLOBALS['TL_LANG']['tl_iso_product']['quantity'][0]; ?>
-        <?= $this->generateAttribute('quantity'); ?>
-      </div>
+    <?php if ($this->generateAttribute('quantity')) : ?>
+
+    <div class="quantity" itemprop="quantity">
+      <?= $GLOBALS['TL_LANG']['tl_iso_product']['quantity'][0]; ?>
+      <?= $this->generateAttribute('quantity'); ?>
+    </div>
     <?php endif; ?>
-    <? if ($this->generateAttribute('minQuantityPerOrder')) : ?>
-      <div class="minQuantityPerOrder" itemprop="minQuantityPerOrder">
-        <?= $GLOBALS['TL_LANG']['tl_iso_product']['minQuantityPerOrder'][0]; ?>
-        <?= $this->generateAttribute('minQuantityPerOrder'); ?>
-      </div>
+    <?php if ($this->generateAttribute('minQuantityPerOrder')) : ?>
+
+    <div class="minQuantityPerOrder" itemprop="minQuantityPerOrder">
+      <?= $GLOBALS['TL_LANG']['tl_iso_product']['minQuantityPerOrder'][0]; ?>
+      <?= $this->generateAttribute('minQuantityPerOrder'); ?>
+    </div>
     <?php endif; ?>
-    <? if ($this->generateAttribute('maxQuantityPerOrder')) : ?>
-      <div class="maxQuantityPerOrder" itemprop="maxQuantityPerOrder">
-        <?= $GLOBALS['TL_LANG']['tl_iso_product']['maxQuantityPerOrder'][0]; ?>
-        <?= $this->generateAttribute('maxQuantityPerOrder'); ?>
-      </div>
+    <?php if ($this->generateAttribute('maxQuantityPerOrder')) : ?>
+
+    <div class="maxQuantityPerOrder" itemprop="maxQuantityPerOrder">
+      <?= $GLOBALS['TL_LANG']['tl_iso_product']['maxQuantityPerOrder'][0]; ?>
+      <?= $this->generateAttribute('maxQuantityPerOrder'); ?>
+    </div>
     <?php endif; ?>
 
     <?php $this->endblock(); ?>
@@ -58,64 +61,67 @@
     <?php $this->block('form_part2'); ?>
     <?php if ($this->sku) : ?>
 
-      <div class="sku" itemprop="sku">
-        <?= $this->generateAttribute('sku') ?>
-      </div>
+    <div class="sku" itemprop="sku">
+      <?= $this->generateAttribute('sku') ?>
+    </div>
     <?php endif;
 
     if ($this->description) : ?>
 
-      <div class="description" itemprop="description">
-        <?= $this->generateAttribute('description') ?>
-      </div>
+    <div class="description" itemprop="description">
+      <?= $this->generateAttribute('description') ?>
+    </div>
     <?php endif; ?>
 
     <?php /* @var \Isotope\Interfaces\IsotopePrice $price */ if ($price = $this->product->getPrice()) : ?>
-      <!-- Show price if (inventory_status not exists or is NULL or is not 1) -->
-      <?php if ((!$this->inventory_status) || ($this->inventory_status !== '1')) : ?>
+    <!-- Show price if (inventory_status not exists or is NULL or is not 1) -->
+    <?php if ((!$this->inventory_status) || ($this->inventory_status !== '1')) : ?>
 
-        <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-          <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
+    <div class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+      <meta itemprop="priceCurrency" content="<?= \Isotope\Isotope::getConfig()->currency ?>">
 
-          <div class="price" itemprop="price" content="<?= \Isotope\Isotope::roundPrice($price->getAmount(1, $this->product->getOptions())) ?>">
-            <?= $this->generatePrice() ?>
-          </div>
-          <?php if ($this->baseprice) : ?>
+      <div class="price" itemprop="price"
+        content="<?= \Isotope\Isotope::roundPrice($price->getAmount(1, $this->product->getOptions())) ?>">
+        <?= $this->generatePrice() ?>
+      </div>
+      <?php if ($this->baseprice) : ?>
 
-            <div class="baseprice">
-              <?= $this->generateAttribute('baseprice') ?>
-            </div>
-          <?php endif; ?>
-        </div>
+      <div class="baseprice">
+        <?= $this->generateAttribute('baseprice') ?>
+      </div>
       <?php endif; ?>
+    </div>
+    <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($this->actions) : ?>
 
-      <div class="submit_container">
-        <!-- Allow quantity input if (quantity not exists or is NULL or is empty or (is not 0 and not 1)) AND (inventory_status not exists or is NULL or is 2) -->
-        <?php if (
+    <div class="submit_container">
+      <!-- Allow quantity input if (quantity not exists or is NULL or is empty or (is not 0 and not 1)) AND (inventory_status not exists or is NULL or is 2) -->
+      <?php if (
           !(($this->quantity === '0' || $this->quantity === '1') ? true : false)  &&
           ((!$this->inventory_status) || $this->inventory_status === '2')
         ) : ?>
-          <?php if ($this->useQuantity) : ?>
+      <?php if ($this->useQuantity) : ?>
 
-            <div class="quantity_container">
-              <label for="quantity_requested_<?= $this->raw['id'] ?>">
-                <?= $GLOBALS['TL_LANG']['MSC']['quantity'] ?>:
-              </label> <input type="text" class="text" id="quantity_requested_<?= $this->raw['id'] ?>" name="quantity_requested" placeholder="<?= $this->minimum_quantity ?>" value="<?= \Contao\StringUtil::specialchars(Input::post('quantity_requested')); ?>" maxlength="10">
-            </div>
-          <?php endif; ?>
-        <?php endif; ?>
+      <div class="quantity_container">
+        <label for="quantity_requested_<?= $this->raw['id'] ?>">
+          <?= $GLOBALS['TL_LANG']['MSC']['quantity'] ?>:
+        </label> <input type="text" class="text" id="quantity_requested_<?= $this->raw['id'] ?>"
+          name="quantity_requested" placeholder="<?= $this->minimum_quantity ?>"
+          value="<?= \Contao\StringUtil::specialchars(Input::post('quantity_requested')); ?>" maxlength="10">
+      </div>
+      <?php endif; ?>
+      <?php endif; ?>
 
-        <!-- Cart Button shown if (quantity not exists or is NULL or is empty or is not 0)  AND (inventory_status not exists or is NULL or is 1) -->
-        <?php if (
+      <!-- Cart Button shown if (quantity not exists or is NULL or is empty or is not 0)  AND (inventory_status not exists or is NULL or is 1) -->
+      <?php if (
           !(($this->quantity === '0') ? true : false)  &&
           ((!$this->inventory_status) || $this->inventory_status === '2')
         ) : ?>
-          <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
-        <?php endif; ?>
-      </div>
+      <?php foreach ($this->actions as $action) echo $action->generate($this->product); ?>
+      <?php endif; ?>
+    </div>
     <?php endif; ?>
 
   </div>
