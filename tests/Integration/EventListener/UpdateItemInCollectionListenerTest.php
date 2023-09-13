@@ -452,6 +452,10 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
 
+        $minQuantityPerOrderOfParentProduct = '3';
+        // Parent product initially has a minQuantityPerOrder of 2, so we change the minQuantityPerOrder of parent product to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET minQuantityPerOrder=? WHERE id=?')->execute($minQuantityPerOrderOfParentProduct, $parentProductId);
+
         $expectedInventory_statusOfProduct = Helper::RESERVED;
         $expectedInventory_statusOfParentProduct = Helper::RESERVED;
 
@@ -483,6 +487,10 @@ class UpdateItemInCollectionListenerTest extends FunctionalTestCase
         $quantityOfParentProduct = 2;
         // Parent product initially has a quantity of 4, so we change the quantity of parent product to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET quantity=? WHERE id=?')->execute($quantityOfParentProduct, $parentProductId);
+
+        $minQuantityPerOrderOfParentProduct = '3';
+        // Parent product initially has a minQuantityPerOrder of 2, so we change the minQuantityPerOrder of parent product to match the testcase
+        $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET minQuantityPerOrder=? WHERE id=?')->execute($minQuantityPerOrderOfParentProduct, $parentProductId);
 
         $expectedInventory_statusOfProduct = Helper::RESERVED;
         $expectedInventory_statusOfParentProduct = Helper::RESERVED;

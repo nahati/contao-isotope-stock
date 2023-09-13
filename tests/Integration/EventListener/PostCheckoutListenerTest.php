@@ -298,15 +298,15 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     }
 
     /**
-     * @param int    $productId
-     * @param string $expectedQuantityOfProduct
-     * @param string $expectedInventory_statusOfProduct
-     * @param int    $parentProductId                         // optional
-     * @param string $expectedInventory_statusOfParentProduct // optional
-     * @param int    $sibling1Id                              // optional
-     * @param string $expectedInventory_statusOfSibling1      // optional
-     * @param int    $sibling2Id                              // optional
-     * @param string $expectedInventory_statusOfSibling2      // optional
+     * @param int         $productId
+     * @param string|null $expectedQuantityOfProduct
+     * @param string      $expectedInventory_statusOfProduct
+     * @param int         $parentProductId                         // optional
+     * @param string      $expectedInventory_statusOfParentProduct // optional
+     * @param int         $sibling1Id                              // optional
+     * @param string      $expectedInventory_statusOfSibling1      // optional
+     * @param int         $sibling2Id                              // optional
+     * @param string      $expectedInventory_statusOfSibling2      // optional
      */
     private function doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct = '', $sibling1Id = 0, $expectedInventory_statusOfSibling1 = '', $sibling2Id = 0, $expectedInventory_statusOfSibling2 = ''): void
     {
@@ -360,7 +360,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     {
         // ItemId = 3346, quantityBought = 1
         $productId = 88; // unlimited quantity, AVAILABLE, Bild 1
-        $expectedQuantityOfProduct = '';
+        $expectedQuantityOfProduct = null;
         $expectedInventory_statusOfProduct = Helper::AVAILABLE;
         $parentProductId = 0; // no parent product
         // expectedInventory_statusOfParentProduct not used here
@@ -454,7 +454,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
     public function testPostCheckoutListenerReducesQuantityOfProductWhenProductIsAVariantAndQuantityBoughtIsLessThanProductQuantityAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantityAndProductHasUnlimitedQuantityPerOrder(): void
     {
         // $itemId = 3351,  quantityBought = 1
-        $productId = 44; // quantity 2 , AVAILABLE, Variante Kopie Skulptur 2
+        $productId = 44; // quantity 2 , RESERVED, Variante Kopie Skulptur 2
 
         $parentProductId = 32; //  quantity 4, AVAILABLE, Skulptur 2
 
@@ -466,7 +466,7 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $sibling2Id = 101;
 
         $expectedQuantityOfProduct = '1';
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         $expectedInventory_statusOfParentProduct = Helper::AVAILABLE;
         $expectedInventory_statusOfSiblingProduct1 = Helper::SOLDOUT;
         $expectedInventory_statusOfSiblingProduct2 = Helper::AVAILABLE;
@@ -756,18 +756,19 @@ class PostCheckoutListenerTest extends FunctionalTestCase
      */
     public function testPostCheckoutListenerReducesQuantityOfProductWhenProductIsAVariantAndQuantityOfProductIncludingAllSiblingsIsLessThanParentQuantity(): void
     {
-        $itemId = 3353;
+        $itemId = 3359;
         $quantityBought = 30;
 
         // Item initially has a quantity in cart of 99, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product_collection_item SET quantity=? WHERE id=?')->execute($quantityBought, $itemId);
 
-        $productId = 97; // quantity inherited , AVAILABLE, Variante "Original" Eintrittskarte 1
+        $productId = 97; // quantity inherited , RESERVED, Variante "Original" Eintrittskarte 1
 
         $parentProductId = 35; //  quantity 100, AVAILABLE, Eintrittskarte 1
 
         // Parent product initially is RESERVED, so we change the this to match the testcase
         $this->databaseAdapter->getInstance()->prepare('UPDATE tl_iso_product SET inventory_status=? WHERE id=?')->execute(Helper::AVAILABLE, $parentProductId);
+
         // Item 3358
         // product 96: quantity inherited , AVAILABLE, Variante "Kopie" Eintrittskarte 1
         // quantityBought 1
@@ -775,9 +776,9 @@ class PostCheckoutListenerTest extends FunctionalTestCase
         $sibling1Id = 96;
 
         $expectedQuantityOfProduct = '';
-        $expectedInventory_statusOfProduct = Helper::AVAILABLE;
+        $expectedInventory_statusOfProduct = Helper::RESERVED;
         $expectedInventory_statusOfParentProduct = Helper::AVAILABLE;
-        $expectedInventory_statusOfSiblingProduct1 = Helper::AVAILABLE;
+        $expectedInventory_statusOfSiblingProduct1 = Helper::RESERVED;
         $this->doTest($productId, $expectedQuantityOfProduct, $expectedInventory_statusOfProduct, $parentProductId, $expectedInventory_statusOfParentProduct, $sibling1Id, $expectedInventory_statusOfSiblingProduct1, 0, '');
     }
 
