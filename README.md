@@ -1,6 +1,10 @@
 # Contao Isotope Stock
 
-This bundle adds a stock-management and a gallery feature to Isotope.
+This bundle adds a stock-management, order limits and a gallery feature to Isotope.
+
+## Live Demo
+
+[Demo](https://www.nachhaltig-im-web.de/demo/demo-lagerverwaltung.html)
 
 ## Last changes
 
@@ -10,12 +14,16 @@ This bundle adds a stock-management and a gallery feature to Isotope.
 ## Possibel future features
 
 - Display the available quantity per product in the backend product list.
+- Notification when user defined quotas are reached (stock less than e.g. 100).
+
+Happy to receive your wishes and ideas as well!
 
 ## Features
 
 ### A) Handle limited editions
 
-Handle limited editions (for single products as well as for variants): Take `quantity` and `inventory_status` of a product into account.
+Handle limited editions: Take `quantity` and `inventory_status` of a product into account.
+You may set the stock with the basic product (parent) and / or the variants (children).
 
 #### Usecases:
 
@@ -60,6 +68,7 @@ Does not (yet) handle these usecases ([see here](https://github.com/isotope/core
 ### B) Handle order limits
 
 - Take `minQuantityPerOrder` and `maxQuantityPerOrder` of a product into account.
+- You may set the limits with the basic product (parent) and / or the variants (children).
 
 #### Handles these usecases:
 
