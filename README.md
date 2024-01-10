@@ -1,3 +1,6 @@
+# Wegen Erfolglosigkeit habe ich meine selbstständige Tätigkeit beendet. Diese Erweiterung werde ich nicht weiterpflegen!
+
+
 # Contao Isotope Stock
 
 This bundle adds a stock-management, order limits and a gallery feature to Isotope.
